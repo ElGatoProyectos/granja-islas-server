@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  USER
+}
+
+model User {
+  id             Int     @id @default(autoincrement())
+  role           Role
+  name           String
+  last_name      String
+  phone          String?
+  email          String?
+  dni            String
+  status_enabled Boolean @default(true)
+  ruc            String?
+  key            String?
+
+  password   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+//todo Proveedores
+model Supplier {
+  id                 Int    @id @default(autoincrement())
+  business_name      String
+  ruc                String
+  business_type      String
+  business_status    String
+  business_direction String
+
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  Product    Product[]
+  Pill       Pill[]
+}
+
+//todo etiquetas que iran en la tabla producto para filtrar
+model Label {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+
+  Product Product[]
+}
+
+//todo productos
+model Product {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String
+  price       Decimal
+
+  label_id    Int
+  supplier_id Int
+
+  Label    Label    @relation(fields: [label_id], references: [id])
+  Supplier Supplier @relation(fields: [supplier_id], references: [id])
+}
+
+//todo facturas
+model Pill {
+  id          Int      @id @default(autoincrement())
+  code        String
+  date        DateTime
+  period      String
+  ammount     Decimal  @default(0)
+  igv         Decimal  @default(0.18)
+  total       Decimal  @default(0)
+  pill_status String
+  paid        Decimal  @default(0)
+  earring     Decimal  @default(0)
+
+  supplier_id Int
+  Supplier    Supplier @relation(fields: [supplier_id], references: [id])
+}
+
+enum NotificationStatus {
+  READ
+  NO_READ
+}
+
+model Notification {
+  id                  Int                @id @default(autoincrement())
+  title               String
+  description         String
+  notification_status NotificationStatus
+  created_at          DateTime           @default(now())
+  updated_at          DateTime           @updatedAt
+}
