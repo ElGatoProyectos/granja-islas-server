@@ -21,17 +21,29 @@ enum Role {
 
 model User {
   id             Int     @id @default(autoincrement())
-  role           Role
+  role           Role?
   name           String
   last_name      String
   phone          String?
+  country_code   String?
   email          String?
-  dni            String
+  dni            String  @unique
   status_enabled Boolean @default(true)
-  ruc            String?
-  key            String?
+  status_deleted Boolean @default(false)
 
   password   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Company {
+  id             Int      @id @default(autoincrement())
+  business_name  String
+  description    String   @db.Text()
+  ruc            String
+  key            String
+  status_enabled Boolean? @default(true)
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
@@ -52,7 +64,7 @@ model Supplier {
 }
 
 //todo etiquetas que iran en la tabla producto para filtrar
-model Label {
+model Product_Label {
   id          Int    @id @default(autoincrement())
   title       String
   description String
@@ -67,11 +79,11 @@ model Product {
   description String
   price       Decimal
 
-  label_id    Int
-  supplier_id Int
+  product_label_id Int
+  supplier_id      Int
 
-  Label    Label    @relation(fields: [label_id], references: [id])
-  Supplier Supplier @relation(fields: [supplier_id], references: [id])
+  Label    Product_Label @relation(fields: [product_label_id], references: [id])
+  Supplier Supplier      @relation(fields: [supplier_id], references: [id])
 }
 
 //todo facturas

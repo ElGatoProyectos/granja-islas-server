@@ -1,3 +1,0 @@
-class SeedService {
-  async createSeed() {}
-}
