@@ -1,31 +1,51 @@
 import prisma from "../../infrastructure/database/prisma";
 import BaseController from "../controllers/config/base.controller";
-import { I_UpdateCompany } from "../models/interfaces/company.interface";
+import {
+  I_CreateCompany,
+  I_UpdateCompany,
+} from "../models/interfaces/company.interface";
 import ResponseService from "./response.service";
 
-export default class CompanyService extends BaseController {
+export default class CompanyService {
   private responseService: ResponseService;
 
   constructor() {
-    super();
-
     this.responseService = new ResponseService();
   }
-  async findAll() {
+
+  findAll = async () => {
     try {
       const companies = await prisma.company.findMany({
-        where: { status_enabled: true },
+        where: { status_deleted: false },
       });
       return this.responseService.SuccessResponse(
         "Listado de empresas",
         companies
       );
     } catch (error) {
-      return this.responseService.InternalServerErrorException();
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
     }
-  }
+  };
 
-  async findById(companyId: number) {
+  findAllWithDeleted = async () => {
+    try {
+      const companies = await prisma.company.findMany();
+      return this.responseService.SuccessResponse(
+        "Listado de empresas en general",
+        companies
+      );
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
+  findById = async (companyId: number) => {
     try {
       const company = await prisma.company.findFirst({
         where: { id: companyId },
@@ -37,52 +57,65 @@ export default class CompanyService extends BaseController {
         company
       );
     } catch (error) {
-      return this.responseService.InternalServerErrorException();
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
     }
-  }
+  };
 
-  async create(data: any) {
+  create = async (data: I_CreateCompany) => {
     try {
-      console.log(data);
       const created = await prisma.company.create({ data });
       return this.responseService.CreatedResponse(
         "Empresa creada con éxito!",
         created
       );
     } catch (error) {
-      console.log(error);
-      return this.responseService.InternalServerErrorException();
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
     }
-  }
+  };
 
-  async updateById(companyId: number, data: I_UpdateCompany) {
+  updateById = async (companyId: number, data: I_UpdateCompany) => {
     try {
+      // todo  Verificar, hay doble validacion redundante en si existe la empresa
       const responseCompany = await this.findById(companyId);
       if (responseCompany.error) return responseCompany;
 
       await prisma.company.update({ where: { id: companyId }, data });
+
       return this.responseService.SuccessResponse(
         "Empresa modificada correctamente"
       );
     } catch (error) {
-      return this.responseService.InternalServerErrorException();
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
     }
-  }
+  };
 
-  async deleteById(companyId: number) {
+  deleteById = async (companyId: number) => {
     try {
       const responseCompany = await this.findById(companyId);
       if (responseCompany.error) return responseCompany;
 
       await prisma.company.update({
         where: { id: companyId },
-        data: { status_enabled: false },
+        data: { status_deleted: true },
       });
+
       return this.responseService.SuccessResponse(
         "Empresa eliminada correctamente"
       );
     } catch (error) {
-      return this.responseService.InternalServerErrorException();
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
     }
-  }
+  };
 }

@@ -2,32 +2,24 @@ import { z } from "zod";
 
 export const createCompanyDTO = z.object({
   business_name: z.string(),
-  description: z.string().optional(),
+  business_type: z.string().optional(),
+  business_status: z.string().optional(),
+  business_direction_fiscal: z.string().optional(),
+  business_user: z.string(),
+  phone: z.string().optional(),
+  country_code: z.string().optional(),
   ruc: z.string(),
   key: z.string(),
 });
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
-
-export const registerImageSchema = z.object({
-  "company-profile": z
-    .instanceof(Buffer)
-    .refine(
-      (data) => {
-        return data.length > 0;
-      },
-      {
-        message: "File is required",
-      }
-    )
-    .refine(
-      (data) => {
-        return data.length <= MAX_FILE_SIZE;
-      },
-      {
-        message: `File size should be less than ${
-          MAX_FILE_SIZE / 1024 / 1024
-        }MB`,
-      }
-    ),
+export const updateCompanyDTO = z.object({
+  business_name: z.string(),
+  business_type: z.string().optional(),
+  business_status: z.string().optional(),
+  business_direction_fiscal: z.string().optional(),
+  business_user: z.string().optional(),
+  phone: z.string().optional(),
+  country_code: z.string().optional(),
+  ruc: z.string(),
+  key: z.string(),
 });

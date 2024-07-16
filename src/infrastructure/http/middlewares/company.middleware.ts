@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { createCompanyDTO, registerImageSchema } from "./dto/company.dto";
+import { createCompanyDTO } from "./dto/company.dto";
 import ResponseService from "../../../application/services/response.service";
 import validator from "validator";
 import UserService from "../../../application/services/user.service";
@@ -7,12 +7,10 @@ import CompanyService from "../../../application/services/company.service";
 
 class CompanyMiddleware {
   private responseService: ResponseService;
-  private userService: UserService;
   private companyService: CompanyService;
 
   constructor() {
     this.responseService = new ResponseService();
-    this.userService = new UserService();
     this.companyService = new CompanyService();
   }
 
@@ -20,7 +18,7 @@ class CompanyMiddleware {
     return this.responseService.BadRequestException(message);
   };
 
-  //todo también validamos el id
+  //* success
   validateCompany = async (
     request: Request,
     response: Response,
@@ -45,40 +43,6 @@ class CompanyMiddleware {
     } catch (error) {
       const customError = this.responseService.BadRequestException(
         "Error al validar empresa",
-        error
-      );
-      response.status(customError.statusCode).json(customError);
-    }
-  };
-
-  validateCreate = async (
-    request: Request,
-    response: Response,
-    nextFunction: NextFunction
-  ) => {
-    try {
-      createCompanyDTO.parse(request.body);
-      nextFunction();
-    } catch (error) {
-      const customError = this.responseService.BadRequestException(
-        "Error al validar campos",
-        error
-      );
-      response.status(customError.statusCode).json(customError);
-    }
-  };
-
-  validateUpdate = async (
-    request: Request,
-    response: Response,
-    nextFunction: NextFunction
-  ) => {
-    try {
-      createCompanyDTO.parse(request.body);
-      nextFunction();
-    } catch (error) {
-      const customError = this.responseService.BadRequestException(
-        "Error al validar campos",
         error
       );
       response.status(customError.statusCode).json(customError);

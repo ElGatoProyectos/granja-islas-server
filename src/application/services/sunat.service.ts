@@ -1,33 +1,56 @@
 import "dotenv/config";
 import { environments } from "../../infrastructure/config/environments.constant";
-import { responseService } from "./response.service";
-import { apiService } from "./api.service";
-export const base_api_sunat = environments.BASE_API_SUNAT;
-export const base_api_query_ruc = environments.BASE_API_QUERY_RUC;
+import ApiService from "./api.service";
+import ResponseService from "./response.service";
+const base_api_sunat = environments.BASE_API_SUNAT;
+const base_api_query = environments.BASE_API_QUERY;
 
 class SunatService {
-  private base_api_query_ruc_module = "ruc";
-  async queryForRuc(ruc: string) {
+  private base_api_query_module = "ruc";
+  private responseService: ResponseService;
+  private apiService: ApiService;
+
+  constructor() {
+    this.responseService = new ResponseService();
+    this.apiService = new ApiService();
+  }
+
+  queryForRuc = async (ruc: string) => {
     try {
-      const { data } = await apiService.getParam(
-        base_api_query_ruc,
-        this.base_api_query_ruc_module,
+      const { data: response } = await this.apiService.getParam(
+        base_api_query,
+        this.base_api_query_module,
         ruc
       );
+      const data = response.data;
 
-      return responseService.SuccessResponse("Datos de usuario", data);
+      const formatData = {
+        ruc: data.ruc.split("-")[0].trim(),
+        business_name: data.nombre_comercial,
+        business_type: data.tipo_contribuyente,
+        business_status: data.estado_contribuyente,
+        business_direction_fiscal: data.domicilio_fiscal,
+      };
+
+      return this.responseService.SuccessResponse(
+        "Datos de usuario",
+        formatData
+      );
     } catch (error) {
-      return responseService.InternalServerErrorException();
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
     }
-  }
+  };
 
-  async findBills(ruc: string, key: string) {
+  findBills = async (ruc: string, key: string) => {
     try {
-      const response = await apiService.post("", "", {});
+      const response = await this.apiService.post("", "", {});
     } catch (error) {
-      return responseService.InternalServerErrorException();
+      return this.responseService.InternalServerErrorException();
     }
-  }
+  };
 }
 
-export const sunatService = new SunatService();
+export default SunatService;

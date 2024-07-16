@@ -3,7 +3,9 @@ import authRouter from "../http/routes/auth.route";
 import userRouter from "../http/routes/user.route";
 import testRoute from "../http/routes/test.route";
 import voucherRoute from "../http/routes/voucher.route";
-import companyRoute from "../http/routes/company.route";
+import companyRouter from "../http/routes/company.route";
+import sireRouter from "../http/routes/sire.route";
+import sunatRouter from "../http/routes/sunat.route";
 
 export class RouteManager {
   private _globalPrefix: string;
@@ -17,6 +19,8 @@ export class RouteManager {
     this.app.use(this._globalPrefix, userRouter);
     this.app.use(this._globalPrefix, testRoute);
     // this.app.use(this._globalPrefix, voucherRoute);
-    this.app.use(this._globalPrefix, companyRoute);
+    this.app.use(this._globalPrefix, companyRouter);
+    this.app.use(this._globalPrefix, sireRouter);
+    this.app.use(this._globalPrefix, sunatRouter);
   }
 }

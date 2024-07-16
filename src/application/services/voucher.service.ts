@@ -1,14 +1,18 @@
 import ResponseService from "./response.service";
 
-export default class VoucherService extends ResponseService {
+class VoucherService {
+  private responseService: ResponseService;
+
   constructor() {
-    super();
+    this.responseService = new ResponseService();
   }
 
   async registerVoucher(typeFile: string, data: any) {
     try {
     } catch (error) {
-      this.InternalServerErrorException();
+      this.responseService.InternalServerErrorException();
     }
   }
 }
+
+export default VoucherService;

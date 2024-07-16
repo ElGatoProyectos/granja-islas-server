@@ -5,9 +5,7 @@ export const environments = {
 
   BASE_API_SUNAT: process.env.BASE_API_SUNAT ? process.env.BASE_API_SUNAT : "",
 
-  BASE_API_QUERY_RUC: process.env.BASE_API_QUERY_RUC
-    ? process.env.BASE_API_QUERY_RUC
-    : "",
+  BASE_API_QUERY: process.env.BASE_API_QUERY ? process.env.BASE_API_QUERY : "",
 
   JWT_TOKEN: process.env.JWT_TOKEN ? process.env.JWT_TOKEN : "",
 };

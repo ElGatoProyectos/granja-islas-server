@@ -1,10 +1,15 @@
 [<span style="color:white; font-size:18px">Volver al inicio</span>](../readme.md)
 
-## <span style="color:green">Users</span>
+## <span >Api general de usuarios</span>
+
+## <span style="color:green">GET</span>
 
 Apis con respecto a los usuarios user user, admin, superadmin
 
 ### Listar usuarios no superadmin
+
+<span style="background-color:green; border-radius:4px; font-size:12px; padding-inline:4px; cursor:pointer ">SUPER ADMINISTRADOR</span>
+<span style="background-color:coral; border-radius:4px; font-size:12px; padding-inline:4px; cursor:pointer ">ADMINISTRADOR</span>
 
 ```
 GET localhost:4000/api/users
@@ -23,6 +28,9 @@ Respuesta
 
 ### Usuario por id
 
+<span style="background-color:green; border-radius:4px; font-size:12px; padding-inline:4px; cursor:pointer ">SUPER ADMINISTRADOR</span>
+<span style="background-color:coral; border-radius:4px; font-size:12px; padding-inline:4px; cursor:pointer ">ADMINISTRADOR</span>
+
 ```
 GET localhost:4000/api/users/:id
 ```
@@ -38,7 +46,12 @@ Respuesta
 }
 ```
 
+## <span style="color:green">POST</span>
+
 ### Registrar usuario
+
+<span style="background-color:green; border-radius:4px; font-size:12px; padding-inline:4px; cursor:pointer ">SUPER ADMINISTRADOR</span>
+<span style="background-color:coral; border-radius:4px; font-size:12px; padding-inline:4px; cursor:pointer ">ADMINISTRADOR</span>
 
 ```
 POST localhost:4000/api/users
@@ -68,7 +81,12 @@ Respuesta
 }
 ```
 
+## <span style="color:green">PATCH</span>
+
 ### Modificar usuario | admin
+
+<span style="background-color:green; border-radius:4px; font-size:12px; padding-inline:4px; cursor:pointer ">SUPER ADMINISTRADOR</span>
+<span style="background-color:coral; border-radius:4px; font-size:12px; padding-inline:4px; cursor:pointer ">ADMINISTRADOR</span>
 
 ```
 PATCH localhost:4000/api/users/:id
@@ -96,11 +114,13 @@ Respuesta
 	error:true|false,
 	statusCode:200|404|500,
 	message:"",
-	payload:any
+	payload:{}
 }
 ```
 
 ### Modificar superadministrador
+
+<span style="background-color:green; border-radius:4px; font-size:12px; padding-inline:4px; cursor:pointer ">SUPER ADMINISTRADOR</span>
 
 ```
 PATCH localhost:4000/api/users/:id
@@ -131,7 +151,12 @@ Respuesta
 }
 ```
 
+## <span style="color:green">DELETE</span>
+
 ### Eliminar usuario
+
+<span style="background-color:green; border-radius:4px; font-size:12px; padding-inline:4px; cursor:pointer ">SUPER ADMINISTRADOR</span>
+<span style="background-color:coral; border-radius:4px; font-size:12px; padding-inline:4px; cursor:pointer ">ADMINISTRADOR</span>
 
 Esto no funciona para el superadministrador
 
@@ -146,6 +171,6 @@ Respuesta
 	error:true|false,
 	statusCode:200|400|404|500,
 	message:"",
-	payload:any
+	payload:{}
 }
 ```

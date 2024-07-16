@@ -37,12 +37,17 @@ model User {
 }
 
 model Company {
-  id             Int      @id @default(autoincrement())
-  business_name  String
-  description    String   @db.Text()
-  ruc            String
-  key            String
-  status_enabled Boolean? @default(true)
+  id                        Int      @id @default(autoincrement())
+  business_name             String
+  business_type             String?
+  business_status           String?
+  business_direction_fiscal String?
+  business_user             String
+  phone                     String?
+  country_code              String?
+  ruc                       String   @unique
+  key                       String
+  status_deleted            Boolean? @default(false)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -52,7 +57,7 @@ model Company {
 model Supplier {
   id                 Int    @id @default(autoincrement())
   business_name      String
-  ruc                String
+  ruc                String @unique
   business_type      String
   business_status    String
   business_direction String
@@ -65,25 +70,32 @@ model Supplier {
 
 //todo etiquetas que iran en la tabla producto para filtrar
 model Product_Label {
-  id          Int    @id @default(autoincrement())
-  title       String
-  description String
+  id             Int      @id @default(autoincrement())
+  title          String
+  slug           String?  @unique @db.Text()
+  description    String?  @db.Text()
+  status_deleted Boolean? @default(false)
 
   Product Product[]
 }
 
 //todo productos
 model Product {
-  id          Int     @id @default(autoincrement())
-  title       String
-  description String
-  price       Decimal
+  id               Int     @id @default(autoincrement())
+  title            String
+  description      String  @db.Text()
+  price            Decimal
+  slug             String? @unique @db.Text()
+  product_label_id Int?
+  supplier_id      Int?
 
-  product_label_id Int
-  supplier_id      Int
+  status_deleted Boolean? @default(false)
 
-  Label    Product_Label @relation(fields: [product_label_id], references: [id])
-  Supplier Supplier      @relation(fields: [supplier_id], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  Label    Product_Label? @relation(fields: [product_label_id], references: [id])
+  Supplier Supplier?      @relation(fields: [supplier_id], references: [id])
 }
 
 //todo facturas
