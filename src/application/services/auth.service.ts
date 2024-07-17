@@ -7,12 +7,14 @@ import { environments } from "../../infrastructure/config/environments.constant"
 
 const jwt_token = environments.JWT_TOKEN;
 
-class AuthService extends ResponseService {
+class AuthService {
+  private responseService: ResponseService;
+
   constructor() {
-    super();
+    this.responseService = new ResponseService();
   }
 
-  async login(credential: string, password: string): Promise<T_Response> {
+  login = async (credential: string, password: string): Promise<T_Response> => {
     try {
       let user;
       if (validator.isEmail(credential)) {
@@ -21,13 +23,21 @@ class AuthService extends ResponseService {
         user = await prisma.user.findFirst({ where: { dni: credential } });
       }
       if (!user)
-        return this.UnauthorizedException("Error al validar credenciales");
+        return this.responseService.UnauthorizedException(
+          "Error al validar credenciales"
+        );
       const responseCompare = bcrypt.compareSync(password, user.password);
       if (!responseCompare)
-        return this.UnauthorizedException("Error al validar credenciales");
+        return this.responseService.UnauthorizedException(
+          "Error al validar credenciales"
+        );
       if (user.status_deleted || !user.status_enabled)
-        return this.UnauthorizedException("Error al validar credenciales");
-      const token = jwt.sign({ id: user.id, role: user.role }, jwt_token);
+        return this.responseService.UnauthorizedException(
+          "Error al validar credenciales"
+        );
+      const token = jwt.sign({ id: user.id, role: user.role }, jwt_token, {
+        expiresIn: "24h",
+      });
       const responseFormat = {
         user: {
           id: user.id,
@@ -36,11 +46,14 @@ class AuthService extends ResponseService {
         },
         token,
       };
-      return this.SuccessResponse("Autenticación correcta", responseFormat);
+      return this.responseService.SuccessResponse(
+        "Autenticación correcta",
+        responseFormat
+      );
     } catch (error) {
-      return this.InternalServerErrorException();
+      return this.responseService.InternalServerErrorException();
     }
-  }
+  };
 
   async restorePassword(credential: string) {
     try {

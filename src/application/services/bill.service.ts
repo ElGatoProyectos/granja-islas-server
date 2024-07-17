@@ -1,10 +1,15 @@
-import { responseService } from "./response.service";
+import ResponseService from "./response.service";
 
 class BillService {
+  private responseService: ResponseService;
+
+  constructor() {
+    this.responseService = new ResponseService();
+  }
   async searchBillForCode(code: string) {
     try {
     } catch (error) {
-      return responseService.InternalServerErrorException();
+      return this.responseService.InternalServerErrorException();
     }
   }
 }

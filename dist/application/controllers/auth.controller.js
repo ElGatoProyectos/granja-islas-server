@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const auth_service_1 = require("../services/auth.service");
 class AuthController {
-    login(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
+    constructor() {
+        this.login = (request, response) => __awaiter(this, void 0, void 0, function* () {
             const { credential, password } = request.body;
             const result = yield auth_service_1.authService.login(credential, password);
             response.status(result.statusCode).json(result);

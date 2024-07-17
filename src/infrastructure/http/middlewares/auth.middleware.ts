@@ -12,9 +12,7 @@ export default class AuthMiddleware {
   private responseService: ResponseService = new ResponseService();
   private userService: UserService = new UserService();
 
-  constructor() {
-    // super();
-  }
+  constructor() {}
 
   get captureUnauthorizedException() {
     return this.responseService.UnauthorizedException(
@@ -25,7 +23,7 @@ export default class AuthMiddleware {
   get captureBadRequestException() {
     return this.responseService.BadRequestException("Error en validación");
   }
-  async authToken(request: Request) {
+  authToken = async (request: Request) => {
     try {
       const authorization = request.get("Authorization");
 
@@ -48,32 +46,30 @@ export default class AuthMiddleware {
     } catch (error) {
       return this.responseService.UnauthorizedException();
     }
-  }
+  };
 
-  async authorizationUser(
+  authorizationUser = async (
     request: Request,
     response: Response,
     nextFunction: NextFunction
-  ) {
+  ) => {
     try {
       const responseValidation = await this.authToken(request);
       if (responseValidation.error)
-        response
-          .status(this.captureUnauthorizedException.statusCode)
-          .json(this.captureUnauthorizedException);
+        response.status(responseValidation.statusCode).json(responseValidation);
       else nextFunction();
     } catch (error) {
       response
         .status(this.captureUnauthorizedException.statusCode)
-        .json({ ...this.captureUnauthorizedException, error });
+        .json({ ...this.captureBadRequestException, payload: error });
     }
-  }
+  };
 
-  async authorizationAdmin(
+  authorizationAdmin = async (
     request: Request,
     response: Response,
     nextFunction: NextFunction
-  ) {
+  ) => {
     try {
       const responseValidation = await this.authToken(request);
       if (responseValidation.error)
@@ -90,15 +86,15 @@ export default class AuthMiddleware {
     } catch (error) {
       response
         .status(this.captureUnauthorizedException.statusCode)
-        .json({ ...this.captureUnauthorizedException, error });
+        .json({ ...this.captureBadRequestException, payload: error });
     }
-  }
+  };
 
-  async authorizationSuperAdmin(
+  authorizationSuperAdmin = async (
     request: Request,
     response: Response,
     nextFunction: NextFunction
-  ) {
+  ) => {
     try {
       const responseValidation = await this.authToken(request);
       if (responseValidation.error)
@@ -115,22 +111,22 @@ export default class AuthMiddleware {
     } catch (error) {
       response
         .status(this.captureUnauthorizedException.statusCode)
-        .json({ ...this.captureUnauthorizedException, error });
+        .json({ ...this.captureBadRequestException, payload: error });
     }
-  }
+  };
 
-  validateBody(
+  validateBody = (
     request: Request,
     response: Response,
     nextFunction: NextFunction
-  ) {
+  ) => {
     try {
       authDTO.parse(request.body);
       nextFunction();
     } catch (error) {
       response
         .status(this.captureBadRequestException.statusCode)
-        .json({ ...this.captureBadRequestException, error });
+        .json({ ...this.captureBadRequestException, payload: error });
     }
-  }
+  };
 }

@@ -74,6 +74,9 @@ class SeedService extends base_controller_1.default {
                         dni: "45454545",
                     },
                 ];
+                const usersValidate = yield prisma_1.default.user.findMany();
+                if (usersValidate.length > 0)
+                    return this.responseService.BadRequestException("No se puede ejecutar el seed");
                 Promise.all(users.map((user) => __awaiter(this, void 0, void 0, function* () {
                     const password = bcrypt.hashSync(user.dni, 11);
                     const created = yield prisma_1.default.user.create({

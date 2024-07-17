@@ -9,7 +9,6 @@ exports.authDTO = zod_1.z.object({
 exports.jwtDecodeDTO = zod_1.z.object({
     id: zod_1.z.number(),
     role: zod_1.z.enum(["SUPERADMIN", "ADMIN", "USER"]),
-    full_name: zod_1.z.string(),
     iat: zod_1.z.number().optional(),
     exp: zod_1.z.number().optional(),
 });

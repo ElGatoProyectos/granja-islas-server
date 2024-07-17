@@ -23,7 +23,7 @@ class VoucherRouter {
         this.router.get(`${this._prefix}/:id`, this.authMiddleware.authorizationAdmin);
     }
     postRoutes() {
-        this.router.post(`${this._prefix}/:id/vouchers/upload`, this.voucherController.registerVoucher);
+        this.router.post(`${this._prefix}/:id/vouchers/upload`);
     }
 }
 exports.default = new VoucherRouter().router;

@@ -24,30 +24,53 @@ class CompanyRouter {
   }
 
   private getRoutes(): void {
-    this.router.get(this._prefix, this.companyController.findAll);
+    this.router.get(
+      this._prefix,
+      this.authMiddleware.authorizationUser,
+      this.companyController.findAll
+    );
+
     this.router.get(
       `${this._prefix}/all`,
+      this.authMiddleware.authorizationSuperAdmin,
       this.companyController.findAllWithDeleted
     );
-    this.router.get(`${this._prefix}/:id`, this.companyController.findBydId);
+
+    this.router.get(
+      `${this._prefix}/:id`,
+      this.authMiddleware.authorizationUser,
+      this.companyController.findBydId
+    );
   }
 
   private patchRoutes(): void {
     this.router.patch(
       `${this._prefix}/:id`,
+
       this.companyMiddleware.validateCompany,
+
+      this.authMiddleware.authorizationSuperAdmin,
+
       this.companyController.updateById
     );
   }
 
   private postRoutes(): void {
-    this.router.post(this._prefix, this.companyController.create);
+    this.router.post(
+      this._prefix,
+
+      this.authMiddleware.authorizationSuperAdmin,
+
+      this.companyController.create
+    );
   }
 
   private deleteRoutes(): void {
     this.router.patch(
       `${this._prefix}/:id`,
+
       this.companyMiddleware.validateCompany,
+
       this.companyController.updateById
     );
   }

@@ -12,6 +12,7 @@ class AuthRouter {
     this.router = Router();
     this.authController = new AuthController();
     this.authMiddleware = new AuthMiddleware();
+    this.initializeRoutes();
   }
 
   private initializeRoutes(): void {

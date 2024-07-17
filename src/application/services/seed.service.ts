@@ -40,6 +40,13 @@ export default class SeedService extends BaseController {
         },
       ];
 
+      const usersValidate = await prisma.user.findMany();
+
+      if (usersValidate.length > 0)
+        return this.responseService.BadRequestException(
+          "No se puede ejecutar el seed"
+        );
+
       Promise.all(
         users.map(async (user) => {
           const password = bcrypt.hashSync(user.dni, 11);

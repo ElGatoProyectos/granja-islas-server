@@ -15,13 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const seed_service_1 = __importDefault(require("../services/seed.service"));
 class SeedController {
     constructor() {
-        this.seedService = new seed_service_1.default();
-    }
-    createSeed(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.createSeed = (request, response) => __awaiter(this, void 0, void 0, function* () {
             const result = yield this.seedService.createSeed();
             response.status(result.statusCode).json(result);
         });
+        this.seedService = new seed_service_1.default();
     }
 }
 exports.default = SeedController;

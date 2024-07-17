@@ -19,13 +19,7 @@ class ApiService {
             return yield axios_1.default.get(`${base_api}/${module}}`);
         });
         this.getParam = (base_api, module, param) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const x = yield axios_1.default.get(`${base_api}/${module}}/${param}`);
-                console.log(x);
-            }
-            catch (error) {
-                console.log(error);
-            }
+            return yield axios_1.default.get(`${base_api}/${module}/${param}`);
         });
         this.post = (base_api, module, data) => __awaiter(this, void 0, void 0, function* () { });
     }

@@ -8,8 +8,8 @@ export default class SeedController {
     this.seedService = new SeedService();
   }
 
-  async createSeed(request: Request, response: Response) {
+  createSeed = async (request: Request, response: Response) => {
     const result = await this.seedService.createSeed();
     response.status(result.statusCode).json(result);
-  }
+  };
 }

@@ -30,10 +30,7 @@ class VoucherRouter {
   }
 
   private postRoutes() {
-    this.router.post(
-      `${this._prefix}/:id/vouchers/upload`,
-      this.voucherController.registerVoucher
-    );
+    this.router.post(`${this._prefix}/:id/vouchers/upload`);
   }
 }
 

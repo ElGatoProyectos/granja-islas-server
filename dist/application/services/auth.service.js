@@ -43,12 +43,9 @@ const response_service_1 = __importDefault(require("./response.service"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const environments_constant_1 = require("../../infrastructure/config/environments.constant");
 const jwt_token = environments_constant_1.environments.JWT_TOKEN;
-class AuthService extends response_service_1.default {
+class AuthService {
     constructor() {
-        super();
-    }
-    login(credential, password) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.login = (credential, password) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let user;
                 if (validator_1.default.isEmail(credential)) {
@@ -58,13 +55,15 @@ class AuthService extends response_service_1.default {
                     user = yield prisma_1.default.user.findFirst({ where: { dni: credential } });
                 }
                 if (!user)
-                    return this.UnauthorizedException("Error al validar credenciales");
+                    return this.responseService.UnauthorizedException("Error al validar credenciales");
                 const responseCompare = bcrypt.compareSync(password, user.password);
                 if (!responseCompare)
-                    return this.UnauthorizedException("Error al validar credenciales");
+                    return this.responseService.UnauthorizedException("Error al validar credenciales");
                 if (user.status_deleted || !user.status_enabled)
-                    return this.UnauthorizedException("Error al validar credenciales");
-                const token = jsonwebtoken_1.default.sign({ id: user.id, role: user.role }, jwt_token);
+                    return this.responseService.UnauthorizedException("Error al validar credenciales");
+                const token = jsonwebtoken_1.default.sign({ id: user.id, role: user.role }, jwt_token, {
+                    expiresIn: "24h",
+                });
                 const responseFormat = {
                     user: {
                         id: user.id,
@@ -73,12 +72,13 @@ class AuthService extends response_service_1.default {
                     },
                     token,
                 };
-                return this.SuccessResponse("Autenticación correcta", responseFormat);
+                return this.responseService.SuccessResponse("Autenticación correcta", responseFormat);
             }
             catch (error) {
-                return this.InternalServerErrorException();
+                return this.responseService.InternalServerErrorException();
             }
         });
+        this.responseService = new response_service_1.default();
     }
     restorePassword(credential) {
         return __awaiter(this, void 0, void 0, function* () {

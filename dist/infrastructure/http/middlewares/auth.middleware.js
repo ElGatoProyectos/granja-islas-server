@@ -23,16 +23,7 @@ class AuthMiddleware {
         this._jwt_token = environments_constant_1.environments.JWT_TOKEN;
         this.responseService = new response_service_1.default();
         this.userService = new user_service_1.default();
-        // super();
-    }
-    get captureUnauthorizedException() {
-        return this.responseService.UnauthorizedException("Error al autenticar usuario");
-    }
-    get captureBadRequestException() {
-        return this.responseService.BadRequestException("Error en validación");
-    }
-    authToken(request) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.authToken = (request) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const authorization = request.get("Authorization");
                 if (!authorization)
@@ -51,27 +42,21 @@ class AuthMiddleware {
                 return this.responseService.UnauthorizedException();
             }
         });
-    }
-    authorizationUser(request, response, nextFunction) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.authorizationUser = (request, response, nextFunction) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const responseValidation = yield this.authToken(request);
                 if (responseValidation.error)
-                    response
-                        .status(this.captureUnauthorizedException.statusCode)
-                        .json(this.captureUnauthorizedException);
+                    response.status(responseValidation.statusCode).json(responseValidation);
                 else
                     nextFunction();
             }
             catch (error) {
                 response
                     .status(this.captureUnauthorizedException.statusCode)
-                    .json(Object.assign(Object.assign({}, this.captureUnauthorizedException), { error }));
+                    .json(Object.assign(Object.assign({}, this.captureBadRequestException), { payload: error }));
             }
         });
-    }
-    authorizationAdmin(request, response, nextFunction) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.authorizationAdmin = (request, response, nextFunction) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const responseValidation = yield this.authToken(request);
                 if (responseValidation.error)
@@ -90,12 +75,10 @@ class AuthMiddleware {
             catch (error) {
                 response
                     .status(this.captureUnauthorizedException.statusCode)
-                    .json(Object.assign(Object.assign({}, this.captureUnauthorizedException), { error }));
+                    .json(Object.assign(Object.assign({}, this.captureBadRequestException), { payload: error }));
             }
         });
-    }
-    authorizationSuperAdmin(request, response, nextFunction) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.authorizationSuperAdmin = (request, response, nextFunction) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const responseValidation = yield this.authToken(request);
                 if (responseValidation.error)
@@ -114,20 +97,26 @@ class AuthMiddleware {
             catch (error) {
                 response
                     .status(this.captureUnauthorizedException.statusCode)
-                    .json(Object.assign(Object.assign({}, this.captureUnauthorizedException), { error }));
+                    .json(Object.assign(Object.assign({}, this.captureBadRequestException), { payload: error }));
             }
         });
+        this.validateBody = (request, response, nextFunction) => {
+            try {
+                auth_dto_1.authDTO.parse(request.body);
+                nextFunction();
+            }
+            catch (error) {
+                response
+                    .status(this.captureBadRequestException.statusCode)
+                    .json(Object.assign(Object.assign({}, this.captureBadRequestException), { payload: error }));
+            }
+        };
     }
-    validateBody(request, response, nextFunction) {
-        try {
-            auth_dto_1.authDTO.parse(request.body);
-            nextFunction();
-        }
-        catch (error) {
-            response
-                .status(this.captureBadRequestException.statusCode)
-                .json(Object.assign(Object.assign({}, this.captureBadRequestException), { error }));
-        }
+    get captureUnauthorizedException() {
+        return this.responseService.UnauthorizedException("Error al autenticar usuario");
+    }
+    get captureBadRequestException() {
+        return this.responseService.BadRequestException("Error en validación");
     }
 }
 exports.default = AuthMiddleware;

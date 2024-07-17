@@ -21,34 +21,21 @@ const base_api_query = environments_constant_1.environments.BASE_API_QUERY;
 class SunatService {
     constructor() {
         this.base_api_query_module = "ruc";
-        // model Company {
-        //   id             Int      @id @default(autoincrement())
-        //   business_name  String   @unique
-        //   description    String   @db.Text()
-        //   ruc            String   @unique
-        //   key            String
-        //   status_deleted Boolean? @default(true)
-        //   created_at DateTime @default(now())
-        //   updated_at DateTime @updatedAt
-        // }
         this.queryForRuc = (ruc) => __awaiter(this, void 0, void 0, function* () {
-            console.log("ruc", ruc);
             try {
-                console.log(base_api_query, this.base_api_query_module, ruc);
-                const data = yield this.apiService.getParam(base_api_query, this.base_api_query_module, ruc);
-                console.log("data", data);
+                const { data: response } = yield this.apiService.getParam(base_api_query, this.base_api_query_module, ruc);
+                const data = response.data;
                 const formatData = {
-                // ruc: data.ruc.split("-")[0],
-                // business_name: data.nombre_comercial,
-                // business_type: data.tipo_contribuyente,
-                // business_status: data.estado_contribuyente,
-                // business_direction_fiscal: data.domicilio_fiscal,
+                    ruc: data.ruc.split("-")[0].trim(),
+                    business_name: data.nombre_comercial,
+                    business_type: data.tipo_contribuyente,
+                    business_status: data.estado_contribuyente,
+                    business_direction_fiscal: data.domicilio_fiscal,
                 };
                 return this.responseService.SuccessResponse("Datos de usuario", formatData);
             }
             catch (error) {
-                console.log(error);
-                return this.responseService.InternalServerErrorException("Error en servicio", error);
+                return this.responseService.InternalServerErrorException(undefined, error);
             }
         });
         this.findBills = (ruc, key) => __awaiter(this, void 0, void 0, function* () {

@@ -12,6 +12,7 @@ class AuthRouter {
         this.router = (0, express_1.Router)();
         this.authController = new auth_controller_1.default();
         this.authMiddleware = new auth_middleware_1.default();
+        this.initializeRoutes();
     }
     initializeRoutes() {
         this.postRoutes();
