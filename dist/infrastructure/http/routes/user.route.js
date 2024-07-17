@@ -13,13 +13,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // userRouter.patch(`${prefix}/:id`, authMiddleware.authorizationAdmin);
 // export default userRouter;
 const express_1 = require("express");
-// import AuthMiddleware from "../middlewares/auth.middleware";
 const user_controller_1 = __importDefault(require("../../../application/controllers/user.controller"));
+const auth_middleware_1 = __importDefault(require("../middlewares/auth.middleware"));
 class UserRouter {
     constructor() {
         this._prefix = "/users";
         this.router = (0, express_1.Router)();
-        // this.authMiddleware = new AuthMiddleware();
+        this.authMiddleware = new auth_middleware_1.default();
         this.userController = new user_controller_1.default();
         this.initializeRoutes();
     }
@@ -29,8 +29,8 @@ class UserRouter {
         this.patchRoutes();
     }
     getRoutes() {
-        this.router.get(`${this._prefix}`, this.userController.findUsers);
-        this.router.get(`${this._prefix}/:id`);
+        this.router.get(`${this._prefix}`, this.authMiddleware.authorizationAdmin, this.userController.findUsers);
+        this.router.get(`${this._prefix}/:id`, this.authMiddleware.authorizationAdmin, this.userController.findUserById);
     }
     postRoutes() {
         this.router.post(`${this._prefix}`);

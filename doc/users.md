@@ -46,7 +46,7 @@ Respuesta
 }
 ```
 
-## <span style="color:green">POST</span>
+## <span style="color:red">POST</span>
 
 ### Registrar usuario
 
@@ -81,7 +81,7 @@ Respuesta
 }
 ```
 
-## <span style="color:green">PATCH</span>
+## <span style="color:red">PATCH</span>
 
 ### Modificar usuario | admin
 
@@ -151,7 +151,7 @@ Respuesta
 }
 ```
 
-## <span style="color:green">DELETE</span>
+## <span style="color:red">DELETE</span>
 
 ### Eliminar usuario
 

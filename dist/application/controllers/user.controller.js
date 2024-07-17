@@ -19,10 +19,17 @@ class UserController {
             const result = yield this.userService.findUsersNoAdmin();
             response.status(response.statusCode).json(result);
         });
+        this.findUserById = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            const id = request.params.id;
+            const result = yield this.userService.findUserById(Number(id));
+            response.status(response.statusCode).json(result);
+        });
+        this.create = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            const id = request.params.id;
+            const result = yield this.userService.findUserById(Number(id));
+            response.status(response.statusCode).json(result);
+        });
         this.userService = new user_service_1.default();
-    }
-    findUser(request, response) {
-        return __awaiter(this, void 0, void 0, function* () { });
     }
 }
 exports.default = UserController;

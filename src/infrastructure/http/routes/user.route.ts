@@ -13,19 +13,19 @@
 // export default userRouter;
 
 import { Router } from "express";
-// import AuthMiddleware from "../middlewares/auth.middleware";
 import UserController from "../../../application/controllers/user.controller";
+import AuthMiddleware from "../middlewares/auth.middleware";
 
 class UserRouter {
   public router: Router;
   private _prefix: string = "/users";
-  // private authMiddleware: AuthMiddleware;
+  private authMiddleware: AuthMiddleware;
   private userController: UserController;
 
   constructor() {
     this.router = Router();
 
-    // this.authMiddleware = new AuthMiddleware();
+    this.authMiddleware = new AuthMiddleware();
     this.userController = new UserController();
     this.initializeRoutes();
   }
@@ -37,8 +37,16 @@ class UserRouter {
   }
 
   private getRoutes() {
-    this.router.get(`${this._prefix}`, this.userController.findUsers);
-    this.router.get(`${this._prefix}/:id`);
+    this.router.get(
+      `${this._prefix}`,
+      this.authMiddleware.authorizationAdmin,
+      this.userController.findUsers
+    );
+    this.router.get(
+      `${this._prefix}/:id`,
+      this.authMiddleware.authorizationAdmin,
+      this.userController.findUserById
+    );
   }
 
   private postRoutes() {

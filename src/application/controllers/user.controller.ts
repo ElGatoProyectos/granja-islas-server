@@ -14,7 +14,19 @@ class UserController {
     response.status(response.statusCode).json(result);
   };
 
-  async findUser(request: Request, response: Response) {}
+  findUserById = async (request: Request, response: Response) => {
+    const id = request.params.id;
+    const result = await this.userService.findUserById(Number(id));
+
+    response.status(response.statusCode).json(result);
+  };
+
+  create = async (request: Request, response: Response) => {
+    const id = request.params.id;
+    const result = await this.userService.findUserById(Number(id));
+
+    response.status(response.statusCode).json(result);
+  };
 }
 
 export default UserController;
