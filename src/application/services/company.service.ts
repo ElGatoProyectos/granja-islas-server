@@ -27,6 +27,8 @@ export default class CompanyService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -42,6 +44,8 @@ export default class CompanyService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -61,6 +65,8 @@ export default class CompanyService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -76,6 +82,8 @@ export default class CompanyService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -95,6 +103,8 @@ export default class CompanyService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -116,6 +126,8 @@ export default class CompanyService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 }

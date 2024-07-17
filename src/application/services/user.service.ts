@@ -22,6 +22,8 @@ class UserService {
       return this.responseService.SuccessResponse("Lista de usuarios", users);
     } catch (error) {
       return this.responseService.InternalServerErrorException();
+    } finally {
+      await prisma.$disconnect();
     }
   }
 
@@ -41,6 +43,8 @@ class UserService {
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException();
+    } finally {
+      await prisma.$disconnect();
     }
   }
 
@@ -55,6 +59,8 @@ class UserService {
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException();
+    } finally {
+      await prisma.$disconnect();
     }
   }
 
@@ -69,6 +75,8 @@ class UserService {
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException();
+    } finally {
+      await prisma.$disconnect();
     }
   }
 
@@ -82,6 +90,8 @@ class UserService {
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException();
+    } finally {
+      await prisma.$disconnect();
     }
   }
 
@@ -111,6 +121,8 @@ class UserService {
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException();
+    } finally {
+      await prisma.$disconnect();
     }
   }
 
@@ -133,6 +145,8 @@ class UserService {
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException();
+    } finally {
+      await prisma.$disconnect();
     }
   }
 
@@ -154,6 +168,8 @@ class UserService {
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException();
+    } finally {
+      await prisma.$disconnect();
     }
   }
 }

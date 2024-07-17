@@ -88,6 +88,9 @@ class SeedService extends base_controller_1.default {
             catch (error) {
                 return this.responseService.InternalServerErrorException("");
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
     }
 }

@@ -32,6 +32,8 @@ class ProductService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -49,6 +51,8 @@ class ProductService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -66,6 +70,8 @@ class ProductService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -92,6 +98,8 @@ class ProductService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -119,6 +127,8 @@ class ProductService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -151,6 +161,8 @@ class ProductService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -185,6 +197,8 @@ class ProductService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -214,6 +228,8 @@ class ProductService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 
@@ -241,6 +257,8 @@ class ProductService {
         undefined,
         error
       );
+    } finally {
+      await prisma.$disconnect();
     }
   };
 }

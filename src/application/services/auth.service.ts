@@ -52,6 +52,8 @@ class AuthService {
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException();
+    } finally {
+      await prisma.$disconnect();
     }
   };
 

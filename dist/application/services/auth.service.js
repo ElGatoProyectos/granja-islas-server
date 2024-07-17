@@ -77,6 +77,9 @@ class AuthService {
             catch (error) {
                 return this.responseService.InternalServerErrorException();
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
         this.responseService = new response_service_1.default();
     }

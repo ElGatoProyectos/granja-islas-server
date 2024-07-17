@@ -26,6 +26,9 @@ class CompanyService {
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
         this.findAllWithDeleted = () => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -34,6 +37,9 @@ class CompanyService {
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
             }
         });
         this.findById = (companyId) => __awaiter(this, void 0, void 0, function* () {
@@ -48,6 +54,9 @@ class CompanyService {
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
         this.create = (data) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -56,6 +65,9 @@ class CompanyService {
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
             }
         });
         this.updateById = (companyId, data) => __awaiter(this, void 0, void 0, function* () {
@@ -69,6 +81,9 @@ class CompanyService {
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
             }
         });
         this.deleteById = (companyId) => __awaiter(this, void 0, void 0, function* () {
@@ -84,6 +99,9 @@ class CompanyService {
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
             }
         });
         this.responseService = new response_service_1.default();

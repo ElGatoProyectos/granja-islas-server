@@ -28,6 +28,9 @@ class ProductService {
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
         this.findById = (productId) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -39,6 +42,9 @@ class ProductService {
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
         this.findBySlug = (slug) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -49,6 +55,9 @@ class ProductService {
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
             }
         });
         this.create = (data) => __awaiter(this, void 0, void 0, function* () {
@@ -63,6 +72,9 @@ class ProductService {
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
             }
         });
         this.updateById = (data, productId) => __awaiter(this, void 0, void 0, function* () {
@@ -80,6 +92,9 @@ class ProductService {
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
             }
         });
         // actions to products
@@ -100,6 +115,9 @@ class ProductService {
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
         this.removeLabelFromProduct = (productLabelId, productId) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -118,6 +136,9 @@ class ProductService {
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
         // actions to suppliers
         this.assignSupplierToProduct = (supplierId, productId) => __awaiter(this, void 0, void 0, function* () {
@@ -135,6 +156,9 @@ class ProductService {
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
         this.removeSupplierToProduct = (supplierId, productId) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -150,6 +174,9 @@ class ProductService {
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
             }
         });
         this.responseService = new response_service_1.default();

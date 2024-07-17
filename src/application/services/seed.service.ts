@@ -59,6 +59,8 @@ export default class SeedService extends BaseController {
       return this.responseService.SuccessResponse("Seed executed!");
     } catch (error) {
       return this.responseService.InternalServerErrorException("");
+    } finally {
+      await prisma.$disconnect();
     }
   }
 }

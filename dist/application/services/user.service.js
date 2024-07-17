@@ -53,6 +53,9 @@ class UserService {
             catch (error) {
                 return this.responseService.InternalServerErrorException();
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
     }
     findUsersNoSuperAdmin() {
@@ -70,6 +73,9 @@ class UserService {
             catch (error) {
                 return this.responseService.InternalServerErrorException();
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
     }
     findUserById(id) {
@@ -82,6 +88,9 @@ class UserService {
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException();
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
             }
         });
     }
@@ -96,6 +105,9 @@ class UserService {
             catch (error) {
                 return this.responseService.InternalServerErrorException();
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
     }
     createAdmin(userData) {
@@ -108,6 +120,9 @@ class UserService {
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException();
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
             }
         });
     }
@@ -133,6 +148,9 @@ class UserService {
             catch (error) {
                 return this.responseService.InternalServerErrorException();
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
     }
     updateSuperAdmin(userData, id) {
@@ -152,6 +170,9 @@ class UserService {
             catch (error) {
                 return this.responseService.InternalServerErrorException();
             }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
         });
     }
     deleteById(userId) {
@@ -170,6 +191,9 @@ class UserService {
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException();
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
             }
         });
     }
