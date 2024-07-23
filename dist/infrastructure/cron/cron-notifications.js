@@ -8,6 +8,7 @@ const node_cron_1 = __importDefault(require("node-cron"));
 function NotificationCronJob(io) {
     node_cron_1.default.schedule("0 * * * *", () => {
         io.emit("prev-give-data", { message: "This is a scheduled event" });
+        // received data user and search notifications for
         io.on("credentials", (credentials) => {
             io.emit("", {});
         });

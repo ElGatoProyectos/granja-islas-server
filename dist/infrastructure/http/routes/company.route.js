@@ -34,7 +34,7 @@ class CompanyRouter {
         this.router.post(this._prefix, this.authMiddleware.authorizationSuperAdmin, this.companyController.create);
     }
     deleteRoutes() {
-        this.router.patch(`${this._prefix}/:id`, this.companyMiddleware.validateCompany, this.companyController.updateById);
+        this.router.patch(`${this._prefix}/:id`, this.companyMiddleware.validateCompany, this.companyController.deleteById);
     }
 }
 exports.default = new CompanyRouter().router;

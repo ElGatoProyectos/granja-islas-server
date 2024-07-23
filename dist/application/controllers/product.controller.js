@@ -12,19 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const bill_service_1 = __importDefault(require("../services/bill.service"));
-class BillController {
+const product_service_1 = __importDefault(require("../services/product.service"));
+class ProductController {
     constructor() {
         this.findAll = (request, response) => __awaiter(this, void 0, void 0, function* () {
-            // filtro por periodo
-            const period = parseInt(request.query.period);
-            // filtro por mes
-            const month = parseInt(request.query.month);
-            const result = yield this.billService.findAll(period, month);
+            const page = parseInt(request.query.page) || 1;
+            const limit = parseInt(request.query.limit) || 20;
+            const result = yield this.productService.findAll(page, limit);
             response.status(result.statusCode).json(result);
         });
-        this.excelFindAll = (request, response) => { };
-        this.billService = new bill_service_1.default();
+        this.create = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            const data = request.body;
+            const result = yield this.productService.create(data);
+            response.status(result.statusCode).json(result);
+        });
+        this.productService = new product_service_1.default();
     }
 }
-exports.default = BillController;
+exports.default = ProductController;

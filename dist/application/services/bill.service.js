@@ -12,20 +12,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.billService = void 0;
 const response_service_1 = __importDefault(require("./response.service"));
 class BillService {
     constructor() {
-        this.responseService = new response_service_1.default();
-    }
-    searchBillForCode(code) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.searchBillForCode = (code) => __awaiter(this, void 0, void 0, function* () {
             try {
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException();
             }
         });
+        this.findAll = (period, month) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let bills;
+                if (period && !month) {
+                }
+                else if (month && !period) {
+                }
+                else if (period && month) {
+                }
+                return this.responseService.SuccessResponse("Lista de facturas", bills);
+            }
+            catch (error) {
+                return this.responseService.InternalServerErrorException();
+            }
+        });
+        this.responseService = new response_service_1.default();
     }
 }
-exports.billService = new BillService();
+exports.default = BillService;

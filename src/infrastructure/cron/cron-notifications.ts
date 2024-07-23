@@ -6,6 +6,7 @@ function NotificationCronJob(io: SocketIOServer) {
   cron.schedule("0 * * * *", () => {
     io.emit("prev-give-data", { message: "This is a scheduled event" });
 
+    // received data user and search notifications for
     io.on("credentials", (credentials) => {
       io.emit("", {});
     });

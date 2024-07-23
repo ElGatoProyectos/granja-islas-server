@@ -6,12 +6,27 @@ class BillService {
   constructor() {
     this.responseService = new ResponseService();
   }
-  async searchBillForCode(code: string) {
+
+  searchBillForCode = async (code: string) => {
     try {
     } catch (error) {
       return this.responseService.InternalServerErrorException();
     }
-  }
-}
+  };
 
-export const billService = new BillService();
+  findAll = async (period: number, month: number) => {
+    try {
+      let bills;
+
+      if (period && !month) {
+      } else if (month && !period) {
+      } else if (period && month) {
+      }
+
+      return this.responseService.SuccessResponse("Lista de facturas", bills);
+    } catch (error) {
+      return this.responseService.InternalServerErrorException();
+    }
+  };
+}
+export default BillService;

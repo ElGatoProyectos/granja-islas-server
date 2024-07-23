@@ -32,8 +32,8 @@ model User {
   status_deleted Boolean @default(false)
 
   password   String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
+  updated_at DateTime @updatedAt @db.Timestamp()
 }
 
 model Company {
@@ -49,7 +49,7 @@ model Company {
   key                       String
   status_deleted            Boolean? @default(false)
 
-  created_at DateTime @default(now())
+  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt
 }
 
@@ -62,40 +62,52 @@ model Supplier {
   business_status    String
   business_direction String
 
-  created_at DateTime  @default(now())
+  created_at DateTime  @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime  @updatedAt
   Product    Product[]
   Pill       Pill[]
 }
 
 //todo etiquetas que iran en la tabla producto para filtrar
-model Product_Label {
+model ProductLabel {
   id             Int      @id @default(autoincrement())
   title          String
   slug           String?  @unique @db.Text()
   description    String?  @db.Text()
   status_deleted Boolean? @default(false)
 
-  Product Product[]
+  DetailProductLabel DetailProductLabel[]
 }
 
 //todo productos
 model Product {
-  id               Int     @id @default(autoincrement())
-  title            String
-  description      String  @db.Text()
-  price            Decimal
-  slug             String? @unique @db.Text()
-  product_label_id Int?
-  supplier_id      Int?
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String? @db.Text()
+  price       Float   @db.DoublePrecision
+  slug        String? @db.Text()
+
+  supplier_id Int?
 
   status_deleted Boolean? @default(false)
 
-  created_at DateTime @default(now())
+  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt
 
-  Label    Product_Label? @relation(fields: [product_label_id], references: [id])
-  Supplier Supplier?      @relation(fields: [supplier_id], references: [id])
+  Supplier           Supplier?            @relation(fields: [supplier_id], references: [id])
+  DetailProductLabel DetailProductLabel[]
+}
+
+model DetailProductLabel {
+  id               Int @id @default(autoincrement())
+  product_id       Int
+  product_label_id Int
+
+  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
+  updated_at DateTime @updatedAt
+
+  Label   ProductLabel? @relation(fields: [product_label_id], references: [id])
+  Product Product?      @relation(fields: [product_id], references: [id])
 }
 
 //todo facturas
@@ -104,15 +116,18 @@ model Pill {
   code        String
   date        DateTime
   period      String
-  ammount     Decimal  @default(0)
-  igv         Decimal  @default(0.18)
-  total       Decimal  @default(0)
+  ammount     Float    @default(0)
+  igv         Float    @default(0.18)
+  total       Float    @default(0)
   pill_status String
-  paid        Decimal  @default(0)
-  earring     Decimal  @default(0)
-
+  paid        Float    @default(0)
+  earring     Float    @default(0)
   supplier_id Int
-  Supplier    Supplier @relation(fields: [supplier_id], references: [id])
+
+  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
+  updated_at DateTime @updatedAt
+
+  Supplier Supplier @relation(fields: [supplier_id], references: [id])
 }
 
 enum NotificationStatus {
@@ -125,6 +140,6 @@ model Notification {
   title               String
   description         String
   notification_status NotificationStatus
-  created_at          DateTime           @default(now())
+  created_at          DateTime           @default(dbgenerated("CURRENT_DATE"))
   updated_at          DateTime           @updatedAt
 }

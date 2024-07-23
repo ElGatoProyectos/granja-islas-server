@@ -71,7 +71,7 @@ class CompanyRouter {
 
       this.companyMiddleware.validateCompany,
 
-      this.companyController.updateById
+      this.companyController.deleteById
     );
   }
 }

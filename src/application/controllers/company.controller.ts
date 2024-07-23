@@ -111,7 +111,7 @@ class CompanyController {
   //* success
   findBydId = async (request: Request, response: Response) => {
     const id = request.params.id;
-    const result = await this.companyService.deleteById(+id);
+    const result = await this.companyService.findById(+id);
     response.status(result.statusCode).json(result);
   };
 

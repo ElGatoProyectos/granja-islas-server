@@ -7,6 +7,7 @@ import companyRouter from "../http/routes/company.route";
 import sireRouter from "../http/routes/sire.route";
 import sunatRouter from "../http/routes/sunat.route";
 import seedRouter from "../http/routes/seed.route";
+import productRouter from "../http/routes/product.route";
 
 export class RouteManager {
   private _globalPrefix: string;
@@ -24,5 +25,6 @@ export class RouteManager {
     this.app.use(this._globalPrefix, sireRouter);
     this.app.use(this._globalPrefix, sunatRouter);
     this.app.use(this._globalPrefix, seedRouter);
+    this.app.use(this._globalPrefix, productRouter);
   }
 }

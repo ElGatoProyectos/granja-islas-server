@@ -87,7 +87,7 @@ class CompanyController {
         //* success
         this.findBydId = (request, response) => __awaiter(this, void 0, void 0, function* () {
             const id = request.params.id;
-            const result = yield this.companyService.deleteById(+id);
+            const result = yield this.companyService.findById(+id);
             response.status(result.statusCode).json(result);
         });
         //* success

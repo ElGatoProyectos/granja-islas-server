@@ -12,7 +12,7 @@ class ProductLabelService {
 
   findAll = async () => {
     try {
-      const labels = await prisma.product_Label.findMany({
+      const labels = await prisma.productLabel.findMany({
         where: { status_deleted: false },
       });
       return this.responseService.SuccessResponse("Lista de etiquetas", labels);
@@ -26,7 +26,7 @@ class ProductLabelService {
 
   findAllWithDeleted = async () => {
     try {
-      const labels = await prisma.product_Label.findMany();
+      const labels = await prisma.productLabel.findMany();
       return this.responseService.SuccessResponse("Lista de etiquetas", labels);
     } catch (error) {
       return this.responseService.InternalServerErrorException(
@@ -38,7 +38,7 @@ class ProductLabelService {
 
   findById = async (productLabelId: number) => {
     try {
-      const label = await prisma.product_Label.findMany({
+      const label = await prisma.productLabel.findMany({
         where: { id: productLabelId },
       });
       if (!label)
@@ -52,11 +52,12 @@ class ProductLabelService {
     }
   };
 
-  createLabel = async (data: I_CreateLabel) => {
+  // corregir
+  createLabel = async (data: any) => {
     try {
       const slug = slugify(data.title, { lower: true });
       data = { ...data, slug };
-      const created = await prisma.product_Label.create({ data });
+      const created = await prisma.productLabel.create({ data });
       return this.responseService.CreatedResponse("Etiqueta creada", created);
     } catch (error) {
       return this.responseService.InternalServerErrorException(
@@ -74,7 +75,7 @@ class ProductLabelService {
       const slug = slugify(data.title, { lower: true });
       data = { ...data, slug };
 
-      const updated = await prisma.product_Label.update({
+      const updated = await prisma.productLabel.update({
         where: { id: productLabelId },
         data,
       });
@@ -94,7 +95,7 @@ class ProductLabelService {
     try {
       const responseLabel = await this.findById(productLabelId);
       if (responseLabel.error) return responseLabel;
-      const updated = await prisma.product_Label.update({
+      const updated = await prisma.productLabel.update({
         where: { id: productLabelId },
         data: { status_deleted: true },
       });

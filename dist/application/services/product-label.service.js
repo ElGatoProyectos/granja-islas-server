@@ -19,7 +19,7 @@ class ProductLabelService {
     constructor() {
         this.findAll = () => __awaiter(this, void 0, void 0, function* () {
             try {
-                const labels = yield prisma_1.default.product_Label.findMany({
+                const labels = yield prisma_1.default.productLabel.findMany({
                     where: { status_deleted: false },
                 });
                 return this.responseService.SuccessResponse("Lista de etiquetas", labels);
@@ -30,7 +30,7 @@ class ProductLabelService {
         });
         this.findAllWithDeleted = () => __awaiter(this, void 0, void 0, function* () {
             try {
-                const labels = yield prisma_1.default.product_Label.findMany();
+                const labels = yield prisma_1.default.productLabel.findMany();
                 return this.responseService.SuccessResponse("Lista de etiquetas", labels);
             }
             catch (error) {
@@ -39,7 +39,7 @@ class ProductLabelService {
         });
         this.findById = (productLabelId) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const label = yield prisma_1.default.product_Label.findMany({
+                const label = yield prisma_1.default.productLabel.findMany({
                     where: { id: productLabelId },
                 });
                 if (!label)
@@ -50,11 +50,12 @@ class ProductLabelService {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
         });
+        // corregir
         this.createLabel = (data) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const slug = (0, slugify_1.default)(data.title, { lower: true });
                 data = Object.assign(Object.assign({}, data), { slug });
-                const created = yield prisma_1.default.product_Label.create({ data });
+                const created = yield prisma_1.default.productLabel.create({ data });
                 return this.responseService.CreatedResponse("Etiqueta creada", created);
             }
             catch (error) {
@@ -68,7 +69,7 @@ class ProductLabelService {
                     return responseLabel;
                 const slug = (0, slugify_1.default)(data.title, { lower: true });
                 data = Object.assign(Object.assign({}, data), { slug });
-                const updated = yield prisma_1.default.product_Label.update({
+                const updated = yield prisma_1.default.productLabel.update({
                     where: { id: productLabelId },
                     data,
                 });
@@ -83,7 +84,7 @@ class ProductLabelService {
                 const responseLabel = yield this.findById(productLabelId);
                 if (responseLabel.error)
                     return responseLabel;
-                const updated = yield prisma_1.default.product_Label.update({
+                const updated = yield prisma_1.default.productLabel.update({
                     where: { id: productLabelId },
                     data: { status_deleted: true },
                 });

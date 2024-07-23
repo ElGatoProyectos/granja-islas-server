@@ -4,7 +4,6 @@ import { environments } from "../../config/environments.constant";
 import jwt from "jsonwebtoken";
 import { authDTO, jwtDecodeDTO } from "./dto/auth.dto";
 import { E_Role } from "../../../application/models/enums/user.enum";
-import BaseController from "../../../application/controllers/config/base.controller";
 import UserService from "../../../application/services/user.service";
 
 export default class AuthMiddleware {
