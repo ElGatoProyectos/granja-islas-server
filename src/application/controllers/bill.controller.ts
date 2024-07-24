@@ -18,6 +18,10 @@ class BillController {
     response.status(result.statusCode).json(result);
   };
 
+  captureData = async (request: Request, response: Response) => {
+    // necesitamos capturar todos los detalles y validarlo con los proveedores y facturas, en conclusion, primero registrar la factura y luego lo demas
+  };
+
   excelFindAll = (request: Request, response: Response) => {};
 }
 

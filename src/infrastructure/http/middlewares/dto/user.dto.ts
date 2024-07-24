@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 export const createUserDTO = z.object({
-  role: z.string(),
+  role: z.enum(["ADMIN", "USER"]),
   name: z.string(),
   last_name: z.string(),
   phone: z.string().optional(),
-  email: z.string().email().optional(),
+  email: z.string().email(),
   dni: z.string(),
 });
 

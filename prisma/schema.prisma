@@ -32,8 +32,9 @@ model User {
   status_deleted Boolean @default(false)
 
   password   String
-  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
-  updated_at DateTime @updatedAt @db.Timestamp()
+  created_at DateTime   @default(dbgenerated("CURRENT_DATE"))
+  updated_at DateTime   @updatedAt @db.Timestamp()
+  Supplier   Supplier[]
 }
 
 model Company {
@@ -49,23 +50,30 @@ model Company {
   key                       String
   status_deleted            Boolean? @default(false)
 
-  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
-  updated_at DateTime @updatedAt
+  created_at DateTime   @default(dbgenerated("CURRENT_DATE"))
+  updated_at DateTime   @updatedAt
+  Supplier   Supplier[]
 }
 
 //todo Proveedores
 model Supplier {
-  id                 Int    @id @default(autoincrement())
+  id                 Int      @id @default(autoincrement())
+  company_id         Int
+  user_id_created    Int?
   business_name      String
-  ruc                String @unique
+  ruc                String   @unique
   business_type      String
   business_status    String
   business_direction String
+  status_deleted     Boolean? @default(false)
 
   created_at DateTime  @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime  @updatedAt
   Product    Product[]
   Pill       Pill[]
+
+  Company Company @relation(fields: [company_id], references: [id])
+  User    User?   @relation(fields: [user_id_created], references: [id])
 }
 
 //todo etiquetas que iran en la tabla producto para filtrar
@@ -128,6 +136,15 @@ model Pill {
   updated_at DateTime @updatedAt
 
   Supplier Supplier @relation(fields: [supplier_id], references: [id])
+}
+
+// pending
+model Voucher {
+  id               Int      @id @default(autoincrement())
+  type_currency    String
+  date             DateTime @db.Date
+  operation_number String
+  status           Boolean
 }
 
 enum NotificationStatus {

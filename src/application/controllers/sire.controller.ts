@@ -9,7 +9,13 @@ class SireController {
   }
 
   captureDate = async (request: Request, response: Response) => {
-    const result = await this.sireService.captureData();
+    // codTipoOpe=3&page=1&perPage=100
+
+    const codTipoOpe = parseInt(request.query.codTipoOpe as string);
+    const page = parseInt(request.query.page as string);
+    const perPage = parseInt(request.query.perPage as string);
+
+    const result = await this.sireService.getBills();
     response.status(result.statusCode).json(result);
   };
 }

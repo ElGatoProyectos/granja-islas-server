@@ -51,6 +51,29 @@ class SunatService {
       return this.responseService.InternalServerErrorException();
     }
   };
+
+  captureTokenSecurity = async () => {
+    try {
+      const data = {
+        grant_type: "password",
+        scope: "https://api-cpe.sunat.gob.pe",
+        client_id: environments.CLIENT_ID,
+        client_secret: environments.CLIENT_SECRET,
+        username: environments.USERNAME_SUNAT,
+        password: environments.PASSWORD_SUNAT,
+      };
+      const response = await this.apiService.post_x_www_urlencoded(
+        environments.BASE_API_GET_TOKEN,
+        data
+      );
+      return this.responseService.SuccessResponse("", response.data);
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
 }
 
 export default SunatService;

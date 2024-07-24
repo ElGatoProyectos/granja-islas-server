@@ -4,6 +4,7 @@ import * as bcrypt from "bcrypt";
 import ResponseService, { T_Response } from "./response.service";
 import jwt from "jsonwebtoken";
 import { environments } from "../../infrastructure/config/environments.constant";
+import { jwtDecodeDTO } from "../../infrastructure/http/middlewares/dto/auth.dto";
 
 const jwt_token = environments.JWT_TOKEN;
 
@@ -57,6 +58,26 @@ class AuthService {
     }
   };
 
+  getUserForToken = async (token: string) => {
+    try {
+      const [bearer, jwtToken] = token.split("");
+      if (!validator.isJWT(jwtToken))
+        return this.responseService.UnauthorizedException(
+          "Error al obtener información"
+        );
+
+      const decodeToken = jwt.verify(jwtToken, jwt_token);
+
+      jwtDecodeDTO.parse(decodeToken);
+
+      return this.responseService.SuccessResponse(undefined, decodeToken);
+    } catch (error) {
+      return this.responseService.InternalServerErrorException();
+    } finally {
+      await prisma.$disconnect();
+    }
+  };
+
   async restorePassword(credential: string) {
     try {
       if (validator.isEmail(credential)) {
@@ -66,4 +87,4 @@ class AuthService {
   }
 }
 
-export const authService = new AuthService();
+export default AuthService;

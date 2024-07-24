@@ -23,3 +23,7 @@ export const updateCompanyDTO = z.object({
   ruc: z.string(),
   key: z.string(),
 });
+
+export const validateRuc = z.object({
+  ruc: z.string().min(11),
+});
