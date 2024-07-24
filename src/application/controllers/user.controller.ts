@@ -85,7 +85,7 @@ class UserController {
                 userMulterProperties.folder
               );
               const ext = path.extname(request.file.originalname);
-              const fileName = `${companyMulterProperties.folder}_${id}${ext}`;
+              const fileName = `${userMulterProperties.folder}_${id}${ext}`;
               const filePath = path.join(direction, fileName);
 
               sharp(request.file.buffer)

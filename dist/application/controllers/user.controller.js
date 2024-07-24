@@ -63,7 +63,7 @@ class UserController {
                             const id = result.payload.id;
                             const direction = path_1.default.join(app_root_path_1.default.path, "public", multer_constant_1.userMulterProperties.folder);
                             const ext = path_1.default.extname(request.file.originalname);
-                            const fileName = `${multer_constant_1.companyMulterProperties.folder}_${id}${ext}`;
+                            const fileName = `${multer_constant_1.userMulterProperties.folder}_${id}${ext}`;
                             const filePath = path_1.default.join(direction, fileName);
                             (0, sharp_1.default)(request.file.buffer)
                                 .resize({ width: 800 })
