@@ -37,10 +37,10 @@ class ProductLabelService {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
         });
-        this.findById = (productLabelId) => __awaiter(this, void 0, void 0, function* () {
+        this.findById = (product_label_id) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const label = yield prisma_1.default.productLabel.findMany({
-                    where: { id: productLabelId },
+                    where: { id: product_label_id },
                 });
                 if (!label)
                     return this.responseService.NotFoundException("Etiqueta no encontrada");
@@ -62,15 +62,15 @@ class ProductLabelService {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
         });
-        this.updateLabel = (data, productLabelId) => __awaiter(this, void 0, void 0, function* () {
+        this.updateLabel = (data, product_label_id) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const responseLabel = yield this.findById(productLabelId);
+                const responseLabel = yield this.findById(product_label_id);
                 if (responseLabel.error)
                     return responseLabel;
                 const slug = (0, slugify_1.default)(data.title, { lower: true });
                 data = Object.assign(Object.assign({}, data), { slug });
                 const updated = yield prisma_1.default.productLabel.update({
-                    where: { id: productLabelId },
+                    where: { id: product_label_id },
                     data,
                 });
                 return this.responseService.SuccessResponse("Etiqueta modificada", updated);
@@ -79,19 +79,42 @@ class ProductLabelService {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
         });
-        this.deleteById = (productLabelId) => __awaiter(this, void 0, void 0, function* () {
+        this.deleteById = (product_label_id) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const responseLabel = yield this.findById(productLabelId);
+                const responseLabel = yield this.findById(product_label_id);
                 if (responseLabel.error)
                     return responseLabel;
                 const updated = yield prisma_1.default.productLabel.update({
-                    where: { id: productLabelId },
+                    where: { id: product_label_id },
                     data: { status_deleted: true },
                 });
                 return this.responseService.SuccessResponse("Etiqueta modificada", updated);
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
+            }
+        });
+        // actions
+        this.assignLabelToProduct = (product_id, product_label_id) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const created = yield prisma_1.default.detailProductLabel.create({
+                    data: { product_id, product_label_id },
+                });
+                return this.responseService.SuccessResponse("Etiqueta asignada correctamente", created);
+            }
+            catch (error) {
+                return this.responseService.InternalServerErrorException("Error al intentar asignar etiqueta", error);
+            }
+        });
+        this.removeLabelFromProduct = (product_id, product_label_id) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield prisma_1.default.detailProductLabel.deleteMany({
+                    where: { product_id, product_label_id },
+                });
+                return this.responseService.SuccessResponse("Asignación eliminada con éxito");
+            }
+            catch (error) {
+                return this.responseService.InternalServerErrorException("Error al intentar remover etiqueta", error);
             }
         });
         this.responseService = new response_service_1.default();

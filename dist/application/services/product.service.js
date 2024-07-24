@@ -18,6 +18,7 @@ const product_label_service_1 = __importDefault(require("./product-label.service
 const response_service_1 = __importDefault(require("./response.service"));
 class ProductService {
     constructor() {
+        //- QUERY METHODS
         this.findAll = (page, limit) => __awaiter(this, void 0, void 0, function* () {
             const skip = (page - 1) * limit;
             try {
@@ -26,6 +27,13 @@ class ProductService {
                         where: { status_deleted: false },
                         skip,
                         take: limit,
+                        include: {
+                            DetailProductLabel: {
+                                include: {
+                                    Label: true,
+                                },
+                            },
+                        },
                     }),
                     prisma_1.default.product.count({
                         where: { status_deleted: false },
@@ -76,6 +84,20 @@ class ProductService {
                 yield prisma_1.default.$disconnect();
             }
         });
+        this.findProductsByLabel = (label_id) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const responseLabel = yield this.productLabelService.findById(label_id);
+                if (responseLabel.error)
+                    return responseLabel;
+                const products = yield prisma_1.default.detailProductLabel.findMany({
+                    where: { product_label_id: label_id },
+                    include: { Product: true },
+                });
+                return this.responseService.SuccessResponse("Listado de productos", products);
+            }
+            catch (error) { }
+        });
+        //- MUTATIONS METHODS
         this.create = (data) => __awaiter(this, void 0, void 0, function* () {
             try {
                 // consideremos al titulo como el campo unico que no se debe repetir
@@ -116,68 +138,7 @@ class ProductService {
                 yield prisma_1.default.$disconnect();
             }
         });
-        // actions to products
-        // assignLabelToProduct = async (productLabelId: number, productId: number) => {
-        //   try {
-        //     const responseProductLabel = await this.productLabelService.findById(
-        //       productLabelId
-        //     );
-        //     const responseProduct = await this.findById(productId);
-        //     if (responseProduct.error || responseProductLabel)
-        //       return this.responseService.BadRequestException(
-        //         "Ocurrió un error al asignar la etiqueta"
-        //       );
-        //     const updatedProduct = await prisma.product.update({
-        //       where: { id: productId },
-        //       data: {
-        //         product_label_id: productLabelId,
-        //       },
-        //     });
-        //     return this.responseService.SuccessResponse(
-        //       "Etiqueta asignada correctamente",
-        //       updatedProduct
-        //     );
-        //   } catch (error) {
-        //     return this.responseService.InternalServerErrorException(
-        //       undefined,
-        //       error
-        //     );
-        //   } finally {
-        //     await prisma.$disconnect();
-        //   }
-        // };
-        // removeLabelFromProduct = async (
-        //   productLabelId: number,
-        //   productId: number
-        // ) => {
-        //   try {
-        //     const responseProductLabel = await this.productLabelService.findById(
-        //       productLabelId
-        //     );
-        //     const responseProduct = await this.findById(productId);
-        //     if (responseProduct.error || responseProductLabel)
-        //       return this.responseService.BadRequestException(
-        //         "Ocurrió un error al asignar la etiqueta"
-        //       );
-        //     const updatedProduct = await prisma.product.update({
-        //       where: { id: productId },
-        //       data: {
-        //         product_label_id: null,
-        //       },
-        //     });
-        //     return this.responseService.SuccessResponse(
-        //       "Etiqueta asignada correctamente",
-        //       updatedProduct
-        //     );
-        //   } catch (error) {
-        //     return this.responseService.InternalServerErrorException(
-        //       undefined,
-        //       error
-        //     );
-        //   } finally {
-        //     await prisma.$disconnect();
-        //   }
-        // };
+        //
         // actions to suppliers
         this.assignSupplierToProduct = (supplierId, productId) => __awaiter(this, void 0, void 0, function* () {
             try {

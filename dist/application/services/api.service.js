@@ -13,15 +13,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
+const qs_1 = __importDefault(require("qs"));
 class ApiService {
     constructor() {
         this.get = (base_api, module) => __awaiter(this, void 0, void 0, function* () {
             return yield axios_1.default.get(`${base_api}/${module}}`);
         });
+        this.getWAuthorization = (base_api, token) => __awaiter(this, void 0, void 0, function* () {
+            const headers = {
+                Authorization: "Bearer " + token,
+            };
+            return yield axios_1.default.get(`${base_api}`, { headers });
+        });
         this.getParam = (base_api, module, param) => __awaiter(this, void 0, void 0, function* () {
             return yield axios_1.default.get(`${base_api}/${module}/${param}`);
         });
-        this.post = (base_api, module, data) => __awaiter(this, void 0, void 0, function* () { });
+        this.post = (base_api, module, data) => __awaiter(this, void 0, void 0, function* () {
+            return yield axios_1.default.post(`${base_api}/${module}`, data);
+        });
+        this.post_x_www_urlencoded = (base_api, data) => __awaiter(this, void 0, void 0, function* () {
+            const formattedData = qs_1.default.stringify(data);
+            const headers = {
+                "Content-Type": "application/x-www-form-urlencoded",
+            };
+            return yield axios_1.default.post(`${base_api}`, formattedData, { headers });
+        });
     }
 }
 exports.default = ApiService;

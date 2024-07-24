@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateCompanyDTO = exports.createCompanyDTO = void 0;
+exports.validateRuc = exports.updateCompanyDTO = exports.createCompanyDTO = void 0;
 const zod_1 = require("zod");
 exports.createCompanyDTO = zod_1.z.object({
     business_name: zod_1.z.string(),
@@ -23,4 +23,7 @@ exports.updateCompanyDTO = zod_1.z.object({
     country_code: zod_1.z.string().optional(),
     ruc: zod_1.z.string(),
     key: zod_1.z.string(),
+});
+exports.validateRuc = zod_1.z.object({
+    ruc: zod_1.z.string().min(11),
 });

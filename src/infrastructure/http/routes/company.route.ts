@@ -48,9 +48,7 @@ class CompanyRouter {
       `${this._prefix}/:id`,
 
       this.companyMiddleware.validateCompany,
-
       this.authMiddleware.authorizationSuperAdmin,
-
       this.companyController.updateById
     );
   }
@@ -58,9 +56,7 @@ class CompanyRouter {
   private postRoutes(): void {
     this.router.post(
       this._prefix,
-
       this.authMiddleware.authorizationSuperAdmin,
-
       this.companyController.create
     );
   }
@@ -68,9 +64,8 @@ class CompanyRouter {
   private deleteRoutes(): void {
     this.router.patch(
       `${this._prefix}/:id`,
-
+      this.authMiddleware.authorizationSuperAdmin,
       this.companyMiddleware.validateCompany,
-
       this.companyController.deleteById
     );
   }

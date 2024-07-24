@@ -8,13 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const auth_service_1 = require("../services/auth.service");
+const auth_service_1 = __importDefault(require("../services/auth.service"));
 class AuthController {
     constructor() {
+        this.authService = new auth_service_1.default();
         this.login = (request, response) => __awaiter(this, void 0, void 0, function* () {
             const { credential, password } = request.body;
-            const result = yield auth_service_1.authService.login(credential, password);
+            const result = yield this.authService.login(credential, password);
             response.status(result.statusCode).json(result);
         });
     }

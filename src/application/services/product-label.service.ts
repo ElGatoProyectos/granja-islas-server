@@ -6,11 +6,9 @@ import ProductService from "./product.service";
 
 class ProductLabelService {
   private responseService: ResponseService;
-  private productService: ProductService;
 
   constructor() {
     this.responseService = new ResponseService();
-    this.productService = new ProductService();
   }
 
   findAll = async () => {

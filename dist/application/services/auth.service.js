@@ -35,13 +35,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authService = void 0;
 const validator_1 = __importDefault(require("validator"));
 const prisma_1 = __importDefault(require("../../infrastructure/database/prisma"));
 const bcrypt = __importStar(require("bcrypt"));
 const response_service_1 = __importDefault(require("./response.service"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const environments_constant_1 = require("../../infrastructure/config/environments.constant");
+const auth_dto_1 = require("../../infrastructure/http/middlewares/dto/auth.dto");
 const jwt_token = environments_constant_1.environments.JWT_TOKEN;
 class AuthService {
     constructor() {
@@ -81,6 +81,22 @@ class AuthService {
                 yield prisma_1.default.$disconnect();
             }
         });
+        this.getUserForToken = (token) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const [bearer, jwtToken] = token.split("");
+                if (!validator_1.default.isJWT(jwtToken))
+                    return this.responseService.UnauthorizedException("Error al obtener información");
+                const decodeToken = jsonwebtoken_1.default.verify(jwtToken, jwt_token);
+                auth_dto_1.jwtDecodeDTO.parse(decodeToken);
+                return this.responseService.SuccessResponse(undefined, decodeToken);
+            }
+            catch (error) {
+                return this.responseService.InternalServerErrorException();
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
+        });
         this.responseService = new response_service_1.default();
     }
     restorePassword(credential) {
@@ -95,4 +111,4 @@ class AuthService {
         });
     }
 }
-exports.authService = new AuthService();
+exports.default = AuthService;

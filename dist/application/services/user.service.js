@@ -47,7 +47,12 @@ class UserService {
     findUsersNoAdmin() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const users = yield prisma_1.default.user.findMany({ where: { role: "USER" } });
+                const users = yield prisma_1.default.user.findMany({
+                    omit: {
+                        password: true,
+                    },
+                    where: { role: "USER" },
+                });
                 return this.responseService.SuccessResponse("Lista de usuarios", users);
             }
             catch (error) {
@@ -62,6 +67,9 @@ class UserService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const users = yield prisma_1.default.user.findMany({
+                    omit: {
+                        password: true,
+                    },
                     where: {
                         role: {
                             in: ["USER", "ADMIN"],
@@ -126,6 +134,26 @@ class UserService {
             }
         });
     }
+    createUserOrAdmin(userData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const password = bcrypt.hashSync(userData.password, 11);
+                let role = userData.role === "ADMIN" ? client_1.Role.ADMIN : client_1.Role.USER;
+                const userFormat = Object.assign(Object.assign({}, userData), { role, password });
+                const created = yield prisma_1.default.user.create({
+                    data: userFormat,
+                    omit: { password: true },
+                });
+                return this.responseService.CreatedResponse("Administrador registrado con éxito", created);
+            }
+            catch (error) {
+                return this.responseService.InternalServerErrorException();
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
+        });
+    }
     updateUserOrAdmin(userData, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -139,11 +167,12 @@ class UserService {
                     userFormat = Object.assign(Object.assign({}, userData), { password: newPassword });
                 }
                 role = userData.role === "ADMIN" ? client_1.Role.ADMIN : client_1.Role.USER;
-                yield prisma_1.default.user.update({
+                const updated = yield prisma_1.default.user.update({
                     data: Object.assign(Object.assign({}, userFormat), { role }),
                     where: { id: userId },
+                    omit: { password: true },
                 });
-                return this.responseService.SuccessResponse("Usuario modificado exitosamente");
+                return this.responseService.SuccessResponse("Usuario modificado exitosamente", updated);
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException();

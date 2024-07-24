@@ -44,16 +44,15 @@ class UserRouter {
     this.router.post(
       `${this._prefix}`,
       this.authMiddleware.authorizationAdmin,
-      this.userMiddleware.validateBody,
+      this.userMiddleware.validateBodyCreate,
       this.userController.create
     );
   }
 
   private patchRoutes() {
     this.router.patch(
-      `${this._prefix}`,
-      this.authMiddleware.authorizationAdmin,
-      this.userMiddleware.validateBody,
+      `${this._prefix}/:id`,
+      this.authMiddleware.authorizationUser,
       this.userController.edit
     );
   }

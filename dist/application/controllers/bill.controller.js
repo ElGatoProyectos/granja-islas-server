@@ -23,6 +23,9 @@ class BillController {
             const result = yield this.billService.findAll(period, month);
             response.status(result.statusCode).json(result);
         });
+        this.captureData = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            // necesitamos capturar todos los detalles y validarlo con los proveedores y facturas, en conclusion, primero registrar la factura y luego lo demas
+        });
         this.excelFindAll = (request, response) => { };
         this.billService = new bill_service_1.default();
     }

@@ -18,7 +18,12 @@ class UserService {
 
   async findUsersNoAdmin(): Promise<T_Response> {
     try {
-      const users = await prisma.user.findMany({ where: { role: "USER" } });
+      const users = await prisma.user.findMany({
+        omit: {
+          password: true,
+        },
+        where: { role: "USER" },
+      });
       return this.responseService.SuccessResponse("Lista de usuarios", users);
     } catch (error) {
       return this.responseService.InternalServerErrorException();
@@ -30,6 +35,9 @@ class UserService {
   async findUsersNoSuperAdmin(): Promise<T_Response> {
     try {
       const users = await prisma.user.findMany({
+        omit: {
+          password: true,
+        },
         where: {
           role: {
             in: ["USER", "ADMIN"],
@@ -94,6 +102,25 @@ class UserService {
       await prisma.$disconnect();
     }
   }
+  async createUserOrAdmin(userData: I_CreateUser): Promise<T_Response> {
+    try {
+      const password = bcrypt.hashSync(userData.password, 11);
+      let role = userData.role === "ADMIN" ? Role.ADMIN : Role.USER;
+      const userFormat = { ...userData, role, password };
+      const created = await prisma.user.create({
+        data: userFormat,
+        omit: { password: true },
+      });
+      return this.responseService.CreatedResponse(
+        "Administrador registrado con éxito",
+        created
+      );
+    } catch (error) {
+      return this.responseService.InternalServerErrorException();
+    } finally {
+      await prisma.$disconnect();
+    }
+  }
 
   async updateUserOrAdmin(
     userData: I_UpdateUser,
@@ -112,12 +139,14 @@ class UserService {
 
       role = userData.role === "ADMIN" ? Role.ADMIN : Role.USER;
 
-      await prisma.user.update({
+      const updated = await prisma.user.update({
         data: { ...userFormat, role },
         where: { id: userId },
+        omit: { password: true },
       });
       return this.responseService.SuccessResponse(
-        "Usuario modificado exitosamente"
+        "Usuario modificado exitosamente",
+        updated
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException();
