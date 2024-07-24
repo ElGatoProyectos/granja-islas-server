@@ -9,10 +9,6 @@ import validator from "validator";
 class RucMiddleware {
   private responseService: ResponseService = new ResponseService();
 
-  private customError = this.responseService.BadRequestException(
-    "Error al traer la información"
-  );
-
   validateRuc = (
     request: Request,
     response: Response,
@@ -21,18 +17,25 @@ class RucMiddleware {
     try {
       const ruc = request.get("ruc");
 
-      if (!ruc)
-        response.status(this.customError.statusCode).json(this.customError);
+      const customError = this.responseService.BadRequestException(
+        "Error al solicitar la información"
+      );
+
+      if (!ruc) response.status(customError.statusCode).json(customError);
       else {
         validateRuc.parse({ ruc });
 
         if (!validator.isNumeric(ruc))
-          response.status(this.customError.statusCode).json(this.customError);
+          response.status(customError.statusCode).json(customError);
 
         nextFunction();
       }
     } catch (error) {
-      response.status(this.customError.statusCode).json(this.customError);
+      const customError = this.responseService.BadRequestException(
+        "Error al traer la información",
+        error
+      );
+      response.status(customError.statusCode).json(customError);
     }
   };
 }

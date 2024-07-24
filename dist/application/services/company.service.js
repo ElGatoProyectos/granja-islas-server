@@ -64,6 +64,7 @@ class CompanyService {
                 return this.responseService.CreatedResponse("Empresa creada con éxito!", created);
             }
             catch (error) {
+                console.log(error);
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
             finally {

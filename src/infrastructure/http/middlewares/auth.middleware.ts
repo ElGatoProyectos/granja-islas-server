@@ -39,9 +39,9 @@ export default class AuthMiddleware {
 
       const user = await this.userService.findUserById(data.id);
 
-      if (!user) return this.responseService.UnauthorizedException();
+      if (user.error) return this.responseService.UnauthorizedException();
 
-      return this.responseService.SuccessResponse(undefined, user);
+      return this.responseService.SuccessResponse(undefined, user.payload);
     } catch (error) {
       return this.responseService.UnauthorizedException();
     }

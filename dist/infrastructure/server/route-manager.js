@@ -12,6 +12,7 @@ const sire_route_1 = __importDefault(require("../http/routes/sire.route"));
 const sunat_route_1 = __importDefault(require("../http/routes/sunat.route"));
 const seed_route_1 = __importDefault(require("../http/routes/seed.route"));
 const product_route_1 = __importDefault(require("../http/routes/product.route"));
+const supplier_route_1 = __importDefault(require("../http/routes/supplier.route"));
 class RouteManager {
     constructor(app) {
         this.app = app;
@@ -27,6 +28,7 @@ class RouteManager {
         this.app.use(this._globalPrefix, sunat_route_1.default);
         this.app.use(this._globalPrefix, seed_route_1.default);
         this.app.use(this._globalPrefix, product_route_1.default);
+        this.app.use(this._globalPrefix, supplier_route_1.default);
     }
 }
 exports.RouteManager = RouteManager;

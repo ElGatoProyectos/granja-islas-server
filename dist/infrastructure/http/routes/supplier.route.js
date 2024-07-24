@@ -6,13 +6,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const auth_middleware_1 = __importDefault(require("../middlewares/auth.middleware"));
 const supplier_controller_1 = __importDefault(require("../../../application/controllers/supplier.controller"));
+const ruc_middleware_1 = __importDefault(require("../middlewares/ruc.middleware"));
+const supplier_middleware_1 = __importDefault(require("../middlewares/supplier.middleware"));
 // pending
-class UserRouter {
+class SupplierRouter {
     constructor() {
-        this._prefix = "/users";
+        this._prefix = "/suppliers";
         this.router = (0, express_1.Router)();
         this.authMiddleware = new auth_middleware_1.default();
         this.supplierController = new supplier_controller_1.default();
+        this.rucMiddleware = new ruc_middleware_1.default();
+        this.supplierMiddleware = new supplier_middleware_1.default();
         this.initializeRoutes();
     }
     initializeRoutes() {
@@ -21,14 +25,14 @@ class UserRouter {
         this.patchRoutes();
     }
     getRoutes() {
-        this.router.get(`${this._prefix}`, this.authMiddleware.authorizationAdmin);
-        this.router.get(`${this._prefix}/:id`, this.authMiddleware.authorizationAdmin);
+        this.router.get(`${this._prefix}`, this.rucMiddleware.validateRuc, this.authMiddleware.authorizationUser, this.supplierController.findAll);
+        this.router.get(`${this._prefix}/:id`, this.rucMiddleware.validateRuc, this.authMiddleware.authorizationUser, this.supplierController.findById);
     }
     postRoutes() {
-        this.router.post(`${this._prefix}`);
+        this.router.post(`${this._prefix}`, this.rucMiddleware.validateRuc, this.supplierMiddleware.validateBody, this.authMiddleware.authorizationAdmin, this.supplierController.create);
     }
     patchRoutes() {
         this.router.patch(`${this._prefix}`);
     }
 }
-exports.default = new UserRouter().router;
+exports.default = new SupplierRouter().router;

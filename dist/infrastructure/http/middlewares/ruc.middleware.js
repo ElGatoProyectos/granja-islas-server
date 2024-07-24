@@ -12,21 +12,22 @@ const validator_1 = __importDefault(require("validator"));
 class RucMiddleware {
     constructor() {
         this.responseService = new response_service_1.default();
-        this.customError = this.responseService.BadRequestException("Error al traer la información");
         this.validateRuc = (request, response, nextFunction) => {
             try {
                 const ruc = request.get("ruc");
+                const customError = this.responseService.BadRequestException("Error al solicitar la información");
                 if (!ruc)
-                    response.status(this.customError.statusCode).json(this.customError);
+                    response.status(customError.statusCode).json(customError);
                 else {
                     company_dto_1.validateRuc.parse({ ruc });
                     if (!validator_1.default.isNumeric(ruc))
-                        response.status(this.customError.statusCode).json(this.customError);
+                        response.status(customError.statusCode).json(customError);
                     nextFunction();
                 }
             }
             catch (error) {
-                response.status(this.customError.statusCode).json(this.customError);
+                const customError = this.responseService.BadRequestException("Error al traer la información", error);
+                response.status(customError.statusCode).json(customError);
             }
         };
     }

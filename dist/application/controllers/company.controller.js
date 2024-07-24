@@ -68,7 +68,7 @@ class CompanyController {
                         }
                     }
                     catch (error) {
-                        const customError = this.responseService.BadRequestException("Error al validar los campos", err);
+                        const customError = this.responseService.BadRequestException("Error al validar los campos", error);
                         response.status(customError.statusCode).json(customError);
                     }
                 }

@@ -20,7 +20,9 @@ class SupplierService {
   getCompanyInitial = async (ruc: string) => {
     try {
       const company = await prisma.company.findFirst({ where: { ruc } });
-      return this.responseService.SuccessResponse("Company", company);
+      if (!company)
+        return this.responseService.NotFoundException("La empresa no existe");
+      return this.responseService.SuccessResponse(undefined, company);
     } catch (error) {
       return this.responseService.InternalServerErrorException(
         undefined,
@@ -51,7 +53,7 @@ class SupplierService {
   findAll = async (ruc: string) => {
     try {
       const responseCompany = await this.getCompanyInitial(ruc);
-      if (!responseCompany.error) return responseCompany;
+      if (responseCompany.error) return responseCompany;
 
       const company: Company = responseCompany.payload;
 
@@ -74,7 +76,7 @@ class SupplierService {
   findById = async (supplier_id: number, ruc: string) => {
     try {
       const responseCompany = await this.getCompanyInitial(ruc);
-      if (!responseCompany.error) return responseCompany;
+      if (responseCompany.error) return responseCompany;
 
       const company: Company = responseCompany.payload;
 
@@ -96,7 +98,7 @@ class SupplierService {
   findForRuc = async (company_ruc: string, ruc: string) => {
     try {
       const responseCompany = await this.getCompanyInitial(ruc);
-      if (!responseCompany.error) return responseCompany;
+      if (responseCompany.error) return responseCompany;
 
       const company: Company = responseCompany.payload;
 
@@ -125,7 +127,7 @@ class SupplierService {
     try {
       const responseValidation = await this.validationInitial(token, ruc);
 
-      if (!responseValidation) return responseValidation;
+      if (responseValidation.error) return responseValidation;
 
       type T_RValidation = {
         user: User;

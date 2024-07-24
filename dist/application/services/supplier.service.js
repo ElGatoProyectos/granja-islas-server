@@ -21,7 +21,9 @@ class SupplierService {
         this.getCompanyInitial = (ruc) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const company = yield prisma_1.default.company.findFirst({ where: { ruc } });
-                return this.responseService.SuccessResponse("Company", company);
+                if (!company)
+                    return this.responseService.NotFoundException("La empresa no existe");
+                return this.responseService.SuccessResponse(undefined, company);
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
@@ -47,7 +49,7 @@ class SupplierService {
         this.findAll = (ruc) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const responseCompany = yield this.getCompanyInitial(ruc);
-                if (!responseCompany.error)
+                if (responseCompany.error)
                     return responseCompany;
                 const company = responseCompany.payload;
                 const suppliers = yield prisma_1.default.supplier.findMany({
@@ -62,7 +64,7 @@ class SupplierService {
         this.findById = (supplier_id, ruc) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const responseCompany = yield this.getCompanyInitial(ruc);
-                if (!responseCompany.error)
+                if (responseCompany.error)
                     return responseCompany;
                 const company = responseCompany.payload;
                 const supplier = yield prisma_1.default.supplier.findFirst({
@@ -77,7 +79,7 @@ class SupplierService {
         this.findForRuc = (company_ruc, ruc) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const responseCompany = yield this.getCompanyInitial(ruc);
-                if (!responseCompany.error)
+                if (responseCompany.error)
                     return responseCompany;
                 const company = responseCompany.payload;
                 const supplier = yield prisma_1.default.supplier.findFirst({
@@ -95,7 +97,7 @@ class SupplierService {
         this.create = (data, token, ruc) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const responseValidation = yield this.validationInitial(token, ruc);
-                if (!responseValidation)
+                if (responseValidation.error)
                     return responseValidation;
                 const { user, company } = responseValidation.payload;
                 const created = yield prisma_1.default.supplier.create({

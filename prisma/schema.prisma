@@ -44,7 +44,8 @@ model Company {
   business_type             String?
   business_status           String?
   business_direction_fiscal String?
-  business_user             String
+  description               String?
+  user                      String
   phone                     String?
   country_code              String?
   ruc                       String   @unique
