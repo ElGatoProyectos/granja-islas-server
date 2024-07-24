@@ -11,7 +11,9 @@ class SupplierController {
 
   findAll = async (request: Request, response: Response) => {
     const ruc = request.get("ruc") as string;
-    const result = await this.supplierService.findAll(ruc);
+    const page = parseInt(request.query.page as string) || 1;
+    const limit = parseInt(request.query.limit as string) || 20;
+    const result = await this.supplierService.findAll(ruc, page, limit);
     response.status(result.statusCode).json(result);
   };
 
@@ -33,8 +35,9 @@ class SupplierController {
 
   edit = async (request: Request, response: Response) => {
     const id = Number(request.params.id as string);
+    const ruc = request.get("ruc") as string;
     const data = request.body;
-    const result = await this.supplierService.updateById(data, id);
+    const result = await this.supplierService.updateById(data, id, ruc);
     response.status(result.statusCode).json(result);
   };
 }

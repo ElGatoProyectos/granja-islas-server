@@ -55,7 +55,10 @@ class ProductService {
         formatData
       );
     } catch (error) {
-      throw error;
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
     } finally {
       await prisma.$disconnect();
     }

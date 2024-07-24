@@ -6,14 +6,17 @@ import {
 } from "../models/interfaces/supplier.interface";
 import ResponseService from "./response.service";
 import AuthService from "./auth.service";
+import CompanyService from "./company.service";
 
 class SupplierService {
   private responseService: ResponseService;
+  private companyService: CompanyService;
   private authService: AuthService;
 
   constructor() {
     this.responseService = new ResponseService();
     this.authService = new AuthService();
+    this.companyService = new CompanyService();
   }
 
   // - query methods --------------------------------------------------------
@@ -34,7 +37,8 @@ class SupplierService {
   validationInitial = async (token: string, ruc: string) => {
     try {
       const responseGetUser = await this.authService.getUserForToken(token);
-      if (!responseGetUser.error) return responseGetUser;
+      if (responseGetUser.error) return responseGetUser;
+
       const responseCompany = await this.getCompanyInitial(ruc);
       if (responseCompany.error) return responseCompany;
 
@@ -50,20 +54,42 @@ class SupplierService {
     }
   };
 
-  findAll = async (ruc: string) => {
+  findAll = async (ruc: string, page: number, limit: number) => {
+    const skip = (page - 1) * limit;
     try {
       const responseCompany = await this.getCompanyInitial(ruc);
       if (responseCompany.error) return responseCompany;
 
       const company: Company = responseCompany.payload;
 
-      const suppliers = await prisma.supplier.findMany({
-        where: { company_id: company.id },
-      });
+      const [suppliers, total] = await prisma.$transaction([
+        prisma.supplier.findMany({
+          where: { status_deleted: false, company_id: company.id },
+          skip,
+          take: limit,
+          include: {
+            Company: true,
+            User: { omit: { password: true } },
+          },
+        }),
+        prisma.product.count({
+          where: { status_deleted: false },
+        }),
+      ]);
+
+      const pageCount = Math.ceil(total / limit);
+
+      const formatData = {
+        total,
+        page,
+        perPage: limit,
+        pageCount,
+        data: suppliers,
+      };
 
       return this.responseService.SuccessResponse(
         "Lista de Proveedores",
-        suppliers
+        formatData
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException(
@@ -83,6 +109,11 @@ class SupplierService {
       const supplier = await prisma.supplier.findFirst({
         where: { id: supplier_id, company_id: company.id },
       });
+
+      if (!supplier)
+        return this.responseService.NotFoundException(
+          "Proveedor no encontrado"
+        );
       return this.responseService.SuccessResponse(
         "Proveedor encontrado",
         supplier
@@ -151,15 +182,37 @@ class SupplierService {
     }
   };
 
-  updateById = async (data: I_UpdateSupplier, supplier_id: number) => {
+  updateById = async (
+    data: I_UpdateSupplier,
+    supplier_id: number,
+    ruc: string
+  ) => {
     try {
-      const created = await prisma.supplier.update({
+      // empresa de donde estoy enviando la solicitud
+      //* ok
+      const responseCompany = await this.companyService.findByRuc(ruc);
+
+      // proveedor a quien quiero hacer la modificación
+      // ! error
+      const responseSupplier = await this.findById(supplier_id, ruc);
+
+      if (responseCompany.error || responseSupplier.error)
+        return this.responseService.BadRequestException(
+          "Error al validar las empresa seleccionada"
+        );
+
+      if (responseCompany.payload.id !== responseSupplier.payload.company_id)
+        return this.responseService.BadRequestException(
+          "El proveedor a modificar no pertenece a la empresa seleccionada"
+        );
+
+      const updated = await prisma.supplier.update({
         where: { id: supplier_id },
         data,
       });
       return this.responseService.CreatedResponse(
         "Proveedor modificado correctamente",
-        created
+        updated
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException(

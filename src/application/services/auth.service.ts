@@ -5,14 +5,17 @@ import ResponseService, { T_Response } from "./response.service";
 import jwt from "jsonwebtoken";
 import { environments } from "../../infrastructure/config/environments.constant";
 import { jwtDecodeDTO } from "../../infrastructure/http/middlewares/dto/auth.dto";
+import UserService from "./user.service";
 
 const jwt_token = environments.JWT_TOKEN;
 
 class AuthService {
   private responseService: ResponseService;
+  private userService: UserService;
 
   constructor() {
     this.responseService = new ResponseService();
+    this.userService = new UserService();
   }
 
   login = async (credential: string, password: string): Promise<T_Response> => {
@@ -60,17 +63,22 @@ class AuthService {
 
   getUserForToken = async (token: string) => {
     try {
-      const [bearer, jwtToken] = token.split("");
+      const [bearer, jwtToken] = token.split(" ");
       if (!validator.isJWT(jwtToken))
         return this.responseService.UnauthorizedException(
           "Error al obtener información"
         );
 
       const decodeToken = jwt.verify(jwtToken, jwt_token);
-
-      jwtDecodeDTO.parse(decodeToken);
-
-      return this.responseService.SuccessResponse(undefined, decodeToken);
+      const { data, success } = jwtDecodeDTO.safeParse(decodeToken);
+      if (data && success) {
+        const user = await this.userService.findUserById(data.id);
+        return this.responseService.SuccessResponse(undefined, decodeToken);
+      } else {
+        return this.responseService.UnauthorizedException(
+          "Error al obtener información"
+        );
+      }
     } catch (error) {
       return this.responseService.InternalServerErrorException();
     } finally {

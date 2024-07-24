@@ -63,10 +63,11 @@ model Supplier {
   company_id         Int
   user_id_created    Int?
   business_name      String
-  ruc                String   @unique
   business_type      String
   business_status    String
   business_direction String
+  description        String?
+  ruc                String   @unique
   status_deleted     Boolean? @default(false)
 
   created_at DateTime  @default(dbgenerated("CURRENT_DATE"))

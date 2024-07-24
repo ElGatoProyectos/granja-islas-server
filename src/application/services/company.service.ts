@@ -70,6 +70,27 @@ export default class CompanyService {
     }
   };
 
+  findByRuc = async (ruc: string) => {
+    try {
+      const company = await prisma.company.findFirst({
+        where: { ruc },
+      });
+      if (!company)
+        return this.responseService.NotFoundException("Empresa no encontrada");
+      return this.responseService.SuccessResponse(
+        "Empresa encontrada con éxito",
+        company
+      );
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    } finally {
+      await prisma.$disconnect();
+    }
+  };
+
   create = async (data: I_CreateCompany) => {
     try {
       const created = await prisma.company.create({ data });
