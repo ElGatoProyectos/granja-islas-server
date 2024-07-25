@@ -44,7 +44,7 @@ class CompanyRouter {
 
     this.router.get(
       `${this._prefix}/file/:filter`,
-      this.authMiddleware.authorizationUser,
+      // this.authMiddleware.authorizationUser,
       this.companyController.findImage
     );
   }

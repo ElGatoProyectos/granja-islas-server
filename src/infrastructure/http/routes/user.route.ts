@@ -29,20 +29,17 @@ class UserRouter {
     this.router.get(
       `${this._prefix}`,
       this.authMiddleware.authorizationAdmin,
-      this.authMiddleware.authorizationAdmin,
       this.userController.findUsers
     );
     this.router.get(
       `${this._prefix}/:id`,
-      this.authMiddleware.authorizationAdmin,
       this.authMiddleware.authorizationAdmin,
       this.userController.findUserById
     );
 
     this.router.get(
       `${this._prefix}/file/:id`,
-      this.authMiddleware.authorizationAdmin,
-      this.authMiddleware.authorizationAdmin,
+      // this.authMiddleware.authorizationAdmin,
       this.userController.findImage
     );
   }
