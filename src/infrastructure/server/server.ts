@@ -24,12 +24,12 @@ class Server {
   }
 
   private config(): void {
-    this.app.use(express.json());
     this.app.use(
       cors({
         origin: "*", // Permitir todos los orígenes
       })
     );
+    this.app.use(express.json());
   }
 
   private routes(): void {
