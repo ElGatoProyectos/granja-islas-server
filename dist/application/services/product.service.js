@@ -50,7 +50,7 @@ class ProductService {
                 return this.responseService.SuccessResponse("Lista de productos", formatData);
             }
             catch (error) {
-                throw error;
+                return this.responseService.InternalServerErrorException(undefined, error);
             }
             finally {
                 yield prisma_1.default.$disconnect();

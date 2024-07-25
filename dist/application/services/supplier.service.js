@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const prisma_1 = __importDefault(require("../../infrastructure/database/prisma"));
 const response_service_1 = __importDefault(require("./response.service"));
 const auth_service_1 = __importDefault(require("./auth.service"));
+const company_service_1 = __importDefault(require("./company.service"));
 class SupplierService {
     constructor() {
         // - query methods --------------------------------------------------------
@@ -32,7 +33,7 @@ class SupplierService {
         this.validationInitial = (token, ruc) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const responseGetUser = yield this.authService.getUserForToken(token);
-                if (!responseGetUser.error)
+                if (responseGetUser.error)
                     return responseGetUser;
                 const responseCompany = yield this.getCompanyInitial(ruc);
                 if (responseCompany.error)
@@ -46,16 +47,36 @@ class SupplierService {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
         });
-        this.findAll = (ruc) => __awaiter(this, void 0, void 0, function* () {
+        this.findAll = (ruc, page, limit) => __awaiter(this, void 0, void 0, function* () {
+            const skip = (page - 1) * limit;
             try {
                 const responseCompany = yield this.getCompanyInitial(ruc);
                 if (responseCompany.error)
                     return responseCompany;
                 const company = responseCompany.payload;
-                const suppliers = yield prisma_1.default.supplier.findMany({
-                    where: { company_id: company.id },
-                });
-                return this.responseService.SuccessResponse("Lista de Proveedores", suppliers);
+                const [suppliers, total] = yield prisma_1.default.$transaction([
+                    prisma_1.default.supplier.findMany({
+                        where: { status_deleted: false, company_id: company.id },
+                        skip,
+                        take: limit,
+                        include: {
+                            Company: true,
+                            User: { omit: { password: true } },
+                        },
+                    }),
+                    prisma_1.default.product.count({
+                        where: { status_deleted: false },
+                    }),
+                ]);
+                const pageCount = Math.ceil(total / limit);
+                const formatData = {
+                    total,
+                    page,
+                    perPage: limit,
+                    pageCount,
+                    data: suppliers,
+                };
+                return this.responseService.SuccessResponse("Lista de Proveedores", formatData);
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
@@ -70,6 +91,8 @@ class SupplierService {
                 const supplier = yield prisma_1.default.supplier.findFirst({
                     where: { id: supplier_id, company_id: company.id },
                 });
+                if (!supplier)
+                    return this.responseService.NotFoundException("Proveedor no encontrado");
                 return this.responseService.SuccessResponse("Proveedor encontrado", supplier);
             }
             catch (error) {
@@ -109,13 +132,23 @@ class SupplierService {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
         });
-        this.updateById = (data, supplier_id) => __awaiter(this, void 0, void 0, function* () {
+        this.updateById = (data, supplier_id, ruc) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const created = yield prisma_1.default.supplier.update({
+                // empresa de donde estoy enviando la solicitud
+                //* ok
+                const responseCompany = yield this.companyService.findByRuc(ruc);
+                // proveedor a quien quiero hacer la modificación
+                // ! error
+                const responseSupplier = yield this.findById(supplier_id, ruc);
+                if (responseCompany.error || responseSupplier.error)
+                    return this.responseService.BadRequestException("Error al validar las empresa seleccionada");
+                if (responseCompany.payload.id !== responseSupplier.payload.company_id)
+                    return this.responseService.BadRequestException("El proveedor a modificar no pertenece a la empresa seleccionada");
+                const updated = yield prisma_1.default.supplier.update({
                     where: { id: supplier_id },
                     data,
                 });
-                return this.responseService.CreatedResponse("Proveedor modificado correctamente", created);
+                return this.responseService.CreatedResponse("Proveedor modificado correctamente", updated);
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException(undefined, error);
@@ -123,6 +156,7 @@ class SupplierService {
         });
         this.responseService = new response_service_1.default();
         this.authService = new auth_service_1.default();
+        this.companyService = new company_service_1.default();
     }
 }
 exports.default = SupplierService;

@@ -18,7 +18,9 @@ class SupplierController {
     constructor() {
         this.findAll = (request, response) => __awaiter(this, void 0, void 0, function* () {
             const ruc = request.get("ruc");
-            const result = yield this.supplierService.findAll(ruc);
+            const page = parseInt(request.query.page) || 1;
+            const limit = parseInt(request.query.limit) || 20;
+            const result = yield this.supplierService.findAll(ruc, page, limit);
             response.status(result.statusCode).json(result);
         });
         this.findById = (request, response) => __awaiter(this, void 0, void 0, function* () {
@@ -36,8 +38,9 @@ class SupplierController {
         });
         this.edit = (request, response) => __awaiter(this, void 0, void 0, function* () {
             const id = Number(request.params.id);
+            const ruc = request.get("ruc");
             const data = request.body;
-            const result = yield this.supplierService.updateById(data, id);
+            const result = yield this.supplierService.updateById(data, id, ruc);
             response.status(result.statusCode).json(result);
         });
         this.supplierService = new supplier_service_1.default();

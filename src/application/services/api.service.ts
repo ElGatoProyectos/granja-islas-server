@@ -17,8 +17,13 @@ class ApiService {
     return await axios.get(`${base_api}/${module}/${param}`);
   };
 
-  post = async (base_api: string, module: string, data: unknown) => {
-    return await axios.post(`${base_api}/${module}`, data);
+  post = async (
+    base_api: string,
+    module: string,
+    data: unknown,
+    headers = {}
+  ) => {
+    return await axios.post(`${base_api}/${module}`, data, { headers });
   };
 
   post_x_www_urlencoded = async (base_api: string, data: unknown) => {

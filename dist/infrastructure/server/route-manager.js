@@ -21,7 +21,6 @@ class RouteManager {
     initializeRoutes() {
         this.app.use(this._globalPrefix, auth_route_1.default);
         this.app.use(this._globalPrefix, user_route_1.default);
-        this.app.use(this._globalPrefix, test_route_1.default);
         // this.app.use(this._globalPrefix, voucherRoute);
         this.app.use(this._globalPrefix, company_route_1.default);
         this.app.use(this._globalPrefix, sire_route_1.default);
@@ -29,6 +28,7 @@ class RouteManager {
         this.app.use(this._globalPrefix, seed_route_1.default);
         this.app.use(this._globalPrefix, product_route_1.default);
         this.app.use(this._globalPrefix, supplier_route_1.default);
+        this.app.use(this._globalPrefix, test_route_1.default);
     }
 }
 exports.RouteManager = RouteManager;

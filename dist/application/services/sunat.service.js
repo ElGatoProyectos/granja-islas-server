@@ -46,6 +46,23 @@ class SunatService {
                 return this.responseService.InternalServerErrorException();
             }
         });
+        this.captureDataSire = (config) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const responseToken = yield this.captureTokenSecurity();
+                if (responseToken.error)
+                    return responseToken;
+                const headers = {
+                    Authorization: "Bearer " + responseToken.payload.access_token,
+                };
+                const response = yield this.apiService.post(base_api_query, "api/v1/comprobantes/detalle", config, headers);
+                return this.responseService.SuccessResponse(undefined, response.data);
+            }
+            catch (error) {
+                console.log(error);
+                return this.responseService.InternalServerErrorException(undefined, error);
+            }
+        });
+        //- Por aquí deberían pasar todas las credenciales, client_id, client_secret, username, password
         this.captureTokenSecurity = () => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = {

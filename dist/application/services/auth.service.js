@@ -42,6 +42,7 @@ const response_service_1 = __importDefault(require("./response.service"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const environments_constant_1 = require("../../infrastructure/config/environments.constant");
 const auth_dto_1 = require("../../infrastructure/http/middlewares/dto/auth.dto");
+const user_service_1 = __importDefault(require("./user.service"));
 const jwt_token = environments_constant_1.environments.JWT_TOKEN;
 class AuthService {
     constructor() {
@@ -83,12 +84,18 @@ class AuthService {
         });
         this.getUserForToken = (token) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const [bearer, jwtToken] = token.split("");
+                const [bearer, jwtToken] = token.split(" ");
                 if (!validator_1.default.isJWT(jwtToken))
                     return this.responseService.UnauthorizedException("Error al obtener información");
                 const decodeToken = jsonwebtoken_1.default.verify(jwtToken, jwt_token);
-                auth_dto_1.jwtDecodeDTO.parse(decodeToken);
-                return this.responseService.SuccessResponse(undefined, decodeToken);
+                const { data, success } = auth_dto_1.jwtDecodeDTO.safeParse(decodeToken);
+                if (data && success) {
+                    const user = yield this.userService.findUserById(data.id);
+                    return this.responseService.SuccessResponse(undefined, decodeToken);
+                }
+                else {
+                    return this.responseService.UnauthorizedException("Error al obtener información");
+                }
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException();
@@ -98,6 +105,7 @@ class AuthService {
             }
         });
         this.responseService = new response_service_1.default();
+        this.userService = new user_service_1.default();
     }
     restorePassword(credential) {
         return __awaiter(this, void 0, void 0, function* () {

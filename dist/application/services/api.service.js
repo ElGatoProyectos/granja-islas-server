@@ -28,8 +28,8 @@ class ApiService {
         this.getParam = (base_api, module, param) => __awaiter(this, void 0, void 0, function* () {
             return yield axios_1.default.get(`${base_api}/${module}/${param}`);
         });
-        this.post = (base_api, module, data) => __awaiter(this, void 0, void 0, function* () {
-            return yield axios_1.default.post(`${base_api}/${module}`, data);
+        this.post = (base_api, module, data, headers = {}) => __awaiter(this, void 0, void 0, function* () {
+            return yield axios_1.default.post(`${base_api}/${module}`, data, { headers });
         });
         this.post_x_www_urlencoded = (base_api, data) => __awaiter(this, void 0, void 0, function* () {
             const formattedData = qs_1.default.stringify(data);

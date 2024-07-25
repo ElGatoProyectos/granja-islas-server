@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const auth_middleware_1 = __importDefault(require("../middlewares/auth.middleware"));
 const supplier_controller_1 = __importDefault(require("../../../application/controllers/supplier.controller"));
-const ruc_middleware_1 = __importDefault(require("../middlewares/ruc.middleware"));
 const supplier_middleware_1 = __importDefault(require("../middlewares/supplier.middleware"));
+const access_data_middleware_1 = __importDefault(require("../middlewares/access-data.middleware"));
 // pending
 class SupplierRouter {
     constructor() {
@@ -15,7 +15,7 @@ class SupplierRouter {
         this.router = (0, express_1.Router)();
         this.authMiddleware = new auth_middleware_1.default();
         this.supplierController = new supplier_controller_1.default();
-        this.rucMiddleware = new ruc_middleware_1.default();
+        this.accessDataMiddleware = new access_data_middleware_1.default();
         this.supplierMiddleware = new supplier_middleware_1.default();
         this.initializeRoutes();
     }
@@ -25,14 +25,14 @@ class SupplierRouter {
         this.patchRoutes();
     }
     getRoutes() {
-        this.router.get(`${this._prefix}`, this.rucMiddleware.validateRuc, this.authMiddleware.authorizationUser, this.supplierController.findAll);
-        this.router.get(`${this._prefix}/:id`, this.rucMiddleware.validateRuc, this.authMiddleware.authorizationUser, this.supplierController.findById);
+        this.router.get(`${this._prefix}`, this.authMiddleware.authorizationUser, this.accessDataMiddleware.validateCredentials, this.supplierController.findAll);
+        this.router.get(`${this._prefix}/:id`, this.authMiddleware.authorizationUser, this.accessDataMiddleware.validateCredentials, this.supplierController.findById);
     }
     postRoutes() {
-        this.router.post(`${this._prefix}`, this.rucMiddleware.validateRuc, this.supplierMiddleware.validateBody, this.authMiddleware.authorizationAdmin, this.supplierController.create);
+        this.router.post(`${this._prefix}`, this.authMiddleware.authorizationAdmin, this.accessDataMiddleware.validateCredentials, this.supplierMiddleware.validateCreate, this.supplierController.create);
     }
     patchRoutes() {
-        this.router.patch(`${this._prefix}`);
+        this.router.patch(`${this._prefix}/:id`, this.authMiddleware.authorizationAdmin, this.accessDataMiddleware.validateCredentials, this.supplierMiddleware.validateUpdate, this.supplierController.edit);
     }
 }
 exports.default = new SupplierRouter().router;

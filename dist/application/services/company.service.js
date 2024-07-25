@@ -58,6 +58,22 @@ class CompanyService {
                 yield prisma_1.default.$disconnect();
             }
         });
+        this.findByRuc = (ruc) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const company = yield prisma_1.default.company.findFirst({
+                    where: { ruc },
+                });
+                if (!company)
+                    return this.responseService.NotFoundException("Empresa no encontrada");
+                return this.responseService.SuccessResponse("Empresa encontrada con éxito", company);
+            }
+            catch (error) {
+                return this.responseService.InternalServerErrorException(undefined, error);
+            }
+            finally {
+                yield prisma_1.default.$disconnect();
+            }
+        });
         this.create = (data) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const created = yield prisma_1.default.company.create({ data });

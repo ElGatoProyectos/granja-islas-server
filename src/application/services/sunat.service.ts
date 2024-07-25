@@ -5,6 +5,14 @@ import ResponseService from "./response.service";
 const base_api_sunat = environments.BASE_API_SUNAT;
 const base_api_query = environments.BASE_API_QUERY;
 
+export type T_Config = {
+  type: string;
+  payment_type: string;
+  ruc: number;
+  serie: string;
+  number: number;
+};
+
 class SunatService {
   private base_api_query_module = "ruc";
   private responseService: ResponseService;
@@ -52,6 +60,31 @@ class SunatService {
     }
   };
 
+  captureDataSire = async (config: T_Config) => {
+    try {
+      const responseToken = await this.captureTokenSecurity();
+      if (responseToken.error) return responseToken;
+      const headers = {
+        Authorization: "Bearer " + responseToken.payload.access_token,
+      };
+      const response = await this.apiService.post(
+        base_api_query,
+        "api/v1/comprobantes/detalle",
+        config,
+        headers
+      );
+
+      return this.responseService.SuccessResponse(undefined, response.data);
+    } catch (error) {
+      console.log(error);
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
+  //- Por aquí deberían pasar todas las credenciales, client_id, client_secret, username, password
   captureTokenSecurity = async () => {
     try {
       const data = {

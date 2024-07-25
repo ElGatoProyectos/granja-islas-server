@@ -16,6 +16,7 @@ const environments_constant_1 = require("../../infrastructure/config/environment
 const api_service_1 = __importDefault(require("./api.service"));
 const response_service_1 = __importDefault(require("./response.service"));
 const sunat_service_1 = __importDefault(require("./sunat.service"));
+const supplier_service_1 = __importDefault(require("./supplier.service"));
 class SireService {
     constructor() {
         this.captureData = () => __awaiter(this, void 0, void 0, function* () {
@@ -40,9 +41,30 @@ class SireService {
                 return this.responseService.InternalServerErrorException(undefined, error);
             }
         });
+        this.synchronizeDataWithDatabase = (data, ruc) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { payload } = yield this.sunatService.captureDataSire(data);
+                const comprobantes = payload.comprobantes;
+                Promise.all(comprobantes.map((item) => __awaiter(this, void 0, void 0, function* () {
+                    // validamos si el comprobante ya fue registrado
+                    // codCpe
+                    // si en caso no exista el proveedor para la empresa lo registramos
+                    const responseSupplier = yield this.supplierService.findForRuc(item.datosEmisor.numRuc, ruc);
+                    if (responseSupplier.error) {
+                        const formatDataSupplier = {};
+                    }
+                    // registrar comprobante
+                    // registrar productos
+                })));
+            }
+            catch (error) {
+                return this.responseService.InternalServerErrorException(undefined, error);
+            }
+        });
         this.responseService = new response_service_1.default();
         this.apiService = new api_service_1.default();
         this.sunatService = new sunat_service_1.default();
+        this.supplierService = new supplier_service_1.default();
     }
 }
 exports.default = SireService;

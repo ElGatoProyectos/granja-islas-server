@@ -20,7 +20,6 @@ export class RouteManager {
   public initializeRoutes(): void {
     this.app.use(this._globalPrefix, authRouter);
     this.app.use(this._globalPrefix, userRouter);
-    this.app.use(this._globalPrefix, testRoute);
     // this.app.use(this._globalPrefix, voucherRoute);
     this.app.use(this._globalPrefix, companyRouter);
     this.app.use(this._globalPrefix, sireRouter);
@@ -28,5 +27,6 @@ export class RouteManager {
     this.app.use(this._globalPrefix, seedRouter);
     this.app.use(this._globalPrefix, productRouter);
     this.app.use(this._globalPrefix, supplierRouter);
+    this.app.use(this._globalPrefix, testRoute);
   }
 }
