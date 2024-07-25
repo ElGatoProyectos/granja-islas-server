@@ -1,5 +1,8 @@
+import { User } from "@prisma/client";
 import { environments } from "../../infrastructure/config/environments.constant";
 import ApiService from "./api.service";
+import AuthService from "./auth.service";
+import BillService from "./bill.service";
 import ResponseService from "./response.service";
 import SunatService, { T_Config } from "./sunat.service";
 import SupplierService from "./supplier.service";
@@ -9,12 +12,16 @@ class SireService {
   private apiService: ApiService;
   private sunatService: SunatService;
   private supplierService: SupplierService;
+  private billService: BillService;
+  private authService: AuthService;
 
   constructor() {
     this.responseService = new ResponseService();
     this.apiService = new ApiService();
     this.sunatService = new SunatService();
     this.supplierService = new SupplierService();
+    this.billService = new BillService();
+    this.authService = new AuthService();
   }
 
   captureData = async () => {
@@ -51,8 +58,20 @@ class SireService {
     }
   };
 
-  synchronizeDataWithDatabase = async (data: T_Config, ruc: string) => {
+  synchronizeDataWithDatabase = async (
+    data: T_Config,
+    rucFromHeader: string,
+    token: string
+  ) => {
     try {
+      // validamos al usuario
+      const responseToken = await this.authService.getUserForToken(token);
+      if (responseToken.error) return responseToken;
+
+      const user: User = responseToken.payload;
+
+      // validamos a la empresa donde pertenece
+
       const { payload } = await this.sunatService.captureDataSire(data);
 
       const comprobantes = payload.comprobantes as any[];
@@ -60,21 +79,23 @@ class SireService {
       Promise.all(
         comprobantes.map(async (item) => {
           // validamos si el comprobante ya fue registrado
+          const code = item.numSerie + item.numCpe;
+          const responseBill = await this.billService.findBillForCode(code);
 
-          // codCpe
+          if (responseBill.error && responseBill.statusCode === 404) {
+            // si en caso no exista el proveedor para la empresa lo registramos
+            const responseSupplier = await this.supplierService.findForRuc(
+              item.datosEmisor.numRuc,
+              rucFromHeader
+            );
+            if (responseSupplier.error && responseSupplier.statusCode === 404) {
+              const formatDataSupplier = {};
+            }
 
-          // si en caso no exista el proveedor para la empresa lo registramos
-          const responseSupplier = await this.supplierService.findForRuc(
-            item.datosEmisor.numRuc,
-            ruc
-          );
-          if (responseSupplier.error) {
-            const formatDataSupplier = {};
+            // registrar comprobante
+
+            // registrar productos
           }
-
-          // registrar comprobante
-
-          // registrar productos
         })
       );
     } catch (error) {

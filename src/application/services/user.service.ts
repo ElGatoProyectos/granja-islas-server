@@ -9,6 +9,8 @@ import ResponseService, { T_Response } from "./response.service";
 import * as bcrypt from "bcrypt";
 import BaseController from "../controllers/config/base.controller";
 import { E_Role } from "../models/enums/user.enum";
+import appRootPath from "app-root-path";
+import { userMulterProperties } from "../models/constants/multer.constant";
 
 class UserService {
   private responseService: ResponseService;
@@ -69,6 +71,31 @@ class UserService {
       return this.responseService.InternalServerErrorException();
     } finally {
       await prisma.$disconnect();
+    }
+  }
+
+  async findImage(id: number): Promise<T_Response> {
+    try {
+      const responseUser = await this.findUserById(id);
+      if (responseUser.error)
+        return this.responseService.NotFoundException("Usuario no encontrado");
+
+      const imagePath =
+        appRootPath +
+        "/public/" +
+        userMulterProperties.folder +
+        "/" +
+        userMulterProperties.folder +
+        "_" +
+        responseUser.payload.id +
+        ".jpg";
+
+      return this.responseService.SuccessResponse(undefined, imagePath);
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
     }
   }
 

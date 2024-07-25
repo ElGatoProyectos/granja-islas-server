@@ -10,6 +10,7 @@ import { createUserDTO } from "../../infrastructure/http/middlewares/dto/user.dt
 import path from "path";
 import appRootPath from "app-root-path";
 import sharp from "sharp";
+import fs from "fs/promises";
 
 const storage = multer.memoryStorage();
 
@@ -26,20 +27,29 @@ class UserController {
 
   findUsers = async (request: Request, response: Response) => {
     const result = await this.userService.findUsersNoSuperAdmin();
-
     response.status(response.statusCode).json(result);
   };
 
   findUserById = async (request: Request, response: Response) => {
     const id = request.params.id;
     const result = await this.userService.findUserById(Number(id));
-
     response.status(response.statusCode).json(result);
   };
 
+  findImage = async (request: Request, response: Response) => {
+    const id = Number(request.params.id);
+    const result = await this.userService.findImage(id);
+    if (result.error) {
+      response.status(result.statusCode).json(result);
+    } else {
+      fs.readFile(result.payload);
+      response.sendFile(result.payload);
+    }
+  };
+
   create = async (request: Request, response: Response) => {
-    const id = request.params.id;
-    const result = await this.userService.findUserById(Number(id));
+    const data = request.body;
+    const result = await this.userService.createUserOrAdmin(data);
 
     response.status(response.statusCode).json(result);
   };

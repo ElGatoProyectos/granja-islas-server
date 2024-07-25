@@ -11,6 +11,8 @@ import {
   updateCompanyDTO,
 } from "../../infrastructure/http/middlewares/dto/company.dto";
 
+import fs from "fs/promises";
+
 const storage = multer.memoryStorage();
 
 class CompanyController {
@@ -100,6 +102,17 @@ class CompanyController {
   findAll = async (request: Request, response: Response) => {
     const result = await this.companyService.findAll();
     response.status(result.statusCode).json(result);
+  };
+
+  findImage = async (request: Request, response: Response) => {
+    const filter = Number(request.params.filter);
+    const result = await this.companyService.findImage(filter);
+    if (result.error) {
+      response.status(result.statusCode).json(result);
+    } else {
+      fs.readFile(result.payload);
+      response.sendFile(result.payload);
+    }
   };
 
   //* success

@@ -1,10 +1,13 @@
+import { unknown } from "zod";
 import prisma from "../../infrastructure/database/prisma";
 import BaseController from "../controllers/config/base.controller";
+import { companyMulterProperties } from "../models/constants/multer.constant";
 import {
   I_CreateCompany,
   I_UpdateCompany,
 } from "../models/interfaces/company.interface";
 import ResponseService from "./response.service";
+import appRootPath from "app-root-path";
 
 export default class CompanyService {
   private responseService: ResponseService;
@@ -29,6 +32,38 @@ export default class CompanyService {
       );
     } finally {
       await prisma.$disconnect();
+    }
+  };
+
+  findImage = async (filter: number | string) => {
+    try {
+      let company = undefined;
+
+      const responseCompany1 = await this.findById(filter as number);
+      if (!responseCompany1.error) company = responseCompany1.payload;
+
+      const responseCompany2 = await this.findByRuc(filter as string);
+      if (!responseCompany2.error) company = responseCompany2.payload;
+
+      if (!company)
+        return this.responseService.NotFoundException("Empresa no encontrada");
+
+      const imagePath =
+        appRootPath +
+        "/public/" +
+        companyMulterProperties.folder +
+        "/" +
+        companyMulterProperties.folder +
+        "_" +
+        company.id +
+        ".jpg";
+
+      return this.responseService.SuccessResponse(undefined, imagePath);
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
     }
   };
 

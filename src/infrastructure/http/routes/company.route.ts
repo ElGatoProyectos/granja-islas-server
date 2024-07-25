@@ -41,6 +41,12 @@ class CompanyRouter {
       this.authMiddleware.authorizationUser,
       this.companyController.findBydId
     );
+
+    this.router.get(
+      `${this._prefix}/file/:filter`,
+      this.authMiddleware.authorizationUser,
+      this.companyController.findImage
+    );
   }
 
   private patchRoutes(): void {

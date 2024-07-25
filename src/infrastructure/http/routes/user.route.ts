@@ -38,6 +38,13 @@ class UserRouter {
       this.authMiddleware.authorizationAdmin,
       this.userController.findUserById
     );
+
+    this.router.get(
+      `${this._prefix}/file/:id`,
+      this.authMiddleware.authorizationAdmin,
+      this.authMiddleware.authorizationAdmin,
+      this.userController.findImage
+    );
   }
 
   private postRoutes() {

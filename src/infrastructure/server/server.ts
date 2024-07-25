@@ -24,7 +24,12 @@ class Server {
   }
 
   private config(): void {
-    this.app.use(cors());
+    this.app.use(
+      cors({
+        origin: "*", // Permitir todos los orígenes
+        methods: ["GET", "POST", "PUT", "DELETE"], // Métodos permitidos
+      })
+    );
     this.app.use(express.json());
   }
 

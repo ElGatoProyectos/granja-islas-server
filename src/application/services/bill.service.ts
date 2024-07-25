@@ -8,9 +8,17 @@ class BillService {
     this.responseService = new ResponseService();
   }
 
-  searchBillForCode = async (code: string) => {
+  findBillForCode = async (code: string) => {
     try {
-      const bills = await prisma.bill.findFirst({ where: { code } });
+      const bill = await prisma.bill.findFirst({ where: { code } });
+      if (!bill)
+        return this.responseService.NotFoundException(
+          "Comprobante no encontrado"
+        );
+      return this.responseService.SuccessResponse(
+        "Comprobante encontrado",
+        bill
+      );
     } catch (error) {
       return this.responseService.InternalServerErrorException();
     } finally {
@@ -32,7 +40,5 @@ class BillService {
       return this.responseService.InternalServerErrorException();
     }
   };
-
-  findByCodCpe = async (code: string) => {};
 }
 export default BillService;
