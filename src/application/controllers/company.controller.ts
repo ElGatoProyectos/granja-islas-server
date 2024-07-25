@@ -54,37 +54,37 @@ class CompanyController {
             if (result.error) {
               response.status(result.statusCode).json(result);
               return;
-            }
-
-            if (request.file) {
-              const id = result.payload.id;
-              const direction = path.join(
-                appRootPath.path,
-                "public",
-                companyMulterProperties.folder
-              );
-              const ext = path.extname(request.file.originalname);
-              const fileName = `${companyMulterProperties.folder}_${id}${ext}`;
-              const filePath = path.join(direction, fileName);
-
-              sharp(request.file.buffer)
-                .resize({ width: 800 })
-                .toFormat("jpeg")
-                .jpeg({ quality: 80 })
-                .toFile(filePath, (err) => {
-                  if (err) {
-                    const customError =
-                      this.responseService.BadRequestException(
-                        "Error al guardar la imagen",
-                        err
-                      );
-                    response.status(customError.statusCode).json(customError);
-                  } else {
-                    response.status(result.statusCode).json(result);
-                  }
-                });
             } else {
-              response.status(result.statusCode).json(result);
+              if (request.file) {
+                const id = result.payload.id;
+                const direction = path.join(
+                  appRootPath.path,
+                  "public",
+                  companyMulterProperties.folder
+                );
+                const ext = path.extname(request.file.originalname);
+                const fileName = `${companyMulterProperties.folder}_${id}${ext}`;
+                const filePath = path.join(direction, fileName);
+
+                sharp(request.file.buffer)
+                  .resize({ width: 800 })
+                  .toFormat("jpeg")
+                  .jpeg({ quality: 80 })
+                  .toFile(filePath, (err) => {
+                    if (err) {
+                      const customError =
+                        this.responseService.BadRequestException(
+                          "Error al guardar la imagen",
+                          err
+                        );
+                      response.status(customError.statusCode).json(customError);
+                    } else {
+                      response.status(result.statusCode).json(result);
+                    }
+                  });
+              } else {
+                response.status(result.statusCode).json(result);
+              }
             }
           } catch (error) {
             const customError = this.responseService.BadRequestException(
