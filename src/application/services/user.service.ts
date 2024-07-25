@@ -104,6 +104,8 @@ class UserService {
         undefined,
         error
       );
+    } finally {
+      prisma.$disconnect();
     }
   }
 

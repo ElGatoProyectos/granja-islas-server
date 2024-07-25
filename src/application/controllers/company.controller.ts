@@ -44,47 +44,47 @@ class CompanyController {
         else {
           const data = request.body;
 
+          console.log(data);
+
           try {
             //todo validamos el parse
             createCompanyDTO.parse(request.body);
 
             //todo registramos a la empresa
-            const result = await this.companyService.create(data);
+            const { "company-profile": companyProfile, ...restData } =
+              request.body;
 
-            if (result.error) {
-              response.status(result.statusCode).json(result);
-              return;
+            const result = await this.companyService.create(restData);
+
+            if (request.file) {
+              const id = result.payload.id;
+              const direction = path.join(
+                appRootPath.path,
+                "public",
+                companyMulterProperties.folder
+              );
+              const ext = path.extname(request.file.originalname);
+              const fileName = `${companyMulterProperties.folder}_${id}${ext}`;
+              const filePath = path.join(direction, fileName);
+
+              sharp(request.file.buffer)
+                .resize({ width: 800 })
+                .toFormat("jpeg")
+                .jpeg({ quality: 80 })
+                .toFile(filePath, (err) => {
+                  if (err) {
+                    const customError =
+                      this.responseService.BadRequestException(
+                        "Error al guardar la imagen",
+                        err
+                      );
+                    response.status(customError.statusCode).json(customError);
+                  } else {
+                    response.status(result.statusCode).json(result);
+                  }
+                });
             } else {
-              if (request.file) {
-                const id = result.payload.id;
-                const direction = path.join(
-                  appRootPath.path,
-                  "public",
-                  companyMulterProperties.folder
-                );
-                const ext = path.extname(request.file.originalname);
-                const fileName = `${companyMulterProperties.folder}_${id}${ext}`;
-                const filePath = path.join(direction, fileName);
-
-                sharp(request.file.buffer)
-                  .resize({ width: 800 })
-                  .toFormat("jpeg")
-                  .jpeg({ quality: 80 })
-                  .toFile(filePath, (err) => {
-                    if (err) {
-                      const customError =
-                        this.responseService.BadRequestException(
-                          "Error al guardar la imagen",
-                          err
-                        );
-                      response.status(customError.statusCode).json(customError);
-                    } else {
-                      response.status(result.statusCode).json(result);
-                    }
-                  });
-              } else {
-                response.status(result.statusCode).json(result);
-              }
+              response.status(result.statusCode).json(result);
             }
           } catch (error) {
             const customError = this.responseService.BadRequestException(
@@ -150,10 +150,13 @@ class CompanyController {
             //todo validamos el parse
             updateCompanyDTO.parse(request.body);
 
+            const { "company-profile": companyProfile, ...restData } =
+              request.body;
+
             //todo registramos a la empresa
             const result = await this.companyService.updateById(
               Number(request.params.id),
-              data
+              restData
             );
 
             if (result.error) {

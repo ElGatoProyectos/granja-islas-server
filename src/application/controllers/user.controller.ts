@@ -77,9 +77,14 @@ class UserController {
             createUserDTO.parse(request.body);
             // - esto ya se valido en el middleware
 
+            const { "user-profile": userProfile, ...restData } = request.body;
+
             //todo registramos a la empresa
             const id = Number(request.params.id);
-            const result = await this.userService.updateUserOrAdmin(data, id);
+            const result = await this.userService.updateUserOrAdmin(
+              restData,
+              id
+            );
 
             if (result.error) {
               response.status(result.statusCode).json(result);

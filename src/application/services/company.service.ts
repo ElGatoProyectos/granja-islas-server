@@ -69,6 +69,8 @@ export default class CompanyService {
         undefined,
         error
       );
+    } finally {
+      prisma.$disconnect();
     }
   };
 

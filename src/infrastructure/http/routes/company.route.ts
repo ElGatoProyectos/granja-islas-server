@@ -62,7 +62,7 @@ class CompanyRouter {
   private postRoutes(): void {
     this.router.post(
       this._prefix,
-      this.authMiddleware.authorizationSuperAdmin,
+      // this.authMiddleware.authorizationSuperAdmin,
       this.companyController.create
     );
   }
