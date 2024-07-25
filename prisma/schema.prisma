@@ -124,6 +124,8 @@ model DetailProductLabel {
 //todo facturas
 model Bill {
   id          Int      @id @default(autoincrement())
+  num_serie   String
+  num_cpe     String
   code        String
   date        DateTime @db.Date
   period      String

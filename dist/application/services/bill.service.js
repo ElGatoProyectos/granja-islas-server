@@ -12,14 +12,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const prisma_1 = __importDefault(require("../../infrastructure/database/prisma"));
 const response_service_1 = __importDefault(require("./response.service"));
 class BillService {
     constructor() {
         this.searchBillForCode = (code) => __awaiter(this, void 0, void 0, function* () {
             try {
+                const bills = yield prisma_1.default.bill.findFirst({ where: { code } });
             }
             catch (error) {
                 return this.responseService.InternalServerErrorException();
+            }
+            finally {
+                prisma_1.default.$disconnect();
             }
         });
         this.findAll = (period, month) => __awaiter(this, void 0, void 0, function* () {
@@ -37,6 +42,7 @@ class BillService {
                 return this.responseService.InternalServerErrorException();
             }
         });
+        this.findByCodCpe = (code) => __awaiter(this, void 0, void 0, function* () { });
         this.responseService = new response_service_1.default();
     }
 }

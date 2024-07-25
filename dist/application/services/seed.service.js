@@ -74,13 +74,45 @@ class SeedService extends base_controller_1.default {
                         dni: "45454545",
                     },
                 ];
+                const companies = [
+                    {
+                        business_name: "Example company 1",
+                        business_type: "Example type",
+                        business_status: "Example status",
+                        business_direction_fiscal: "Example direction",
+                        description: "Description example company",
+                        user: "hans23232",
+                        phone: "40343040",
+                        country_code: "+51",
+                        ruc: "12345645645",
+                        key: "adawdadadwad",
+                    },
+                    {
+                        business_name: "Example company 2",
+                        business_type: "Example type 2",
+                        business_status: "Example status 2",
+                        business_direction_fiscal: "Example direction 2",
+                        description: "Description example company",
+                        user: "wda900adw",
+                        phone: "40343040",
+                        country_code: "+51",
+                        ruc: "90878965434",
+                        key: "adawdadadwad",
+                    },
+                ];
                 const usersValidate = yield prisma_1.default.user.findMany();
-                if (usersValidate.length > 0)
+                const companiesValidate = yield prisma_1.default.company.findMany();
+                if (usersValidate.length > 0 || companiesValidate.length > 0)
                     return this.responseService.BadRequestException("No se puede ejecutar el seed");
                 Promise.all(users.map((user) => __awaiter(this, void 0, void 0, function* () {
                     const password = bcrypt.hashSync(user.dni, 11);
-                    const created = yield prisma_1.default.user.create({
+                    yield prisma_1.default.user.create({
                         data: Object.assign(Object.assign({}, user), { password }),
+                    });
+                })));
+                Promise.all(companies.map((company) => __awaiter(this, void 0, void 0, function* () {
+                    yield prisma_1.default.company.create({
+                        data: company,
                     });
                 })));
                 return this.responseService.SuccessResponse("Seed executed!");

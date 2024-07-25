@@ -40,9 +40,37 @@ export default class SeedService extends BaseController {
         },
       ];
 
-      const usersValidate = await prisma.user.findMany();
+      const companies = [
+        {
+          business_name: "Example company 1",
+          business_type: "Example type",
+          business_status: "Example status",
+          business_direction_fiscal: "Example direction",
+          description: "Description example company",
+          user: "hans23232",
+          phone: "40343040",
+          country_code: "+51",
+          ruc: "12345645645",
+          key: "adawdadadwad",
+        },
+        {
+          business_name: "Example company 2",
+          business_type: "Example type 2",
+          business_status: "Example status 2",
+          business_direction_fiscal: "Example direction 2",
+          description: "Description example company",
+          user: "wda900adw",
+          phone: "40343040",
+          country_code: "+51",
+          ruc: "90878965434",
+          key: "adawdadadwad",
+        },
+      ];
 
-      if (usersValidate.length > 0)
+      const usersValidate = await prisma.user.findMany();
+      const companiesValidate = await prisma.company.findMany();
+
+      if (usersValidate.length > 0 || companiesValidate.length > 0)
         return this.responseService.BadRequestException(
           "No se puede ejecutar el seed"
         );
@@ -50,8 +78,16 @@ export default class SeedService extends BaseController {
       Promise.all(
         users.map(async (user) => {
           const password = bcrypt.hashSync(user.dni, 11);
-          const created = await prisma.user.create({
+          await prisma.user.create({
             data: { ...user, password },
+          });
+        })
+      );
+
+      Promise.all(
+        companies.map(async (company) => {
+          await prisma.company.create({
+            data: company,
           });
         })
       );
