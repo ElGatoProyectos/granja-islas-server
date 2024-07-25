@@ -1,6 +1,4 @@
-import { unknown } from "zod";
 import prisma from "../../infrastructure/database/prisma";
-import BaseController from "../controllers/config/base.controller";
 import { companyMulterProperties } from "../models/constants/multer.constant";
 import {
   I_CreateCompany,
@@ -8,6 +6,7 @@ import {
 } from "../models/interfaces/company.interface";
 import ResponseService from "./response.service";
 import appRootPath from "app-root-path";
+import fs from "fs/promises";
 
 export default class CompanyService {
   private responseService: ResponseService;
@@ -57,6 +56,12 @@ export default class CompanyService {
         "_" +
         company.id +
         ".jpg";
+
+      try {
+        await fs.access(imagePath, fs.constants.F_OK);
+      } catch (error) {
+        return this.responseService.BadRequestException("Imagen no encontrada");
+      }
 
       return this.responseService.SuccessResponse(undefined, imagePath);
     } catch (error) {

@@ -12,6 +12,8 @@ import { E_Role } from "../models/enums/user.enum";
 import appRootPath from "app-root-path";
 import { userMulterProperties } from "../models/constants/multer.constant";
 
+import fs from "fs/promises";
+
 class UserService {
   private responseService: ResponseService;
   constructor() {
@@ -89,6 +91,12 @@ class UserService {
         "_" +
         responseUser.payload.id +
         ".jpg";
+
+      try {
+        await fs.access(imagePath, fs.constants.F_OK);
+      } catch (error) {
+        return this.responseService.BadRequestException("Imagen no encontrada");
+      }
 
       return this.responseService.SuccessResponse(undefined, imagePath);
     } catch (error) {
