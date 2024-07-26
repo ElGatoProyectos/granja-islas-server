@@ -55,6 +55,7 @@ model Company {
   created_at DateTime   @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime   @updatedAt
   Supplier   Supplier[]
+  Bill       Bill[]
 }
 
 //todo Proveedores
@@ -132,7 +133,10 @@ model DetailProductLabel {
 
 //- facturas
 model Bill {
-  id          Int      @id @default(autoincrement())
+  id              Int  @id @default(autoincrement())
+  company_id      Int?
+  user_id_created Int?
+
   num_serie   String
   num_cpe     Int
   code        String
@@ -143,12 +147,13 @@ model Bill {
   bill_status String
   paid        Float    @default(0)
   earring     Float    @default(0)
-  supplier_id Int
+  supplier_id Int?
 
   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt
 
-  Supplier Supplier @relation(fields: [supplier_id], references: [id])
+  Company  Company?  @relation(fields: [company_id], references: [id])
+  Supplier Supplier? @relation(fields: [supplier_id], references: [id])
 }
 
 // pending

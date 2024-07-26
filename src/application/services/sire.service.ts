@@ -77,7 +77,7 @@ class SireService {
     token: string
   ) => {
     try {
-      // validamos a la empresa y al usuario donde pertenece
+      // Validamos a la empresa y al usuario donde pertenece
       const responseInfo = await this.infoService.getCompanyAndUser(
         token,
         rucFromHeader
@@ -88,25 +88,27 @@ class SireService {
       const { company, user }: { company: Company; user: User } =
         responseInfo.payload;
 
-      // traemos los datos
+      // Traemos los datos
       const { payload } = await this.sunatService.captureDataSire(data);
 
       const comprobantes = payload.comprobantes as any[];
 
-      Promise.all(
+      let numberActions = 0;
+
+      await Promise.all(
         comprobantes.map(async (item) => {
-          //- validamos si el comprobante ya fue registrado
+          // Validamos si el comprobante ya fue registrado
           const code = item.numSerie + item.numCpe;
           const responseBill = await this.billService.findBillForCode(code);
 
           if (responseBill.error && responseBill.statusCode === 404) {
-            //- si en caso no exista el proveedor para la empresa lo registramos
+            // Si en caso no exista el proveedor para la empresa lo registramos
             const responseSupplier = await this.supplierService.findForRuc(
               item.datosEmisor.numRuc,
               rucFromHeader
             );
 
-            let supplier: Supplier;
+            let supplier: Supplier | null = null;
             if (responseSupplier.error && responseSupplier.statusCode === 404) {
               const formatDataSupplier: I_CreateSupplier = {
                 business_direction: "",
@@ -126,10 +128,11 @@ class SireService {
               );
 
               if (responseCreateSupplier.error) return responseCreateSupplier;
-              supplier = responseCreateSupplier.payload;
+              supplier = responseCreateSupplier.payload as Supplier;
+              numberActions++;
             }
 
-            //- registrar comprobante
+            // Registrar comprobante
             const formatDataBill: I_CreateBill = {
               num_serie: item.numSerie,
               num_cpe: item.numCpe,
@@ -141,7 +144,9 @@ class SireService {
               paid: 0,
               period: "",
               bill_status: "",
-              supplier_id: company.id,
+              supplier_id: supplier ? supplier.id : null,
+              company_id: company.id,
+              user_id_created: user.id,
             };
 
             const responseCreateBill = await this.billService.create(
@@ -149,15 +154,14 @@ class SireService {
               rucFromHeader
             );
 
-            console.log("responseCreateBill", responseCreateBill);
-
             if (responseCreateBill.error) return responseCreateBill;
 
-            // registrar productos
+            numberActions++;
 
+            // Registrar productos
             const products = item.informacionItems as I_ItemsBill[];
 
-            Promise.all(
+            await Promise.all(
               products.map(async (product: I_ItemsBill) => {
                 const slug = slugify(product.desItem, { lower: true });
 
@@ -166,7 +170,7 @@ class SireService {
                   amount: product.cntItems,
                   price: product.mtoValUnitario,
                   slug,
-                  supplier_id: company.id,
+                  supplier_id: supplier ? supplier.id : null,
                   description: "",
                   unit_measure: product.desUnidadMedida,
                   code_measure: product.codUnidadMedida,
@@ -175,7 +179,10 @@ class SireService {
                 const responseCreateProduct = await this.productService.create(
                   formatProduct
                 );
+
+                console.log(responseCreateProduct);
                 if (responseCreateProduct.error) return responseCreateProduct;
+                numberActions++;
               })
             );
           }
@@ -183,13 +190,15 @@ class SireService {
       );
 
       return this.responseService.SuccessResponse(
-        "Actualización realizada con éxito"
+        `Actualización realizada con éxito, ${numberActions} operaciones realizadas`
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException(
         undefined,
         error
       );
+    } finally {
+      prisma.$disconnect();
     }
   };
 }
