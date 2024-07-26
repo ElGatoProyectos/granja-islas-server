@@ -90,15 +90,24 @@ model ProductLabel {
   DetailProductLabel DetailProductLabel[]
 }
 
+//! no implementado
+// model UnidadMedida {
+//   id          Int    @id @default(autoincrement())
+//   code        String
+//   description String
+// }
+
 //todo productos
 model Product {
-  id          Int     @id @default(autoincrement())
-  title       String
-  description String? @db.Text()
-  price       Float   @db.DoublePrecision
-  slug        String? @db.Text()
-
-  supplier_id Int?
+  id           Int     @id @default(autoincrement())
+  title        String
+  description  String? @db.Text()
+  amount       Float
+  price        Float   @db.DoublePrecision
+  slug         String? @db.Text()
+  code_measure String
+  unit_measure String
+  supplier_id  Int?
 
   status_deleted Boolean? @default(false)
 
@@ -125,7 +134,7 @@ model DetailProductLabel {
 model Bill {
   id          Int      @id @default(autoincrement())
   num_serie   String
-  num_cpe     String
+  num_cpe     Int
   code        String
   date        DateTime @db.Date
   period      String

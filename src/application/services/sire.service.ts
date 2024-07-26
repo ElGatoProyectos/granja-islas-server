@@ -10,6 +10,11 @@ import prisma from "../../infrastructure/database/prisma";
 import InfoService from "./info.service";
 import { I_CreateSupplier } from "../models/interfaces/supplier.interface";
 import { I_CreateBill } from "../models/interfaces/bill.interface";
+import { I_ItemsBill } from "../models/interfaces/company.interface";
+import { I_CreateProduct } from "../models/interfaces/product.interface";
+import slugify from "slugify";
+import ProductService from "./product.service";
+import { convertToDate } from "../../infrastructure/utils/convert-to-date";
 
 class SireService {
   private responseService: ResponseService;
@@ -19,6 +24,7 @@ class SireService {
   private billService: BillService;
   private authService: AuthService;
   private infoService: InfoService;
+  private productService: ProductService;
 
   constructor() {
     this.responseService = new ResponseService();
@@ -28,6 +34,7 @@ class SireService {
     this.billService = new BillService();
     this.authService = new AuthService();
     this.infoService = new InfoService();
+    this.productService = new ProductService();
   }
 
   captureData = async () => {
@@ -70,7 +77,7 @@ class SireService {
     token: string
   ) => {
     try {
-      // validamos al usuario
+      // validamos a la empresa y al usuario donde pertenece
       const responseInfo = await this.infoService.getCompanyAndUser(
         token,
         rucFromHeader
@@ -81,8 +88,7 @@ class SireService {
       const { company, user }: { company: Company; user: User } =
         responseInfo.payload;
 
-      // validamos a la empresa donde pertenece
-
+      // traemos los datos
       const { payload } = await this.sunatService.captureDataSire(data);
 
       const comprobantes = payload.comprobantes as any[];
@@ -118,15 +124,17 @@ class SireService {
                 token,
                 rucFromHeader
               );
+
+              if (responseCreateSupplier.error) return responseCreateSupplier;
               supplier = responseCreateSupplier.payload;
             }
 
             //- registrar comprobante
             const formatDataBill: I_CreateBill = {
               num_serie: item.numSerie,
-              num_cpe: item.num_cpe,
+              num_cpe: item.numCpe,
               code,
-              date: item.fecEmision,
+              date: convertToDate(item.fecEmision),
               igv: item.procedenciaMasiva.mtoSumIGV,
               total: item.procedenciaMasiva.mtoImporteTotal,
               earring: 0,
@@ -136,9 +144,46 @@ class SireService {
               supplier_id: company.id,
             };
 
+            const responseCreateBill = await this.billService.create(
+              formatDataBill,
+              rucFromHeader
+            );
+
+            console.log("responseCreateBill", responseCreateBill);
+
+            if (responseCreateBill.error) return responseCreateBill;
+
             // registrar productos
+
+            const products = item.informacionItems as I_ItemsBill[];
+
+            Promise.all(
+              products.map(async (product: I_ItemsBill) => {
+                const slug = slugify(product.desItem, { lower: true });
+
+                const formatProduct: I_CreateProduct = {
+                  title: product.desItem,
+                  amount: product.cntItems,
+                  price: product.mtoValUnitario,
+                  slug,
+                  supplier_id: company.id,
+                  description: "",
+                  unit_measure: product.desUnidadMedida,
+                  code_measure: product.codUnidadMedida,
+                };
+
+                const responseCreateProduct = await this.productService.create(
+                  formatProduct
+                );
+                if (responseCreateProduct.error) return responseCreateProduct;
+              })
+            );
           }
         })
+      );
+
+      return this.responseService.SuccessResponse(
+        "Actualización realizada con éxito"
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException(

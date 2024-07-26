@@ -18,10 +18,19 @@ class SireRouter {
 
   private initializeRoutes() {
     this.getRoutes();
+    this.postRoutes();
   }
 
   private getRoutes() {
     this.router.get(this._prefix, this.sireController.captureDate);
+  }
+
+  private postRoutes() {
+    this.router.post(
+      `${this._prefix}/synchronize`,
+      // this.authMiddleware.authorizationAdmin,
+      this.sireController.synchronizeDataWithDatabase
+    );
   }
 }
 

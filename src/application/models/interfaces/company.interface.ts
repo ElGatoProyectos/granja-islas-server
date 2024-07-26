@@ -15,6 +15,19 @@ export interface I_CreateCompany
 export interface I_DeleteCompany {
   password: string;
 }
+
+export interface I_ItemsBill {
+  cntItems: number;
+  codUnidadMedida: string;
+  desUnidadMedida: string;
+  desCodigo: string;
+  desItem: string;
+  mtoValUnitario: number;
+  mtoICBPER: number;
+  mtoDesc: number;
+  mtoImpTotal: number;
+}
+
 // model Company {
 //   id                        Int      @id @default(autoincrement())
 //   business_name             String
