@@ -2,17 +2,21 @@ import prisma from "../../infrastructure/database/prisma";
 import { companyMulterProperties } from "../models/constants/multer.constant";
 import {
   I_CreateCompany,
+  I_DeleteCompany,
   I_UpdateCompany,
 } from "../models/interfaces/company.interface";
 import ResponseService from "./response.service";
 import appRootPath from "app-root-path";
 import fs from "fs/promises";
+import AuthService from "./auth.service";
 
 export default class CompanyService {
   private responseService: ResponseService;
+  private authService: AuthService;
 
   constructor() {
     this.responseService = new ResponseService();
+    this.authService = new AuthService();
   }
 
   findAll = async () => {
@@ -172,10 +176,17 @@ export default class CompanyService {
     }
   };
 
-  deleteById = async (companyId: number) => {
+  deleteById = async (companyId: number, data: I_DeleteCompany) => {
     try {
       const responseCompany = await this.findById(companyId);
       if (responseCompany.error) return responseCompany;
+
+      const responseValidationPassword =
+        await this.authService.validatePasswordSuperAdmin(data.password);
+
+      console.log(responseValidationPassword);
+
+      if (responseValidationPassword.error) return responseValidationPassword;
 
       await prisma.company.update({
         where: { id: companyId },

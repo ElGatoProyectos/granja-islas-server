@@ -121,7 +121,7 @@ model DetailProductLabel {
   Product Product?      @relation(fields: [product_id], references: [id])
 }
 
-//todo facturas
+//- facturas
 model Bill {
   id          Int      @id @default(autoincrement())
   num_serie   String
@@ -129,10 +129,9 @@ model Bill {
   code        String
   date        DateTime @db.Date
   period      String
-  ammount     Float    @default(0)
   igv         Float    @default(0.18)
   total       Float    @default(0)
-  pill_status String
+  bill_status String
   paid        Float    @default(0)
   earring     Float    @default(0)
   supplier_id Int

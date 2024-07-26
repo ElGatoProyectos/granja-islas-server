@@ -12,6 +12,9 @@ export interface I_CreateCompany
     "id" | "status_enabled" | "created_at" | "updated_at"
   > {}
 
+export interface I_DeleteCompany {
+  password: string;
+}
 // model Company {
 //   id                        Int      @id @default(autoincrement())
 //   business_name             String

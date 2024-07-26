@@ -24,6 +24,10 @@ export const updateCompanyDTO = z.object({
   key: z.string(),
 });
 
+export const deleteCompanyDTO = z.object({
+  password: z.string(),
+});
+
 export const validateRuc = z.object({
   ruc: z.string().min(11),
 });

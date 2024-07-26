@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { query, Request, Response } from "express";
 import CompanyService from "../services/company.service";
 import ResponseService, { T_Response } from "../services/response.service";
 import multer from "multer";
@@ -209,8 +209,12 @@ class CompanyController {
   //* success
   deleteById = async (request: Request, response: Response) => {
     const companyId = request.params.id;
+    const data = request.body;
 
-    const result = await this.companyService.deleteById(Number(companyId));
+    const result = await this.companyService.deleteById(
+      Number(companyId),
+      data
+    );
 
     response.status(result.statusCode).json(result);
   };

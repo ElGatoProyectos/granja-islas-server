@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { environments } from "../../infrastructure/config/environments.constant";
 import { jwtDecodeDTO } from "../../infrastructure/http/middlewares/dto/auth.dto";
 import UserService from "./user.service";
+import { Role } from "@prisma/client";
 
 const jwt_token = environments.JWT_TOKEN;
 
@@ -86,6 +87,36 @@ class AuthService {
       await prisma.$disconnect();
     }
   };
+
+  //- temporal
+  async validatePasswordSuperAdmin(password: string) {
+    try {
+      const superadmin = await prisma.user.findFirst({
+        where: { role: Role.SUPERADMIN },
+      });
+
+      if (!superadmin)
+        return this.responseService.UnauthorizedException(
+          "Acción no autorizada"
+        );
+
+      const responseCompare = bcrypt.compareSync(password, superadmin.password);
+
+      if (!responseCompare)
+        return this.responseService.UnauthorizedException(
+          "Acción no autorizada"
+        );
+      return this.responseService.SuccessResponse("Acción autorizada");
+    } catch (error) {
+      console.log(error);
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    } finally {
+      await prisma.$disconnect();
+    }
+  }
 
   async restorePassword(credential: string) {
     try {

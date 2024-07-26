@@ -52,10 +52,16 @@ class CompanyRouter {
   private patchRoutes(): void {
     this.router.patch(
       `${this._prefix}/:id`,
-
       this.companyMiddleware.validateCompany,
       this.authMiddleware.authorizationSuperAdmin,
       this.companyController.updateById
+    );
+
+    this.router.patch(
+      `${this._prefix}/delete/:id`,
+      this.authMiddleware.authorizationSuperAdmin,
+      this.companyMiddleware.validateCompany,
+      this.companyController.deleteById
     );
   }
 
@@ -67,14 +73,7 @@ class CompanyRouter {
     );
   }
 
-  private deleteRoutes(): void {
-    this.router.patch(
-      `${this._prefix}/:id`,
-      this.authMiddleware.authorizationSuperAdmin,
-      this.companyMiddleware.validateCompany,
-      this.companyController.deleteById
-    );
-  }
+  private deleteRoutes(): void {}
 }
 
 export default new CompanyRouter().router;

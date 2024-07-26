@@ -1,7 +1,10 @@
 import { Supplier } from "@prisma/client";
 
 export interface I_CreateSupplier
-  extends Omit<Supplier, "id" | "created_at" | "updated_at"> {}
+  extends Omit<
+    Supplier,
+    "id" | "created_at" | "updated_at" | "status_deleted"
+  > {}
 
 export interface I_UpdateSupplier
   extends Omit<Supplier, "id" | "created_at" | "updated_at"> {}
