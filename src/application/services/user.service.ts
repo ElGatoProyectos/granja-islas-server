@@ -62,7 +62,10 @@ class UserService {
 
   async findUserById(id: number): Promise<T_Response> {
     try {
-      const user = await prisma.user.findFirst({ where: { id } });
+      const user = await prisma.user.findFirst({
+        where: { id },
+        omit: { password: true },
+      });
       if (!user)
         return this.responseService.NotFoundException("Usuario no encontrado");
       return this.responseService.SuccessResponse(
