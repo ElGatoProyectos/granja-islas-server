@@ -184,8 +184,6 @@ export default class CompanyService {
       const responseValidationPassword =
         await this.authService.validatePasswordSuperAdmin(data.password);
 
-      console.log(responseValidationPassword);
-
       if (responseValidationPassword.error) return responseValidationPassword;
 
       await prisma.company.update({

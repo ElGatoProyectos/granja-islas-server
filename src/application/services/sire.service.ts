@@ -129,11 +129,10 @@ class SireService {
               date: item.fecEmision,
               igv: item.procedenciaMasiva.mtoSumIGV,
               total: item.procedenciaMasiva.mtoImporteTotal,
-              ammount: 1,
               earring: 0,
               paid: 0,
               period: "",
-              pill_status: "",
+              bill_status: "",
               supplier_id: company.id,
             };
 

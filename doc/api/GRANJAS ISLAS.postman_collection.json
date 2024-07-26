@@ -1,0 +1,1149 @@
+{
+	"info": {
+		"_postman_id": "2af14a00-a193-4676-8dff-9f4f5196cc8a",
+		"name": "GRANJAS ISLAS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "30270169",
+		"_collection_link": "https://gato44.postman.co/workspace/My-Workspace~be48f5b3-1a99-4ebe-8d8e-65692a032ba6/collection/30270169-2af14a00-a193-4676-8dff-9f4f5196cc8a?action=share&source=collection_link&creator=30270169"
+	},
+	"item": [
+		{
+			"name": "✅ companies",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6IlNVUEVSQURNSU4iLCJpYXQiOjE3MjE5Mzg4MDYsImV4cCI6MTcyMjAyNTIwNn0.k8JUKt7ay8yqAuwSw8fdPiORK-_iGUQjXWLeprYLLCY"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "company-profile",
+									"description": "esto es opcional",
+									"type": "file",
+									"src": "/C:/Users/hans/Pictures/personal/random/16ba1e72345ee761ed45efe48335a933.jpg"
+								},
+								{
+									"key": "business_type",
+									"value": "yjyjyyhnynynyn",
+									"description": "tipo de empresa",
+									"type": "text"
+								},
+								{
+									"key": "business_name",
+									"value": "Test 2",
+									"description": "razon social o nombre de la empresa",
+									"type": "text"
+								},
+								{
+									"key": "business_direction_fiscal",
+									"value": "dawda",
+									"description": "direccion de la empresa",
+									"type": "text"
+								},
+								{
+									"key": "business_status",
+									"value": "ggrrg",
+									"description": "estado de la empresa",
+									"type": "text"
+								},
+								{
+									"key": "country_code",
+									"value": "hytjyjyjyjyj",
+									"description": "codigo postal",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Description test1",
+									"description": "descripcion de la empresa, opcional",
+									"type": "text"
+								},
+								{
+									"key": "ruc",
+									"value": "44345678932",
+									"description": "el ruc pues xd",
+									"type": "text"
+								},
+								{
+									"key": "key",
+									"value": "wafawdvadavd",
+									"description": "clave sol",
+									"type": "text"
+								},
+								{
+									"key": "user",
+									"value": "randomuser",
+									"description": "usuario de sunat",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": "{{base_granja_isla}}/api/companies"
+					},
+					"response": []
+				},
+				{
+					"name": "edit - one",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "company-profile",
+									"type": "file",
+									"src": "/C:/Users/hans/Downloads/DALL·E 2024-07-15 10.35.14 - A detailed, high-resolution image of a beautiful landscape with a mountain range in the background, a crystal-clear lake in the foreground, and a vibr.webp"
+								}
+							]
+						},
+						"url": "{{base_granja_isla}}/api/companies/25"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6IlNVUEVSQURNSU4iLCJpYXQiOjE3MjIwMDA2NTgsImV4cCI6MTcyMjA4NzA1OH0.k22PecKUt46o_InJhFRYy6KGvzHMJSM0oyDDTgsoI-M"
+							}
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password\":\"12345678\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_granja_isla}}/api/companies/delete/5"
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"password\":\"12345678\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{base_granja_isla}}/api/companies/delete/5"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "91"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"5b-XafiELvGO8ijJts4U6nAf7o4x/w\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 26 Jul 2024 13:42:48 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": false,\n    \"statusCode\": 200,\n    \"message\": \"Empresa eliminada correctamente\",\n    \"payload\": null\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"password\":\"123456782\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{base_granja_isla}}/api/companies/delete/5"
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "80"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"50-kgBhzwt5xXPDw56/SonYc6WudFc\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 26 Jul 2024 13:55:48 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": true,\n    \"statusCode\": 401,\n    \"message\": \"Acción no autorizada\",\n    \"payload\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "get",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6IlNVUEVSQURNSU4iLCJpYXQiOjE3MjE5MzEwMDMsImV4cCI6MTcyMjAxNzQwM30.FriW44RcDle5ZZlDPk1PouRActYzjX3n6RQItz2YsHo"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{base_granja_isla}}/api/companies/"
+					},
+					"response": []
+				},
+				{
+					"name": "get image / id or ruc",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6IlNVUEVSQURNSU4iLCJpYXQiOjE3MjE5Mzg4MDYsImV4cCI6MTcyMjAyNTIwNn0.k8JUKt7ay8yqAuwSw8fdPiORK-_iGUQjXWLeprYLLCY"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{base_granja_isla}}/api/companies/file/1"
+					},
+					"response": []
+				},
+				{
+					"name": "get all",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsInJvbGUiOiJTVVBFUkFETUlOIiwiaWF0IjoxNzIxODUxMzExLCJleHAiOjE3MjE5Mzc3MTF9.Q4Oq59ZWzZo5t7mPkWkDPdIZI0Su-D5YvmrHA831KiQ"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{base_granja_isla}}/api/companies/all"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "✅ users",
+			"item": [
+				{
+					"name": "get - users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsInJvbGUiOiJTVVBFUkFETUlOIiwiaWF0IjoxNzIxODUxMzExLCJleHAiOjE3MjE5Mzc3MTF9.Q4Oq59ZWzZo5t7mPkWkDPdIZI0Su-D5YvmrHA831KiQ"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{base_granja_isla}}/api/users"
+					},
+					"response": []
+				},
+				{
+					"name": "get - image",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6IlNVUEVSQURNSU4iLCJpYXQiOjE3MjE5Mzg4MDYsImV4cCI6MTcyMjAyNTIwNn0.k8JUKt7ay8yqAuwSw8fdPiORK-_iGUQjXWLeprYLLCY"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{base_granja_isla}}/api/users/file/1"
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsInJvbGUiOiJBRE1JTiIsImlhdCI6MTcyMTgzNzYwMywiZXhwIjoxNzIxOTI0MDAzfQ.iPLEzFoNP1x7tcNaAfY-lepY_ulN5hWqCBuPEMwxi3A"
+							}
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "user-profile",
+									"type": "file",
+									"src": "/C:/Users/hans/Pictures/personal/random/09c192e6ba8ec05b8bb9d90268bc8fa0.jpg"
+								},
+								{
+									"key": "role",
+									"value": "ADMIN",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "User Admin",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Last name",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "909808903",
+									"type": "text"
+								},
+								{
+									"key": "country_code",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "user@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "dni",
+									"value": "45454545",
+									"type": "text"
+								}
+							]
+						},
+						"url": "{{base_granja_isla}}/api/users/12"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "✅ suppliers",
+			"item": [
+				{
+					"name": "get - all",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsInJvbGUiOiJTVVBFUkFETUlOIiwiaWF0IjoxNzIxODUxMzExLCJleHAiOjE3MjE5Mzc3MTF9.Q4Oq59ZWzZo5t7mPkWkDPdIZI0Su-D5YvmrHA831KiQ"
+							}
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "ruc",
+								"value": "12345678932",
+								"type": "text"
+							},
+							{
+								"key": "user",
+								"value": "adawd",
+								"type": "text"
+							},
+							{
+								"key": "key",
+								"value": "awdadawd",
+								"type": "text"
+							}
+						],
+						"url": "{{base_granja_isla}}/api/suppliers/"
+					},
+					"response": [
+						{
+							"name": "404 - response /:id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ruc",
+										"value": "10980987892",
+										"type": "text"
+									}
+								],
+								"url": "{{base_granja_isla}}/api/suppliers/1"
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "79"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"4f-XfJAzoK73HbwBJbtJXwq/8UgNro\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 24 Jul 2024 18:23:46 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": true,\n    \"statusCode\": 404,\n    \"message\": \"La empresa no existe\",\n    \"payload\": null\n}"
+						},
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ruc",
+										"value": "12345678932",
+										"type": "text"
+									},
+									{
+										"key": "user",
+										"value": "adawd",
+										"type": "text"
+									},
+									{
+										"key": "key",
+										"value": "awdadawd",
+										"type": "text"
+									}
+								],
+								"url": "{{base_granja_isla}}/api/suppliers/"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "2131"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"853-myB47JW0PJ3XBsCv4aGyikjamlQ\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 24 Jul 2024 22:21:05 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": false,\n    \"statusCode\": 200,\n    \"message\": \"Lista de Proveedores\",\n    \"payload\": {\n        \"total\": 3,\n        \"page\": 1,\n        \"perPage\": 20,\n        \"pageCount\": 1,\n        \"data\": [\n            {\n                \"id\": 1,\n                \"company_id\": 5,\n                \"user_id_created\": 11,\n                \"business_name\": \"example supplierzzzzz\",\n                \"business_type\": \"example type\",\n                \"business_status\": \"example status\",\n                \"business_direction\": \"direction example\",\n                \"description\": null,\n                \"ruc\": \"23454567599\",\n                \"status_deleted\": false,\n                \"created_at\": \"2024-07-24T00:00:00.000Z\",\n                \"updated_at\": \"2024-07-24T22:02:37.817Z\",\n                \"Company\": {\n                    \"id\": 5,\n                    \"business_name\": \"Test 1\",\n                    \"business_type\": \"yjyjyyhnynynyn\",\n                    \"business_status\": \"ggrrg\",\n                    \"business_direction_fiscal\": \"dawda\",\n                    \"description\": \"Description test1\",\n                    \"user\": \"randomuser\",\n                    \"phone\": \"\",\n                    \"country_code\": \"hytjyjyjyjyj\",\n                    \"ruc\": \"12345678932\",\n                    \"key\": \"wafawdvadavd\",\n                    \"status_deleted\": false,\n                    \"created_at\": \"2024-07-24T00:00:00.000Z\",\n                    \"updated_at\": \"2024-07-24T20:27:47.616Z\"\n                },\n                \"User\": {\n                    \"id\": 11,\n                    \"role\": \"SUPERADMIN\",\n                    \"name\": \"Super admin\",\n                    \"last_name\": \"Test\",\n                    \"phone\": \"909808903\",\n                    \"country_code\": null,\n                    \"email\": \"superadmin@gmail.com\",\n                    \"dni\": \"12345678\",\n                    \"status_enabled\": true,\n                    \"status_deleted\": false,\n                    \"created_at\": \"2024-07-23T00:00:00.000Z\",\n                    \"updated_at\": \"2024-07-23T16:43:57.407Z\"\n                }\n            },\n            {\n                \"id\": 2,\n                \"company_id\": 5,\n                \"user_id_created\": 11,\n                \"business_name\": \"example supplier\",\n                \"business_type\": \"example type\",\n                \"business_status\": \"example status\",\n                \"business_direction\": \"direction example\",\n                \"description\": null,\n                \"ruc\": \"23454567545\",\n                \"status_deleted\": false,\n                \"created_at\": \"2024-07-24T00:00:00.000Z\",\n                \"updated_at\": \"2024-07-24T21:14:37.556Z\",\n                \"Company\": {\n                    \"id\": 5,\n                    \"business_name\": \"Test 1\",\n                    \"business_type\": \"yjyjyyhnynynyn\",\n                    \"business_status\": \"ggrrg\",\n                    \"business_direction_fiscal\": \"dawda\",\n                    \"description\": \"Description test1\",\n                    \"user\": \"randomuser\",\n                    \"phone\": \"\",\n                    \"country_code\": \"hytjyjyjyjyj\",\n                    \"ruc\": \"12345678932\",\n                    \"key\": \"wafawdvadavd\",\n                    \"status_deleted\": false,\n                    \"created_at\": \"2024-07-24T00:00:00.000Z\",\n                    \"updated_at\": \"2024-07-24T20:27:47.616Z\"\n                },\n                \"User\": {\n                    \"id\": 11,\n                    \"role\": \"SUPERADMIN\",\n                    \"name\": \"Super admin\",\n                    \"last_name\": \"Test\",\n                    \"phone\": \"909808903\",\n                    \"country_code\": null,\n                    \"email\": \"superadmin@gmail.com\",\n                    \"dni\": \"12345678\",\n                    \"status_enabled\": true,\n                    \"status_deleted\": false,\n                    \"created_at\": \"2024-07-23T00:00:00.000Z\",\n                    \"updated_at\": \"2024-07-23T16:43:57.407Z\"\n                }\n            }\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "create",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsInJvbGUiOiJTVVBFUkFETUlOIiwiaWF0IjoxNzIxODUxMzExLCJleHAiOjE3MjE5Mzc3MTF9.Q4Oq59ZWzZo5t7mPkWkDPdIZI0Su-D5YvmrHA831KiQ"
+							}
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "ruc",
+								"value": "12345678932",
+								"type": "text"
+							},
+							{
+								"key": "user",
+								"value": "awdawda",
+								"type": "text"
+							},
+							{
+								"key": "key",
+								"value": "awda",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ruc\": \"23454567545\",\r\n    \"business_name\": \"example supplier\",\r\n    \"business_type\": \"example type\",\r\n    \"business_status\": \"example status\",\r\n    \"business_direction\": \"direction example\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_granja_isla}}/api/suppliers"
+					},
+					"response": [
+						{
+							"name": "404 - response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ruc",
+										"value": "10980987892",
+										"type": "text"
+									}
+								],
+								"url": "{{base_granja_isla}}/api/suppliers/1"
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "79"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"4f-XfJAzoK73HbwBJbtJXwq/8UgNro\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 24 Jul 2024 18:23:46 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": true,\n    \"statusCode\": 404,\n    \"message\": \"La empresa no existe\",\n    \"payload\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "edit",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsInJvbGUiOiJTVVBFUkFETUlOIiwiaWF0IjoxNzIxODUxMzExLCJleHAiOjE3MjE5Mzc3MTF9.Q4Oq59ZWzZo5t7mPkWkDPdIZI0Su-D5YvmrHA831KiQ"
+							}
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "ruc",
+								"value": "44345678930",
+								"type": "text"
+							},
+							{
+								"key": "user",
+								"value": "awdawda",
+								"type": "text"
+							},
+							{
+								"key": "key",
+								"value": "awda",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ruc\": \"23454567599\",\r\n    \"business_name\": \"example supplierzzzzz\",\r\n    \"business_type\": \"example type\",\r\n    \"business_status\": \"example status\",\r\n    \"business_direction\": \"direction example\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_granja_isla}}/api/suppliers/1"
+					},
+					"response": [
+						{
+							"name": "404 - response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ruc",
+										"value": "10980987892",
+										"type": "text"
+									}
+								],
+								"url": "{{base_granja_isla}}/api/suppliers/1"
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "79"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"4f-XfJAzoK73HbwBJbtJXwq/8UgNro\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 24 Jul 2024 18:23:46 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": true,\n    \"statusCode\": 404,\n    \"message\": \"La empresa no existe\",\n    \"payload\": null\n}"
+						},
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "ruc",
+										"value": "12345678932",
+										"type": "text"
+									},
+									{
+										"key": "user",
+										"value": "awdawda",
+										"type": "text"
+									},
+									{
+										"key": "key",
+										"value": "awda",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ruc\": \"23454567599\",\r\n    \"business_name\": \"example supplierzzzzz\",\r\n    \"business_type\": \"example type\",\r\n    \"business_status\": \"example status\",\r\n    \"business_direction\": \"direction example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{base_granja_isla}}/api/suppliers/1"
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "423"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1a7-bWyhaLweJ0Dwm+SrqISfEdbmha8\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 24 Jul 2024 22:02:37 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": false,\n    \"statusCode\": 201,\n    \"message\": \"Proveedor modificado correctamente\",\n    \"payload\": {\n        \"id\": 1,\n        \"company_id\": 5,\n        \"user_id_created\": 11,\n        \"business_name\": \"example supplierzzzzz\",\n        \"business_type\": \"example type\",\n        \"business_status\": \"example status\",\n        \"business_direction\": \"direction example\",\n        \"description\": null,\n        \"ruc\": \"23454567599\",\n        \"status_deleted\": false,\n        \"created_at\": \"2024-07-24T00:00:00.000Z\",\n        \"updated_at\": \"2024-07-24T22:02:37.817Z\"\n    }\n}"
+						},
+						{
+							"name": "RUC incorrecto",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "ruc",
+										"value": "44345678930",
+										"type": "text"
+									},
+									{
+										"key": "user",
+										"value": "awdawda",
+										"type": "text"
+									},
+									{
+										"key": "key",
+										"value": "awda",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ruc\": \"23454567599\",\r\n    \"business_name\": \"example supplierzzzzz\",\r\n    \"business_type\": \"example type\",\r\n    \"business_status\": \"example status\",\r\n    \"business_direction\": \"direction example\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{base_granja_isla}}/api/suppliers/1"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "100"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"64-ZDWzLk1RClLrH+Qi2uS6WQ6aq2Y\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 24 Jul 2024 22:03:03 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": true,\n    \"statusCode\": 400,\n    \"message\": \"Error al validar las empresa seleccionada\",\n    \"payload\": null\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "sire",
+			"item": [
+				{
+					"name": "sire-test",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{base_granja_isla}}/api/sire"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "post - login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"credential\":\"12345678\",\r\n    \"password\":\"12345678\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_granja_isla}}/api/auth/login"
+					},
+					"response": [
+						{
+							"name": "success - response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"credential\":\"12345678\",\r\n    \"password\":\"12345678\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{base_granja_isla}}/api/auth/login"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "324"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"144-NTIa8x4QfpF7RMc9QS3+6YJIR1w\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 24 Jul 2024 20:01:52 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": false,\n    \"statusCode\": 200,\n    \"message\": \"Autenticación correcta\",\n    \"payload\": {\n        \"user\": {\n            \"id\": 11,\n            \"role\": \"SUPERADMIN\",\n            \"full_name\": \"Super admin Test\"\n        },\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsInJvbGUiOiJTVVBFUkFETUlOIiwiaWF0IjoxNzIxODUxMzExLCJleHAiOjE3MjE5Mzc3MTF9.Q4Oq59ZWzZo5t7mPkWkDPdIZI0Su-D5YvmrHA831KiQ\"\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\":\"Test 1\",\r\n    \"description\":\"Description for test 1\",\r\n    \"price\":101313123.4214324353\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_granja_isla}}/api/products"
+					},
+					"response": []
+				},
+				{
+					"name": "get all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_granja_isla}}/api/products?limit=2&page=2",
+							"host": [
+								"{{base_granja_isla}}"
+							],
+							"path": [
+								"api",
+								"products"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "page",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "sunat",
+			"item": [
+				{
+					"name": "get info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{base_granja_isla}}/api/sunat/ruc/20451770501"
+					},
+					"response": []
+				},
+				{
+					"name": "get detail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"type\" : \"RECIBIDO\",\r\n    \"payment_type\" : \"FACTURA\",\r\n    \"ruc\" : 20607524956,\r\n    \"serie\" : \"F004\",\r\n    \"number\" : 1150\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_granja_isla}}/api/test/sire"
+					},
+					"response": [
+						{
+							"name": "response - success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"type\" : \"RECIBIDO\",\r\n    \"payment_type\" : \"FACTURA\",\r\n    \"ruc\" : 20607524956,\r\n    \"serie\" : \"F004\",\r\n    \"number\" : 1150\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{base_granja_isla}}/api/test/sire"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1603"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"643-YlRXqTOKWgqDOXmc0lGahDFr56o\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 26 Jul 2024 03:22:46 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": false,\n    \"statusCode\": 200,\n    \"message\": \"Success\",\n    \"payload\": {\n        \"cntTotalReg\": 1,\n        \"numPag\": 1,\n        \"numRegPag\": 1,\n        \"numeroPaginas\": [\n            {\n                \"numPagFront\": 20\n            },\n            {\n                \"numPagFront\": 50\n            },\n            {\n                \"numPagFront\": 100\n            }\n        ],\n        \"comprobantes\": [\n            {\n                \"datosEmisor\": {\n                    \"numRuc\": \"20607524956\",\n                    \"desRazonSocialEmis\": \"ASFALTO Y DIESEL DEL PERU S.A.C.\",\n                    \"desNomComercialEmis\": \"-\",\n                    \"desDirEmis\": \"-\",\n                    \"ubigeoEmis\": \"\"\n                },\n                \"datosReceptor\": {\n                    \"codDocIdeRecep\": \"6\",\n                    \"numDocIdeRecep\": \"20535014940\",\n                    \"desRazonSocialRecep\": \"EMPRESA DE TRANSPORTE DON AUGUSTO S.A.C.\",\n                    \"dirDetCliente\": \"CAL. DONOLA 119 GROCIO PRADO - CHINCHA - ICA\",\n                    \"dirDetRecepFactura\": \"-\"\n                },\n                \"codCpe\": \"01\",\n                \"numSerie\": \"F004\",\n                \"numCpe\": 1150,\n                \"numCpeHasta\": 0,\n                \"codMoneda\": \"PEN\",\n                \"placaVehicular\": \"-\",\n                \"fecEmision\": \"17/07/2024\",\n                \"fecRegistro\": \"17/07/2024\",\n                \"codTipTransaccion\": \"1\",\n                \"indEstadoCpe\": \"0\",\n                \"indProcedencia\": \"2\",\n                \"indTituloGratuito\": \"0\",\n                \"mtoVentaOpGratuita\": 0,\n                \"desMtoTotalLetras\": \" TRES MIL SETECIENTOS SESENTA Y SEIS Y 50/100  SOLES\",\n                \"indItinerante\": \"\",\n                \"indTaxFree\": \"0\",\n                \"desObservacion\": \"-\",\n                \"informacionItems\": [\n                    {\n                        \"cntItems\": 243,\n                        \"codUnidadMedida\": \"GLL\",\n                        \"desUnidadMedida\": \"US GALON\",\n                        \"desCodigo\": \"00000000\",\n                        \"desItem\": \"DIESEL B5 S50\",\n                        \"mtoValUnitario\": 13.13559322,\n                        \"mtoICBPER\": 0,\n                        \"mtoDesc\": 0,\n                        \"mtoImpTotal\": 3766.5\n                    }\n                ],\n                \"procedenciaMasiva\": {\n                    \"mtoDtoGlobalAfecBI\": 0,\n                    \"mtoTotalValVentaGrabado\": 3191.95,\n                    \"mtoTotalValVentaInafecto\": 0,\n                    \"mtoTotalValVentaExonerado\": 0,\n                    \"mtoTotalValVentaGratuito\": 0,\n                    \"mtoTotalValVentaExportacion\": 0,\n                    \"mtoDtoGlobalNoAfecBI\": 0,\n                    \"mtoTotalDtos\": 0,\n                    \"mtoSumOtrosTributos\": 0,\n                    \"mtoSumOtrosCargos\": 0,\n                    \"mtoSumISC\": 0,\n                    \"mtoSumIGV\": 574.55,\n                    \"mtoSumICBPER\": 0,\n                    \"mtoTotalAnticipo\": 0,\n                    \"mtoImporteTotal\": 3766.5,\n                    \"mtoRedondeo\": 0\n                },\n                \"numCpeRel\": 0\n            }\n        ]\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "test-api",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "localhost:4000/api/test"
+			},
+			"response": []
+		},
+		{
+			"name": "test-post-voucher",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "seed",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{base_granja_isla}}/api/seed"
+			},
+			"response": []
+		}
+	]
+}
