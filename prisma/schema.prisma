@@ -108,7 +108,7 @@ model Bank {
   company_id      Int
   user_created_id Int
   title           String
-  slug            String?  @unique @db.Text()
+  slug            String?  @db.Text()
   description     String?  @db.Text()
   status_deleted  Boolean? @default(false)
 

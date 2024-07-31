@@ -4,4 +4,4 @@ export interface I_CreateUser
   extends Omit<User, "id" | "created_at" | "updated_at"> {}
 
 export interface I_UpdateUser
-  extends Omit<User, "id" | "created_at" | "updated_at"> {}
+  extends Omit<User, "id" | "created_at" | "updated_at" | "status_deleted"> {}

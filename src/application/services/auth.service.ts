@@ -12,11 +12,9 @@ const jwt_token = environments.JWT_TOKEN;
 
 class AuthService {
   private responseService: ResponseService;
-  private userService: UserService;
 
   constructor() {
     this.responseService = new ResponseService();
-    this.userService = new UserService();
   }
 
   login = async (credential: string, password: string): Promise<T_Response> => {
@@ -73,8 +71,8 @@ class AuthService {
       const decodeToken = jwt.verify(jwtToken, jwt_token);
       const { data, success } = jwtDecodeDTO.safeParse(decodeToken);
       if (data && success) {
-        const user = await this.userService.findUserById(data.id);
-        return this.responseService.SuccessResponse(undefined, user.payload);
+        const user = await prisma.user.findFirst({ where: { id: data.id } });
+        return this.responseService.SuccessResponse(undefined, user);
         // return this.responseService.SuccessResponse(undefined, decodeToken);
       } else {
         return this.responseService.UnauthorizedException(

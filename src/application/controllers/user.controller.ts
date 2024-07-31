@@ -79,11 +79,13 @@ class UserController {
 
             const { "user-profile": userProfile, ...restData } = request.body;
 
-            //todo registramos a la empresa
+            // [message] solo deberia usarse un metodo, y evaluar si soy admin, user o superadmin, por ende, deberia recibir el token por header
             const id = Number(request.params.id);
-            const result = await this.userService.updateUserOrAdmin(
+            const token = request.get("Authorization") as string;
+            const result = await this.userService.updateUser(
               restData,
-              id
+              id,
+              token
             );
 
             if (result.error) {

@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Role, User } from "@prisma/client";
 import { I_Sunat } from "../models/interfaces/sunat.interface";
 import {
   I_CreateUser,
@@ -13,11 +13,15 @@ import appRootPath from "app-root-path";
 import { userMulterProperties } from "../models/constants/multer.constant";
 
 import fs from "fs/promises";
+import AuthService from "./auth.service";
 
 class UserService {
   private responseService: ResponseService;
+  private authService: AuthService;
+
   constructor() {
     this.responseService = new ResponseService();
+    this.authService = new AuthService();
   }
 
   async findUsersNoAdmin(): Promise<T_Response> {
@@ -127,6 +131,67 @@ class UserService {
       await prisma.$disconnect();
     }
   }
+
+  updateUser = async (data: I_UpdateUser, id: number, token: string) => {
+    try {
+      const responseToken = await this.authService.getUserForToken(token);
+      if (responseToken.error) return responseToken;
+      const user: User = responseToken.payload;
+
+      const responseUser = await this.findUserById(id);
+      if (responseUser.error) return responseUser;
+
+      const userEdited: User = responseUser.payload;
+
+      let formatData;
+
+      if (data.password && data.password !== "") {
+        const newPassword = bcrypt.hashSync(data.password, 11);
+        formatData = { ...data, password: newPassword };
+      }
+
+      if (user.role === E_Role.SUPERADMIN) {
+        //[message] este caso esta por verse, porque no deberia de poder aceptar ese rol
+
+        let role: Role = Role.SUPERADMIN;
+
+        if (data.role === E_Role.SUPERADMIN) role = Role.SUPERADMIN;
+        if (data.role === E_Role.ADMIN) role = Role.ADMIN;
+        if (data.role === E_Role.USER) role = Role.USER;
+
+        await prisma.user.update({
+          data: { ...formatData, role },
+          where: { id },
+        });
+      } else if (user.role === E_Role.ADMIN) {
+        if (userEdited.role === E_Role.ADMIN && userEdited.id === user.id) {
+          await prisma.user.update({
+            data: { ...formatData, role: Role.ADMIN },
+            where: { id },
+          });
+        } else if (userEdited.role === E_Role.USER) {
+          await prisma.user.update({
+            data: { ...formatData, role: Role.USER },
+            where: { id },
+          });
+        } else return this.responseService.UnauthorizedException();
+      } else if (user.role === E_Role.USER) {
+        if (userEdited.role === E_Role.USER && userEdited.id === user.id) {
+          await prisma.user.update({
+            data: { ...formatData, role: Role.ADMIN },
+            where: { id },
+          });
+        } else return this.responseService.UnauthorizedException();
+      }
+      return this.responseService.SuccessResponse(
+        "Usuario modificado exitosamente"
+      );
+    } catch (error) {
+      return this.responseService.InternalServerErrorException();
+    } finally {
+      await prisma.$disconnect();
+    }
+  };
 
   async createAdmin(userData: I_CreateUser): Promise<T_Response> {
     try {
