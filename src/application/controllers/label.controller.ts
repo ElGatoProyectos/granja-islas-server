@@ -47,6 +47,15 @@ class LabelController {
     const result = await this.labelService.updateLabel(data, id, ruc, token);
     response.status(result.statusCode).json(result);
   };
+
+  deleteById = async (request: Request, response: Response) => {
+    const ruc = request.get("ruc") as string;
+    const token = request.get("Authorization") as string;
+    const id = Number(request.params.id);
+
+    const result = await this.labelService.deleteById(id, ruc, token);
+    response.status(result.statusCode).json(result);
+  };
 }
 
 export default LabelController;

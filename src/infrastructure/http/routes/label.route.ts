@@ -23,6 +23,7 @@ class LabelRouter {
     this.getRoutes();
     this.postRoutes();
     this.patchRoutes();
+    this.deleteRoutes();
   }
 
   private getRoutes() {
@@ -63,6 +64,15 @@ class LabelRouter {
       this.accessDataMiddleware.validateCredentials,
       this.authMiddleware.authorizationAdmin,
       this.labelController.editById
+    );
+  }
+
+  private deleteRoutes() {
+    this.router.delete(
+      `${this._prefix}/:id`,
+      this.accessDataMiddleware.validateCredentials,
+      this.authMiddleware.authorizationAdmin,
+      this.labelController.deleteById
     );
   }
 }

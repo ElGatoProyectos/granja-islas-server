@@ -75,6 +75,10 @@ model Supplier {
   ruc                String   @unique
   status_deleted     Boolean? @default(false)
 
+  // added new
+  phone        String?
+  country_code String?
+
   created_at DateTime  @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime  @updatedAt
   Product    Product[]
