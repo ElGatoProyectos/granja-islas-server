@@ -33,7 +33,7 @@ class UserRouter {
     );
     this.router.get(
       `${this._prefix}/:id`,
-      this.authMiddleware.authorizationAdmin,
+      this.authMiddleware.authorizationUser,
       this.userController.findUserById
     );
 
