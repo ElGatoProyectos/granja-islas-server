@@ -137,16 +137,16 @@ class BankService {
       const { user, company }: { user: User; company: Company } =
         responseInfo.payload;
 
-      if (id !== company.id)
-        return this.responseService.BadRequestException(
-          "El banco no pertenece a la empresa seleccionada"
-        );
-
       const bank = await prisma.bank.findFirst({
         where: { id, status_deleted: false, company_id: company.id },
       });
       if (!bank)
         return this.responseService.BadRequestException("La empresa no existe");
+
+      if (bank.company_id !== company.id)
+        return this.responseService.BadRequestException(
+          "El banco no pertenece a la empresa seleccionada"
+        );
 
       const slug = slugify(data.title, { lower: true });
 
@@ -163,7 +163,7 @@ class BankService {
       });
 
       return this.responseService.SuccessResponse(
-        "Banco creado exitosamente",
+        "Banco modificado exitosamente",
         updated
       );
     } catch (error) {

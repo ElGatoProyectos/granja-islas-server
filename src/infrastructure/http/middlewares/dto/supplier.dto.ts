@@ -6,6 +6,8 @@ export const createSupplierDTo = z.object({
   business_type: z.string(),
   business_status: z.string(),
   business_direction: z.string(),
+  phone: z.string(),
+  country_code: z.string(),
 });
 
 export const updateSupplierDTo = z.object({
@@ -14,6 +16,8 @@ export const updateSupplierDTo = z.object({
   business_type: z.string(),
   business_status: z.string(),
   business_direction: z.string(),
+  phone: z.string(),
+  country_code: z.string(),
 });
 
 // model Supplier {

@@ -2,6 +2,7 @@ import { Router } from "express";
 import AuthMiddleware from "../middlewares/auth.middleware";
 import LabelController from "../../../application/controllers/label.controller";
 import AccessDataMiddleware from "../middlewares/access-data.middleware";
+import Label_Bank_Middleware from "../middlewares/label-bank.middleware";
 
 class LabelRouter {
   public router: Router;
@@ -9,6 +10,7 @@ class LabelRouter {
   private authMiddleware: AuthMiddleware;
   private labelController: LabelController;
   private accessDataMiddleware: AccessDataMiddleware;
+  private bank_label_middleware: Label_Bank_Middleware;
 
   constructor() {
     this.router = Router();
@@ -16,6 +18,7 @@ class LabelRouter {
     this.authMiddleware = new AuthMiddleware();
     this.labelController = new LabelController();
     this.accessDataMiddleware = new AccessDataMiddleware();
+    this.bank_label_middleware = new Label_Bank_Middleware();
     this.initializeRoutes();
   }
 
@@ -53,6 +56,7 @@ class LabelRouter {
     this.router.post(
       `${this._prefix}`,
       this.accessDataMiddleware.validateCredentials,
+      this.bank_label_middleware.createLabel,
       this.authMiddleware.authorizationAdmin,
       this.labelController.create
     );
@@ -62,6 +66,7 @@ class LabelRouter {
     this.router.patch(
       `${this._prefix}/:id`,
       this.accessDataMiddleware.validateCredentials,
+      this.bank_label_middleware.editLabel,
       this.authMiddleware.authorizationAdmin,
       this.labelController.editById
     );

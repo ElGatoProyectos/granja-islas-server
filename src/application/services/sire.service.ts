@@ -121,6 +121,8 @@ class SireService {
                 description: "",
                 ruc: item.datosEmisor.numRuc,
                 user_id_created: user.id,
+                phone: null,
+                country_code: null,
               };
 
               const responseCreateSupplier = await this.supplierService.create(
