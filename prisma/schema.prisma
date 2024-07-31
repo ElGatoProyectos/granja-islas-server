@@ -28,7 +28,7 @@ model User {
   phone          String?
   country_code   String?
   email          String?
-  dni            String  @unique
+  dni            String? @unique
   status_enabled Boolean @default(true)
   status_deleted Boolean @default(false)
 

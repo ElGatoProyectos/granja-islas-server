@@ -6,7 +6,6 @@ export const createUserDTO = z.object({
   last_name: z.string(),
   phone: z.string().optional(),
   email: z.string().email(),
-  dni: z.string(),
 });
 
 export const editUserDTO = z.object({
@@ -15,7 +14,6 @@ export const editUserDTO = z.object({
   last_name: z.string(),
   phone: z.string().optional(),
   email: z.string().email().optional(),
-  dni: z.string(),
 });
 
 export const createSunatDTO = z.object({
