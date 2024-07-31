@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createUserDTO = z.object({
-  role: z.enum(["ADMIN", "USER"]),
+  role: z.enum(["ADMIN", "USER", "SUPERADMIN"]),
   name: z.string(),
   last_name: z.string(),
   phone: z.string().optional(),
@@ -10,7 +10,7 @@ export const createUserDTO = z.object({
 });
 
 export const editUserDTO = z.object({
-  role: z.enum(["ADMIN", "USER"]),
+  role: z.enum(["ADMIN", "USER", "SUPERADMIN"]),
   name: z.string(),
   last_name: z.string(),
   phone: z.string().optional(),
