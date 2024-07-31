@@ -9,6 +9,7 @@ import sunatRouter from "../http/routes/sunat.route";
 import seedRouter from "../http/routes/seed.route";
 import productRouter from "../http/routes/product.route";
 import supplierRouter from "../http/routes/supplier.route";
+import labelRouter from "../http/routes/label.route";
 
 export class RouteManager {
   private _globalPrefix: string;
@@ -28,5 +29,6 @@ export class RouteManager {
     this.app.use(this._globalPrefix, productRouter);
     this.app.use(this._globalPrefix, supplierRouter);
     this.app.use(this._globalPrefix, testRoute);
+    this.app.use(this._globalPrefix, labelRouter);
   }
 }

@@ -28,6 +28,7 @@ class SireController {
 
     const data = request.body;
 
+    // [message] esto podria venir dinamicamente de un formulario
     // const data = {
     //   type: "RECIBIDO",
     //   payment_type: "FACTURA",

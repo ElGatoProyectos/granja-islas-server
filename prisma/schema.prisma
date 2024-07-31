@@ -32,10 +32,12 @@ model User {
   status_enabled Boolean @default(true)
   status_deleted Boolean @default(false)
 
-  password   String
-  created_at DateTime   @default(dbgenerated("CURRENT_DATE"))
-  updated_at DateTime   @updatedAt @db.Timestamp()
-  Supplier   Supplier[]
+  password     String
+  created_at   DateTime       @default(dbgenerated("CURRENT_DATE"))
+  updated_at   DateTime       @updatedAt @db.Timestamp()
+  Supplier     Supplier[]
+  ProductLabel ProductLabel[]
+  Bank         Bank[]
 }
 
 model Company {
@@ -52,10 +54,12 @@ model Company {
   key                       String
   status_deleted            Boolean? @default(false)
 
-  created_at DateTime   @default(dbgenerated("CURRENT_DATE"))
-  updated_at DateTime   @updatedAt
-  Supplier   Supplier[]
-  Bill       Bill[]
+  created_at   DateTime       @default(dbgenerated("CURRENT_DATE"))
+  updated_at   DateTime       @updatedAt
+  Supplier     Supplier[]
+  Bill         Bill[]
+  ProductLabel ProductLabel[]
+  Bank         Bank[]
 }
 
 //todo Proveedores
@@ -82,13 +86,30 @@ model Supplier {
 
 //todo etiquetas que iran en la tabla producto para filtrar
 model ProductLabel {
-  id             Int      @id @default(autoincrement())
-  title          String
-  slug           String?  @unique @db.Text()
-  description    String?  @db.Text()
-  status_deleted Boolean? @default(false)
+  id              Int      @id @default(autoincrement())
+  company_id      Int
+  user_created_id Int
+  title           String
+  slug            String?  @db.Text()
+  description     String?  @db.Text()
+  status_deleted  Boolean? @default(false)
 
-  DetailProductLabel DetailProductLabel[]
+  // DetailProductLabel DetailProductLabel[]
+  Company Company @relation(fields: [company_id], references: [id])
+  User    User    @relation(fields: [user_created_id], references: [id])
+}
+
+model Bank {
+  id              Int      @id @default(autoincrement())
+  company_id      Int
+  user_created_id Int
+  title           String
+  slug            String?  @unique @db.Text()
+  description     String?  @db.Text()
+  status_deleted  Boolean? @default(false)
+
+  Company Company @relation(fields: [company_id], references: [id])
+  User    User    @relation(fields: [user_created_id], references: [id])
 }
 
 //! no implementado
@@ -115,21 +136,21 @@ model Product {
   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt
 
-  Supplier           Supplier?            @relation(fields: [supplier_id], references: [id])
-  DetailProductLabel DetailProductLabel[]
+  Supplier Supplier? @relation(fields: [supplier_id], references: [id])
+  // DetailProductLabel DetailProductLabel[]
 }
 
-model DetailProductLabel {
-  id               Int @id @default(autoincrement())
-  product_id       Int
-  product_label_id Int
+// model DetailProductLabel {
+//   id               Int @id @default(autoincrement())
+//   product_id       Int
+//   product_label_id Int
 
-  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
-  updated_at DateTime @updatedAt
+//   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
+//   updated_at DateTime @updatedAt
 
-  Label   ProductLabel? @relation(fields: [product_label_id], references: [id])
-  Product Product?      @relation(fields: [product_id], references: [id])
-}
+//   Label   ProductLabel? @relation(fields: [product_label_id], references: [id])
+//   Product Product?      @relation(fields: [product_id], references: [id])
+// }
 
 //- facturas
 model Bill {

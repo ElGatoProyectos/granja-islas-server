@@ -31,14 +31,14 @@ class SupplierRouter {
   private getRoutes() {
     this.router.get(
       `${this._prefix}`,
-      this.authMiddleware.authorizationUser,
       this.accessDataMiddleware.validateCredentials,
+      this.authMiddleware.authorizationUser,
       this.supplierController.findAll
     );
     this.router.get(
       `${this._prefix}/:id`,
-      this.authMiddleware.authorizationUser,
       this.accessDataMiddleware.validateCredentials,
+      this.authMiddleware.authorizationUser,
       this.supplierController.findById
     );
   }
@@ -46,8 +46,8 @@ class SupplierRouter {
   private postRoutes() {
     this.router.post(
       `${this._prefix}`,
-      this.authMiddleware.authorizationAdmin,
       this.accessDataMiddleware.validateCredentials,
+      this.authMiddleware.authorizationAdmin,
       this.supplierMiddleware.validateCreate,
       this.supplierController.create
     );
@@ -56,8 +56,8 @@ class SupplierRouter {
   private patchRoutes() {
     this.router.patch(
       `${this._prefix}/:id`,
-      this.authMiddleware.authorizationAdmin,
       this.accessDataMiddleware.validateCredentials,
+      this.authMiddleware.authorizationAdmin,
       this.supplierMiddleware.validateUpdate,
       this.supplierController.edit
     );

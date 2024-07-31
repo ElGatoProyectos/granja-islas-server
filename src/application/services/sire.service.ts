@@ -48,6 +48,7 @@ class SireService {
     }
   };
 
+  //[message]
   getBills = async () => {
     try {
       const queryParams = "?codTipoOpe=3&page=1&perPage=100";
@@ -71,6 +72,7 @@ class SireService {
     }
   };
 
+  //[message] metodo para sincronizar la data con la de sunat
   synchronizeDataWithDatabase = async (
     data: T_Config,
     rucFromHeader: string,
@@ -133,6 +135,7 @@ class SireService {
             }
 
             // Registrar comprobante
+
             const formatDataBill: I_CreateBill = {
               num_serie: item.numSerie,
               num_cpe: item.numCpe,

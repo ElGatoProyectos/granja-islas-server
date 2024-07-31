@@ -74,7 +74,7 @@ class AuthService {
       const { data, success } = jwtDecodeDTO.safeParse(decodeToken);
       if (data && success) {
         const user = await this.userService.findUserById(data.id);
-        return this.responseService.SuccessResponse(undefined, user);
+        return this.responseService.SuccessResponse(undefined, user.payload);
         // return this.responseService.SuccessResponse(undefined, decodeToken);
       } else {
         return this.responseService.UnauthorizedException(

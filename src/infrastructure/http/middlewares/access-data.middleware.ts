@@ -16,9 +16,13 @@ class AccessDataMiddleware {
     nextFunction: NextFunction
   ) => {
     try {
+      // [message] solo deberia pasar el ruc, la key y el user se recupera consultando el ruc
+      // [message] Aqui se valida los campos que debes pasar por el header
       const ruc = request.get("ruc") as string;
-      const key = request.get("key");
-      const user = request.get("user");
+      const token = request.get("Authorization") as string;
+
+      // const key = request.get("key");
+      // const user = request.get("user");
 
       const customError = this.responseService.BadRequestException(
         "Error al validar las credenciales"
@@ -29,8 +33,7 @@ class AccessDataMiddleware {
 
       const formatDataValidation = {
         ruc,
-        key,
-        user,
+        token,
       };
 
       validateCredentialsDTO.parse(formatDataValidation);

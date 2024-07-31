@@ -19,50 +19,51 @@ class ProductService {
   }
 
   //- QUERY METHODS
+  // [error] corregir esto
 
-  findAll = async (page: number, limit: number) => {
-    const skip = (page - 1) * limit;
-    try {
-      const [products, total] = await prisma.$transaction([
-        prisma.product.findMany({
-          where: { status_deleted: false },
-          skip,
-          take: limit,
-          include: {
-            DetailProductLabel: {
-              include: {
-                Label: true,
-              },
-            },
-          },
-        }),
-        prisma.product.count({
-          where: { status_deleted: false },
-        }),
-      ]);
+  // findAll = async (page: number, limit: number) => {
+  //   const skip = (page - 1) * limit;
+  //   try {
+  //     const [products, total] = await prisma.$transaction([
+  //       prisma.product.findMany({
+  //         where: { status_deleted: false },
+  //         skip,
+  //         take: limit,
+  //         include: {
+  //           DetailProductLabel: {
+  //             include: {
+  //               Label: true,
+  //             },
+  //           },
+  //         },
+  //       }),
+  //       prisma.product.count({
+  //         where: { status_deleted: false },
+  //       }),
+  //     ]);
 
-      const pageCount = Math.ceil(total / limit);
+  //     const pageCount = Math.ceil(total / limit);
 
-      const formatData = {
-        total,
-        page,
-        perPage: limit,
-        pageCount,
-        data: products,
-      };
-      return this.responseService.SuccessResponse(
-        "Lista de productos",
-        formatData
-      );
-    } catch (error) {
-      return this.responseService.InternalServerErrorException(
-        undefined,
-        error
-      );
-    } finally {
-      await prisma.$disconnect();
-    }
-  };
+  //     const formatData = {
+  //       total,
+  //       page,
+  //       perPage: limit,
+  //       pageCount,
+  //       data: products,
+  //     };
+  //     return this.responseService.SuccessResponse(
+  //       "Lista de productos",
+  //       formatData
+  //     );
+  //   } catch (error) {
+  //     return this.responseService.InternalServerErrorException(
+  //       undefined,
+  //       error
+  //     );
+  //   } finally {
+  //     await prisma.$disconnect();
+  //   }
+  // };
 
   findById = async (productId: number) => {
     try {
@@ -102,20 +103,20 @@ class ProductService {
     }
   };
 
-  findProductsByLabel = async (label_id: number) => {
-    try {
-      const responseLabel = await this.productLabelService.findById(label_id);
-      if (responseLabel.error) return responseLabel;
-      const products = await prisma.detailProductLabel.findMany({
-        where: { product_label_id: label_id },
-        include: { Product: true },
-      });
-      return this.responseService.SuccessResponse(
-        "Listado de productos",
-        products
-      );
-    } catch (error) {}
-  };
+  // findProductsByLabel = async (label_id: number) => {
+  //   try {
+  //     const responseLabel = await this.productLabelService.findById(label_id);
+  //     if (responseLabel.error) return responseLabel;
+  //     const products = await prisma.detailProductLabel.findMany({
+  //       where: { product_label_id: label_id },
+  //       include: { Product: true },
+  //     });
+  //     return this.responseService.SuccessResponse(
+  //       "Listado de productos",
+  //       products
+  //     );
+  //   } catch (error) {}
+  // };
 
   //- MUTATIONS METHODS
 
@@ -181,63 +182,63 @@ class ProductService {
 
   // actions to suppliers
 
-  assignSupplierToProduct = async (supplierId: number, productId: number) => {
-    try {
-      const responseSupplier = await this.supplierService.findById(supplierId);
-      const responseProduct = await this.findById(productId);
+  // assignSupplierToProduct = async (supplierId: number, productId: number) => {
+  //   try {
+  //     const responseSupplier = await this.supplierService.findById(supplierId);
+  //     const responseProduct = await this.findById(productId);
 
-      if (responseSupplier.error || responseProduct.error)
-        return this.responseService.BadRequestException(
-          "Error al asignar proveedor"
-        );
+  //     if (responseSupplier.error || responseProduct.error)
+  //       return this.responseService.BadRequestException(
+  //         "Error al asignar proveedor"
+  //       );
 
-      const updated = await prisma.product.update({
-        where: { id: productId },
-        data: { supplier_id: supplierId },
-      });
+  //     const updated = await prisma.product.update({
+  //       where: { id: productId },
+  //       data: { supplier_id: supplierId },
+  //     });
 
-      return this.responseService.SuccessResponse(
-        "Proveedor asignado correctamente",
-        updated
-      );
-    } catch (error) {
-      return this.responseService.InternalServerErrorException(
-        undefined,
-        error
-      );
-    } finally {
-      await prisma.$disconnect();
-    }
-  };
+  //     return this.responseService.SuccessResponse(
+  //       "Proveedor asignado correctamente",
+  //       updated
+  //     );
+  //   } catch (error) {
+  //     return this.responseService.InternalServerErrorException(
+  //       undefined,
+  //       error
+  //     );
+  //   } finally {
+  //     await prisma.$disconnect();
+  //   }
+  // };
 
-  removeSupplierToProduct = async (supplierId: number, productId: number) => {
-    try {
-      const responseSupplier = await this.supplierService.findById(supplierId);
-      const responseProduct = await this.findById(productId);
+  // removeSupplierToProduct = async (supplierId: number, productId: number) => {
+  //   try {
+  //     const responseSupplier = await this.supplierService.findById(supplierId);
+  //     const responseProduct = await this.findById(productId);
 
-      if (responseSupplier.error || responseProduct.error)
-        return this.responseService.BadRequestException(
-          "Error al asignar proveedor"
-        );
+  //     if (responseSupplier.error || responseProduct.error)
+  //       return this.responseService.BadRequestException(
+  //         "Error al asignar proveedor"
+  //       );
 
-      const updated = await prisma.product.update({
-        where: { id: productId },
-        data: { supplier_id: null },
-      });
+  //     const updated = await prisma.product.update({
+  //       where: { id: productId },
+  //       data: { supplier_id: null },
+  //     });
 
-      return this.responseService.SuccessResponse(
-        "Proveedor asignado correctamente",
-        updated
-      );
-    } catch (error) {
-      return this.responseService.InternalServerErrorException(
-        undefined,
-        error
-      );
-    } finally {
-      await prisma.$disconnect();
-    }
-  };
+  //     return this.responseService.SuccessResponse(
+  //       "Proveedor asignado correctamente",
+  //       updated
+  //     );
+  //   } catch (error) {
+  //     return this.responseService.InternalServerErrorException(
+  //       undefined,
+  //       error
+  //     );
+  //   } finally {
+  //     await prisma.$disconnect();
+  //   }
+  // };
 }
 
 export default ProductService;

@@ -11,9 +11,10 @@ class ProductController {
   findAll = async (request: Request, response: Response) => {
     const page = parseInt(request.query.page as string) || 1;
     const limit = parseInt(request.query.limit as string) || 20;
-    const result = await this.productService.findAll(page, limit);
+    // [error] corregir esto
+    // const result = await this.productService.findAll(page, limit);
 
-    response.status(result.statusCode).json(result);
+    // response.status(result.statusCode).json(result);
   };
 
   create = async (request: Request, response: Response) => {

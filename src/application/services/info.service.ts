@@ -18,7 +18,9 @@ class InfoService {
       const responseCompany = await this.companyService.findByRuc(ruc);
 
       if (responseCompany.error)
-        return this.responseService.NotFoundException("La empresa no existe");
+        return this.responseService.NotFoundException(
+          "Error al validar empresa"
+        );
       return this.responseService.SuccessResponse(
         undefined,
         responseCompany.payload
