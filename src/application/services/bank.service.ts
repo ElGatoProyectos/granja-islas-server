@@ -114,6 +114,7 @@ class BankService {
         created
       );
     } catch (error) {
+      console.log(error);
       return this.responseService.InternalServerErrorException(
         undefined,
         error

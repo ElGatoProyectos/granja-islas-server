@@ -56,12 +56,14 @@ class UserController {
 
   //! pendiente la validacion de que solo pueda editar mi propio usuario
   edit = async (request: Request, response: Response) => {
+    console.log("in controller edit");
     this.upload.single(userMulterProperties.field)(
       request,
       response,
       async (err: any) => {
         //todo validamos si hay un error
         if (err) {
+          console.log("primer error", err);
           const customError = this.responseService.BadRequestException(
             "Error al procesar la imagen 2",
             err
@@ -77,6 +79,7 @@ class UserController {
             createUserDTO.parse(request.body);
             // - esto ya se valido en el middleware
 
+            console.log(request.body);
             const { "user-profile": userProfile, ...restData } = request.body;
 
             // [message] solo deberia usarse un metodo, y evaluar si soy admin, user o superadmin, por ende, deberia recibir el token por header
@@ -125,6 +128,7 @@ class UserController {
               response.status(result.statusCode).json(result);
             }
           } catch (error) {
+            console.log("Error in catch", error);
             const customError = this.responseService.BadRequestException(
               "Error al validar los campos",
               error
