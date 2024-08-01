@@ -67,10 +67,10 @@ class SupplierService {
           where: { status_deleted: false, company_id: company.id },
           skip,
           take: limit,
-          include: {
-            Company: true,
-            User: { omit: { password: true } },
-          },
+          // include: {
+          //   Company: true,
+          //   User: { omit: { password: true } },
+          // },
         }),
         prisma.product.count({
           where: { status_deleted: false },

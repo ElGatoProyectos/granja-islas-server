@@ -59,7 +59,7 @@ export default class CompanyService {
         companyMulterProperties.folder +
         "_" +
         company.id +
-        ".jpg";
+        ".png";
 
       try {
         await fs.access(imagePath, fs.constants.F_OK);

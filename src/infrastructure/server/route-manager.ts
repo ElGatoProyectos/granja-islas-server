@@ -25,7 +25,7 @@ export class RouteManager {
     this.app.use(this._globalPrefix, userRouter);
     this.app.use(this._globalPrefix, billRouter);
 
-    // this.app.use(this._globalPrefix, voucherRoute);
+    this.app.use(this._globalPrefix, voucherRoute);
     this.app.use(this._globalPrefix, companyRouter);
     this.app.use(this._globalPrefix, sireRouter);
     this.app.use(this._globalPrefix, sunatRouter);

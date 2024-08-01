@@ -193,8 +193,14 @@ enum TypeCurrency {
   PE
 }
 
+enum StatusVoucher {
+  APPROVED
+  REFUSED
+  PENDING
+}
+
 model Voucher {
-  id               Int          @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   bank_id          Int
   bill_id          Int
   company_id       Int
@@ -202,8 +208,9 @@ model Voucher {
   operation_number String
   amount           Float
   type_currency    TypeCurrency
-  date             DateTime     @default(now()) @db.Date
-  status_deleted   Boolean      @default(false)
+  date             DateTime      @default(now()) @db.Date
+  status           StatusVoucher @default(PENDING)
+  status_deleted   Boolean       @default(false)
 
   Bank    Bank    @relation(fields: [bank_id], references: [id])
   Bill    Bill    @relation(fields: [bill_id], references: [id])

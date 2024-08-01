@@ -104,13 +104,15 @@ class UserController {
                 "public",
                 userMulterProperties.folder
               );
-              const ext = path.extname(request.file.originalname);
+              // const ext = path.extname(request.file.originalname);
+              const ext = ".png";
+
               const fileName = `${userMulterProperties.folder}_${id}${ext}`;
               const filePath = path.join(direction, fileName);
 
               sharp(request.file.buffer)
                 .resize({ width: 800 })
-                .toFormat("jpeg")
+                .toFormat("png")
                 .jpeg({ quality: 80 })
                 .toFile(filePath, (err) => {
                   if (err) {

@@ -1,16 +1,31 @@
-import { z } from "zod";
+import { Voucher } from "@prisma/client";
+import { E_Status } from "../enums/voucher.enum";
 
-export const registerVoucherDTO = z.object({
-  bank_id: z.string(),
-  operation_number: z.string(),
-  type_currency: z.enum(["PE", "USD"]),
-  amount: z.string(),
-});
+export interface I_CreateVoucher
+  extends Omit<
+    Voucher,
+    | "id"
+    | "bill_id"
+    | "company_id"
+    | "user_id_created"
+    | "created_at"
+    | "updated_at"
+  > {}
 
-export const updateVoucherDTO = z.object({
-  status: z.enum(["PENDING", "REFUSED", "APPROVED"]),
-});
+export interface I_UpdateVoucher
+  extends Omit<
+    Voucher,
+    | "id"
+    | "bill_id"
+    | "company_id"
+    | "user_id_created"
+    | "created_at"
+    | "updated_at"
+  > {}
 
+export interface I_StatusVoucher {
+  status: E_Status;
+}
 // model Voucher {
 //   id               Int          @id @default(autoincrement())
 //   bank_id          Int

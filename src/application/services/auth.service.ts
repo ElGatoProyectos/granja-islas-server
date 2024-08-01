@@ -80,6 +80,7 @@ class AuthService {
         );
       }
     } catch (error) {
+      console.log(error);
       return this.responseService.InternalServerErrorException();
     } finally {
       await prisma.$disconnect();

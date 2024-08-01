@@ -97,7 +97,7 @@ class UserService {
         userMulterProperties.folder +
         "_" +
         responseUser.payload.id +
-        ".jpg";
+        ".png";
 
       try {
         await fs.access(imagePath, fs.constants.F_OK);

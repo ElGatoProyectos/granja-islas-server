@@ -16,24 +16,24 @@ export default class SeedService extends BaseController {
       const users = [
         {
           role: Role.SUPERADMIN,
-          name: "Super admin",
-          last_name: "Test",
+          name: "Jose",
+          last_name: "SUPERADMIN",
           phone: "909808903",
           email: "superadmin@gmail.com",
           dni: "12345678",
         },
         {
           role: Role.ADMIN,
-          name: "User ",
-          last_name: "Test",
+          name: "Sebastian",
+          last_name: "ADMIN",
           phone: "909808903",
           email: "admin@gmail.com",
           dni: "23232323",
         },
         {
           role: Role.USER,
-          name: "User Admin",
-          last_name: "Last name",
+          name: "Juan",
+          last_name: "USER",
           phone: "909808903",
           email: "user@gmail.com",
           dni: "45454545",
@@ -42,8 +42,8 @@ export default class SeedService extends BaseController {
 
       const companies = [
         {
-          business_name: "Example company 1",
-          business_type: "Example type",
+          business_name: "Empresa 1",
+          business_type: "Tipo 1",
           business_status: "Example status",
           business_direction_fiscal: "Example direction",
           description: "Description example company",
@@ -54,8 +54,8 @@ export default class SeedService extends BaseController {
           key: "adawdadadwad",
         },
         {
-          business_name: "Example company 2",
-          business_type: "Example type 2",
+          business_name: "Empresa 2",
+          business_type: "Tipo 2",
           business_status: "Example status 2",
           business_direction_fiscal: "Example direction 2",
           description: "Description example company",
