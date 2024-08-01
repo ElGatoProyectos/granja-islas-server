@@ -1,18 +1,42 @@
+import { Company, User } from "@prisma/client";
 import prisma from "../../infrastructure/database/prisma";
-import { I_CreateBill } from "../models/interfaces/bill.interface";
+import {
+  I_CreateBill,
+  I_CreateBillFromBody,
+} from "../models/interfaces/bill.interface";
 import AuthService from "./auth.service";
 import CompanyService from "./company.service";
+import InfoService from "./info.service";
 import ResponseService from "./response.service";
+import SupplierService from "./supplier.service";
 
+type T_FindAll = {
+  body: {
+    year: number | undefined;
+    month: number | undefined;
+  };
+  pagination: {
+    page: number;
+    limit: number;
+  };
+  header: {
+    ruc: string;
+    token: string;
+  };
+};
 class BillService {
   private responseService: ResponseService;
   private authService: AuthService;
   private companyService: CompanyService;
+  private infoService: InfoService;
+  private supplierService: SupplierService;
 
   constructor() {
     this.responseService = new ResponseService();
     this.authService = new AuthService();
     this.companyService = new CompanyService();
+    this.infoService = new InfoService();
+    this.supplierService = new SupplierService();
   }
 
   findBillForCode = async (code: string) => {
@@ -36,16 +60,59 @@ class BillService {
     }
   };
 
-  findAll = async (period: number, month: number) => {
+  findAll = async ({ body, pagination, header }: T_FindAll) => {
     try {
-      let bills;
+      const responseValidation = await this.infoService.getCompanyAndUser(
+        header.token,
+        header.ruc
+      );
 
-      if (period && !month) {
-      } else if (month && !period) {
-      } else if (period && month) {
+      if (responseValidation.error) return responseValidation;
+
+      type T_RValidation = {
+        user: User;
+        company: Company;
+      };
+
+      const { user, company }: T_RValidation = responseValidation.payload;
+
+      // --------------
+
+      let period: string;
+      if (body.year && body.month) {
+        period = `${body.month}/${body.year}`;
+      } else {
+        const date = new Date();
+        period = `${date.getMonth() + 1}/${date.getFullYear()}`;
       }
 
-      return this.responseService.SuccessResponse("Lista de facturas", bills);
+      const skip = (pagination.page - 1) * pagination.limit;
+
+      const [bills, total] = await prisma.$transaction([
+        prisma.bill.findMany({
+          where: { period, company_id: company.id },
+          skip,
+          take: pagination.limit,
+        }),
+        prisma.bill.count({
+          where: { period, company_id: company.id },
+        }),
+      ]);
+
+      const pageCount = Math.ceil(total / pagination.limit);
+
+      const formatData = {
+        total,
+        page: pagination.page,
+        perPage: pagination.limit,
+        pageCount,
+        data: bills,
+      };
+
+      return this.responseService.SuccessResponse(
+        "Lista de facturas",
+        formatData
+      );
     } catch (error) {
       return this.responseService.InternalServerErrorException(
         undefined,
@@ -54,19 +121,64 @@ class BillService {
     }
   };
 
-  create = async (data: I_CreateBill, rucFromHeader: string) => {
+  create = async (
+    data: I_CreateBillFromBody | I_CreateBill,
+    rucFromHeader?: string,
+    tokenFromHeader?: string
+  ) => {
     try {
-      const responseCompany = await this.companyService.findByRuc(
-        rucFromHeader
-      );
-      if (responseCompany.error) return responseCompany;
+      let formData: I_CreateBill;
+      let created;
 
-      const created = await prisma.bill.create({ data });
+      if (rucFromHeader && tokenFromHeader) {
+        // [note] en caso se cree por el body
+
+        const responseInfo = await this.infoService.getCompanyAndUser(
+          tokenFromHeader,
+          rucFromHeader
+        );
+        if (responseInfo.error) return responseInfo;
+        const { company, user }: { company: Company; user: User } =
+          responseInfo.payload;
+
+        // [note] validamos si el proveedor pertenece o no a la empresa donde estamos
+        const responseSupplier = await this.supplierService.findById(
+          Number(data.supplier_id),
+          rucFromHeader
+        );
+        if (responseSupplier.error) return responseSupplier;
+
+        if (responseSupplier.payload.company_id !== company.id)
+          return this.responseService.BadRequestException(
+            "El proveedor seleccionado no pertenece a la empresa"
+          );
+
+        const igv = data.total * 0.18;
+
+        data.ammount_paid = data.ammount_paid | 0;
+
+        formData = {
+          ...data,
+          igv,
+          ammount_paid: data.ammount_paid,
+          ammount_pending: data.total - data.ammount_paid,
+          user_id_created: user.id,
+          company_id: company.id,
+        };
+
+        created = await prisma.bill.create({ data: formData });
+      } else {
+        // [note] en caso se cree por el sire
+        // [NOTE] en el caso del sire, creo que ya valida si el supplier o proveedor a quien va dirigido ya existe (si lo valida)
+        created = await prisma.bill.create({ data });
+      }
+
       return this.responseService.CreatedResponse(
         "Comprobante creado",
         created
       );
     } catch (error) {
+      console.log(error);
       return this.responseService.InternalServerErrorException(
         undefined,
         error

@@ -1,12 +1,17 @@
 import { Router } from "express";
 import AuthMiddleware from "../middlewares/auth.middleware";
 import BillController from "../../../application/controllers/bill.controller";
+import AccessDataMiddleware from "../middlewares/access-data.middleware";
+import BillMiddleware from "../middlewares/bill.middleware";
 
 class BillRouter {
   public router: Router;
   private _prefix: string;
   private authMiddleware: AuthMiddleware = new AuthMiddleware();
   private billController: BillController = new BillController();
+  private billMiddleware: BillMiddleware = new BillMiddleware();
+  private accessDataMiddleware: AccessDataMiddleware =
+    new AccessDataMiddleware();
 
   constructor() {
     this._prefix = "/bills";
@@ -16,15 +21,28 @@ class BillRouter {
 
   private initializeRoutes() {
     this.getRoutes();
+    this.postRoutes();
   }
 
   private getRoutes() {
     this.router.get(`${this._prefix}/capture-data`);
-    this.router.get(`${this._prefix}`);
   }
 
   private postRoutes() {
-    this.router.get(`${this._prefix}`);
+    this.router.post(
+      `${this._prefix}/create`,
+      this.authMiddleware.authorizationAdmin,
+      this.accessDataMiddleware.validateCredentials,
+      this.billMiddleware.create,
+      this.billController.create
+    );
+    this.router.post(
+      `${this._prefix}/get`,
+      this.authMiddleware.authorizationUser,
+      this.accessDataMiddleware.validateCredentials,
+      this.billMiddleware.findAll,
+      this.billController.findAll
+    );
   }
 }
 

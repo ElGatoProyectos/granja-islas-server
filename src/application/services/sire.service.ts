@@ -145,8 +145,8 @@ class SireService {
               date: convertToDate(item.fecEmision),
               igv: item.procedenciaMasiva.mtoSumIGV,
               total: item.procedenciaMasiva.mtoImporteTotal,
-              earring: 0,
-              paid: 0,
+              ammount_pending: 0,
+              ammount_paid: 0,
               period: "",
               bill_status: "",
               supplier_id: supplier ? supplier.id : null,
@@ -154,9 +154,9 @@ class SireService {
               user_id_created: user.id,
             };
 
+            // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
             const responseCreateBill = await this.billService.create(
-              formatDataBill,
-              rucFromHeader
+              formatDataBill
             );
 
             if (responseCreateBill.error) return responseCreateBill;

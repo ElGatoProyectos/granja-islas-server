@@ -11,6 +11,7 @@ import productRouter from "../http/routes/product.route";
 import supplierRouter from "../http/routes/supplier.route";
 import labelRouter from "../http/routes/label.route";
 import bankRouter from "../http/routes/bank.route";
+import billRouter from "../http/routes/bill.route";
 
 export class RouteManager {
   private _globalPrefix: string;
@@ -22,6 +23,8 @@ export class RouteManager {
   public initializeRoutes(): void {
     this.app.use(this._globalPrefix, authRouter);
     this.app.use(this._globalPrefix, userRouter);
+    this.app.use(this._globalPrefix, billRouter);
+
     // this.app.use(this._globalPrefix, voucherRoute);
     this.app.use(this._globalPrefix, companyRouter);
     this.app.use(this._globalPrefix, sireRouter);
