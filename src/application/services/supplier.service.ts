@@ -92,8 +92,8 @@ class SupplierService {
           skip,
           take: limit,
         }),
-        prisma.product.count({
-          where: { status_deleted: false },
+        prisma.supplier.count({
+          where: { status_deleted: false, company_id: company.id },
         }),
       ]);
 
