@@ -40,6 +40,9 @@ model User {
   Bank         Bank[]
   Bill         Bill[]
   Voucher      Voucher[]
+  CreditNote   CreditNote[]
+  DebitNote    DebitNote[]
+  Ticket       Ticket[]
 }
 
 model Company {
@@ -55,6 +58,8 @@ model Company {
   ruc                       String   @unique
   key                       String
   status_deleted            Boolean? @default(false)
+  client_id                 String   @default("")
+  client_secret             String   @default("")
 
   created_at   DateTime       @default(dbgenerated("CURRENT_DATE"))
   updated_at   DateTime       @updatedAt
@@ -63,6 +68,9 @@ model Company {
   ProductLabel ProductLabel[]
   Bank         Bank[]
   Voucher      Voucher[]
+  CreditNote   CreditNote[]
+  DebitNote    DebitNote[]
+  Ticket       Ticket[]
 }
 
 //todo Proveedores
@@ -87,8 +95,11 @@ model Supplier {
   Product    Product[]
   Bil        Bill[]
 
-  Company Company @relation(fields: [company_id], references: [id])
-  User    User?   @relation(fields: [user_id_created], references: [id])
+  Company    Company      @relation(fields: [company_id], references: [id])
+  User       User?        @relation(fields: [user_id_created], references: [id])
+  CreditNote CreditNote[]
+  DebitNote  DebitNote[]
+  Ticket     Ticket[]
 }
 
 //todo etiquetas que iran en la tabla producto para filtrar
@@ -155,8 +166,86 @@ model DetailProductLabel {
   Product Product?      @relation(fields: [product_id], references: [id])
 }
 
-//- facturas
+// [note] En este caso habran 4 entidades, Facturas, Boleta de venta, Nota de credito, Nota de debito
 model Bill {
+  id              Int  @id @default(autoincrement())
+  company_id      Int?
+  user_id_created Int?
+
+  num_serie       String
+  num_cpe         Int
+  code            String
+  date            DateTime @db.Date
+  period          String
+  igv             Float    @default(0.18)
+  total           Float    @default(0)
+  bill_status     String
+  ammount_paid    Float    @default(0)
+  ammount_pending Float    @default(0)
+  supplier_id     Int?
+
+  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
+  updated_at DateTime @updatedAt
+
+  Company  Company?  @relation(fields: [company_id], references: [id])
+  Supplier Supplier? @relation(fields: [supplier_id], references: [id])
+  User     User?     @relation(fields: [user_id_created], references: [id])
+  Voucher  Voucher[]
+}
+
+model CreditNote {
+  id              Int  @id @default(autoincrement())
+  company_id      Int?
+  user_id_created Int?
+
+  num_serie       String
+  num_cpe         Int
+  code            String
+  date            DateTime @db.Date
+  period          String
+  igv             Float    @default(0.18)
+  total           Float    @default(0)
+  bill_status     String
+  ammount_paid    Float    @default(0)
+  ammount_pending Float    @default(0)
+  supplier_id     Int?
+
+  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
+  updated_at DateTime @updatedAt
+
+  Company  Company?  @relation(fields: [company_id], references: [id])
+  Supplier Supplier? @relation(fields: [supplier_id], references: [id])
+  User     User?     @relation(fields: [user_id_created], references: [id])
+  Voucher  Voucher[]
+}
+
+model DebitNote {
+  id              Int  @id @default(autoincrement())
+  company_id      Int?
+  user_id_created Int?
+
+  num_serie       String
+  num_cpe         Int
+  code            String
+  date            DateTime @db.Date
+  period          String
+  igv             Float    @default(0.18)
+  total           Float    @default(0)
+  bill_status     String
+  ammount_paid    Float    @default(0)
+  ammount_pending Float    @default(0)
+  supplier_id     Int?
+
+  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
+  updated_at DateTime @updatedAt
+
+  Company  Company?  @relation(fields: [company_id], references: [id])
+  Supplier Supplier? @relation(fields: [supplier_id], references: [id])
+  User     User?     @relation(fields: [user_id_created], references: [id])
+  Voucher  Voucher[]
+}
+
+model Ticket {
   id              Int  @id @default(autoincrement())
   company_id      Int?
   user_id_created Int?
@@ -207,10 +296,16 @@ model Voucher {
   status           StatusVoucher @default(PENDING)
   status_deleted   Boolean       @default(false)
 
-  Bank    Bank    @relation(fields: [bank_id], references: [id])
-  Bill    Bill    @relation(fields: [bill_id], references: [id])
-  Company Company @relation(fields: [company_id], references: [id])
-  User    User?   @relation(fields: [user_id_created], references: [id])
+  Bank         Bank        @relation(fields: [bank_id], references: [id])
+  Bill         Bill        @relation(fields: [bill_id], references: [id])
+  Company      Company     @relation(fields: [company_id], references: [id])
+  User         User?       @relation(fields: [user_id_created], references: [id])
+  CreditNote   CreditNote? @relation(fields: [creditNoteId], references: [id])
+  creditNoteId Int?
+  DebitNote    DebitNote?  @relation(fields: [debitNoteId], references: [id])
+  debitNoteId  Int?
+  Ticket       Ticket?     @relation(fields: [ticketId], references: [id])
+  ticketId     Int?
 }
 
 enum NotificationStatus {

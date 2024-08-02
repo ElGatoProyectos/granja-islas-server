@@ -27,9 +27,9 @@ class SireRouter {
 
   private postRoutes() {
     this.router.post(
-      `${this._prefix}/synchronize`,
+      `${this._prefix}/synchronize`
       // this.authMiddleware.authorizationAdmin,
-      this.sireController.synchronizeDataWithDatabase
+      // this.sireController.synchronizeDataWithDatabase
     );
   }
 }

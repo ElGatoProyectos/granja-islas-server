@@ -2,6 +2,23 @@ import "dotenv/config";
 import { environments } from "../../infrastructure/config/environments.constant";
 import ApiService from "./api.service";
 import ResponseService from "./response.service";
+import InfoService from "./info.service";
+import { Company, Supplier, User } from "@prisma/client";
+import BillService from "./bill.service";
+import SupplierService from "./supplier.service";
+import { I_CreateSupplier } from "../models/interfaces/supplier.interface";
+import { I_CreateBill } from "../models/interfaces/bill.interface";
+import { I_ItemsBill } from "../models/interfaces/company.interface";
+import slugify from "slugify";
+import { I_CreateProduct } from "../models/interfaces/product.interface";
+import ProductService from "./product.service";
+import prisma from "../../infrastructure/database/prisma";
+import { convertToDate } from "../../infrastructure/utils/convert-to-date";
+import SireService from "./sire.service";
+import SunatSecurityService from "./sunat-security.service";
+import { typeDocumentSunat } from "../models/constants/type_document.constant";
+import { I_Document_Item } from "../models/interfaces/document.interface";
+import { extractCompanyDetails } from "../../infrastructure/utils/sunat.util";
 const base_api_sunat = environments.BASE_API_SUNAT;
 const base_api_query = environments.BASE_API_QUERY;
 
@@ -18,10 +35,22 @@ class SunatService {
 
   private responseService: ResponseService;
   private apiService: ApiService;
+  private infoService: InfoService;
+  private billService: BillService;
+  private supplierService: SupplierService;
+  private productService: ProductService;
+  private sireService: SireService;
+  private sunatSecurityService: SunatSecurityService;
 
   constructor() {
     this.responseService = new ResponseService();
     this.apiService = new ApiService();
+    this.infoService = new InfoService();
+    this.billService = new BillService();
+    this.supplierService = new SupplierService();
+    this.productService = new ProductService();
+    this.sireService = new SireService();
+    this.sunatSecurityService = new SunatSecurityService();
   }
 
   queryForRuc = async (ruc: string) => {
@@ -31,7 +60,6 @@ class SunatService {
         this.base_api_query_module,
         ruc
       );
-      console.log(response.data);
       const data = response.data;
 
       const destructString = data.razon_social.split(" ");
@@ -82,46 +110,211 @@ class SunatService {
     }
   };
 
-  captureDataSire = async (config: T_Config) => {
+  // [success]
+  findDocuments = async (rucFromHeader: string, tokenFromHeader: string) => {
     try {
-      const responseToken = await this.captureTokenSecurity();
+      // necesitamos crear el token de sunat
+      const responseToken =
+        await this.sunatSecurityService.captureTokenSecurity(
+          rucFromHeader,
+          tokenFromHeader
+        );
       if (responseToken.error) return responseToken;
-      const headers = {
-        Authorization: "Bearer " + responseToken.payload.access_token,
+
+      const token = responseToken.payload.access_token;
+
+      // hacer la peticion
+
+      const dataForDocuments = {
+        period: "2024-06",
+        page: "1",
+        perPage: 100,
       };
-      const response = await this.apiService.post(
-        base_api_query,
-        "api/v1/comprobantes/detalle",
-        config,
+      const headers = {
+        Authorization: "Bearer " + token,
+      };
+      const responseDocuments = await this.apiService.post(
+        environments.BASE_API_QUERY,
+        "v1/comprobantes",
+        dataForDocuments,
         headers
       );
+      // tipar la respuesta
+      //  retornar la respuesta
 
-      return this.responseService.SuccessResponse(undefined, response.data);
+      return this.responseService.SuccessResponse("", responseDocuments.data);
     } catch (error) {
-      error;
       return this.responseService.InternalServerErrorException(
         undefined,
         error
       );
     }
   };
+
+  findProducts = async (rucFromHeader: string, tokenFromHeader: string) => {};
 
   //- Por aquí deberían pasar todas las credenciales, client_id, client_secret, username, password
-  captureTokenSecurity = async () => {
+
+  synchronizeDataWithDatabase = async (
+    data: T_Config,
+    rucFromHeader: string,
+    token: string
+  ) => {
     try {
-      const data = {
-        grant_type: "password",
-        scope: "https://api-cpe.sunat.gob.pe",
-        client_id: environments.CLIENT_ID,
-        client_secret: environments.CLIENT_SECRET,
-        username: environments.USERNAME_SUNAT,
-        password: environments.PASSWORD_SUNAT,
-      };
-      const response = await this.apiService.post_x_www_urlencoded(
-        environments.BASE_API_GET_TOKEN,
-        data
+      // Validamos a la empresa y al usuario donde pertenece
+
+      // [message] debemos recuperar todos los comprabantes tipo boleta, factura, nota de credio y nota de debito
+
+      // Traemos los datos
+      const { payload } = await this.sireService.captureDataSire(data);
+
+      const comprobantes = payload.comprobantes as I_Document_Item[];
+
+      let numberActions = 0;
+
+      await Promise.all(
+        comprobantes.map(async (item) => {
+          // [pending] en este caso tenemos que validar los 4 tipos de documentos
+          const typeDocument = item.codTipoCDP;
+
+          if (typeDocument === typeDocumentSunat.FACTURA.code) {
+          } else if (typeDocument === typeDocumentSunat.BOLETA_DEV_VENTA.code) {
+          } else if (typeDocument === typeDocumentSunat.NOTA_DE_CREDITO.code) {
+          } else if (typeDocument === typeDocumentSunat.NOTA_DE_DEBITO.code) {
+          }
+        })
       );
-      return this.responseService.SuccessResponse("", response.data);
+
+      return this.responseService.SuccessResponse(
+        `Actualización realizada con éxito, ${numberActions} operaciones realizadas`
+      );
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    } finally {
+      prisma.$disconnect();
+    }
+  };
+
+  synchronizeBill = async (
+    item: I_Document_Item,
+    rucFromHeader: string,
+    tokenFromHeader: string
+  ) => {
+    try {
+      // [note] data de usuario y empresa actual
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        tokenFromHeader,
+        rucFromHeader
+      );
+
+      if (responseInfo.error) return responseInfo;
+
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+
+      // [note] validamos el comprobante
+      const code = item.numSerieCDP + item.numCDP;
+      const responseBill = await this.billService.findBillForCode(code);
+
+      if (responseBill.error && responseBill.statusCode === 404) {
+        // [message] Si en caso no exista el proveedor para la empresa lo registramos
+        const responseSupplier = await this.supplierService.findForRuc(
+          item.numDocIdentidadProveedor,
+          rucFromHeader
+        );
+
+        let supplier: Supplier | null = responseSupplier.payload;
+        if (responseSupplier.error && responseSupplier.statusCode === 404) {
+          const formatDataSupplier: I_CreateSupplier = {
+            business_direction: "",
+            business_name: extractCompanyDetails(item.nomRazonSocialProveedor)
+              .businessName,
+            business_status: "",
+            business_type: extractCompanyDetails(item.nomRazonSocialProveedor)
+              .businessType,
+            company_id: company.id,
+            description: "",
+            ruc: item.numDocIdentidadProveedor,
+            user_id_created: user.id,
+            phone: null,
+            country_code: null,
+          };
+
+          const responseCreateSupplier = await this.supplierService.create(
+            formatDataSupplier,
+            tokenFromHeader,
+            rucFromHeader
+          );
+
+          if (responseCreateSupplier.error) return responseCreateSupplier;
+          supplier = responseCreateSupplier.payload as Supplier;
+        }
+
+        // [message] Registrar comprobante
+
+        const formatDataBill: I_CreateBill = {
+          num_serie: item.numSerieCDP,
+          num_cpe: Number(item.numCDP),
+          code,
+          date: convertToDate(item.fecEmision),
+          igv: item.montos.mtoIgvIpmDG || 0,
+          total: item.montos.mtoBIGravadaDG || 0,
+          ammount_pending: 0,
+          ammount_paid: 0,
+          period: "",
+          bill_status: "",
+          supplier_id: supplier ? supplier.id : null,
+          company_id: company.id,
+          user_id_created: user.id,
+        };
+
+        // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
+        const responseCreateBill = await this.billService.create(
+          formatDataBill
+        );
+
+        if (responseCreateBill.error) return responseCreateBill;
+
+        //[pending] Registrar productos - pendiente porque es otra api
+
+        const formatFetchDetail = {
+          type: "RECIBIDO",
+          payment_type: typeDocumentSunat.FACTURA.description,
+          ruc: rucFromHeader,
+          serie: item.numSerieCDP,
+          number: Number(item.numCDP),
+        };
+
+        // const products = item.informacionItems as I_ItemsBill[];
+
+        // await Promise.all(
+        //   products.map(async (product: I_ItemsBill) => {
+        //     const slug = slugify(product.desItem, { lower: true });
+
+        //     const formatProduct: I_CreateProduct = {
+        //       title: product.desItem,
+        //       amount: product.cntItems,
+        //       price: product.mtoValUnitario,
+        //       slug,
+        //       supplier_id: supplier ? supplier.id : null,
+        //       description: "",
+        //       unit_measure: product.desUnidadMedida,
+        //       code_measure: product.codUnidadMedida,
+        //     };
+
+        //     const responseCreateProduct = await this.productService.create(
+        //       formatProduct
+        //     );
+
+        //     responseCreateProduct;
+        //     if (responseCreateProduct.error) return responseCreateProduct;
+        //     numberActions++;
+        //   })
+        // );
+      }
     } catch (error) {
       return this.responseService.InternalServerErrorException(
         undefined,
@@ -129,6 +322,12 @@ class SunatService {
       );
     }
   };
+
+  synchronizeTicket = async () => {};
+
+  synchronizeCreditNote = async () => {};
+
+  synchronizeDebitNote = async () => {};
 }
 
 export default SunatService;

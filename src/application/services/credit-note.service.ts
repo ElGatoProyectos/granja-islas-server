@@ -35,7 +35,7 @@ type T_FindAllNoPagination = {
     token: string;
   };
 };
-class BillService {
+class CreditNoteService {
   private responseService: ResponseService;
   private authService: AuthService;
   private companyService: CompanyService;
@@ -50,15 +50,15 @@ class BillService {
     this.supplierService = new SupplierService();
   }
 
-  findBillForCode = async (code: string) => {
+  findForCode = async (code: string) => {
     try {
-      const bill = await prisma.bill.findFirst({ where: { code } });
+      const bill = await prisma.creditNote.findFirst({ where: { code } });
       if (!bill)
         return this.responseService.NotFoundException(
-          "Comprobante no encontrado"
+          "Nota de credito no encontrada"
         );
       return this.responseService.SuccessResponse(
-        "Comprobante encontrado",
+        "Nota de credito encontrada",
         bill
       );
     } catch (error) {
@@ -92,24 +92,24 @@ class BillService {
       let period: string;
       if (body.year && body.month) {
         const formattedMonth = body.month.toString().padStart(2, "0");
-        period = `${formattedMonth}/${body.year}`;
+        period = `${body.year}-${formattedMonth}`;
       } else {
         const date = new Date();
         const formattedMonth = (date.getMonth() + 1)
           .toString()
           .padStart(2, "0");
-        period = `${formattedMonth}/${date.getFullYear()}`;
+        period = `${date.getFullYear()}-${formattedMonth}`;
       }
 
       const skip = (pagination.page - 1) * pagination.limit;
 
-      const [bills, total] = await prisma.$transaction([
-        prisma.bill.findMany({
+      const [creditNotes, total] = await prisma.$transaction([
+        prisma.creditNote.findMany({
           where: { period, company_id: company.id },
           skip,
           take: pagination.limit,
         }),
-        prisma.bill.count({
+        prisma.creditNote.count({
           where: { period, company_id: company.id },
         }),
       ]);
@@ -121,11 +121,11 @@ class BillService {
         page: pagination.page,
         perPage: pagination.limit,
         pageCount,
-        data: bills,
+        data: creditNotes,
       };
 
       return this.responseService.SuccessResponse(
-        "Lista de facturas",
+        "Lista de notas de credito",
         formatData
       );
     } catch (error) {
@@ -156,20 +156,23 @@ class BillService {
       let period: string;
       if (body.year && body.month) {
         const formattedMonth = body.month.toString().padStart(2, "0");
-        period = `${formattedMonth}/${body.year}`;
+        period = `${body.year}-${formattedMonth}`;
       } else {
         const date = new Date();
         const formattedMonth = (date.getMonth() + 1)
           .toString()
           .padStart(2, "0");
-        period = `${formattedMonth}/${date.getFullYear()}`;
+        period = `${date.getFullYear()}-${formattedMonth}`;
       }
 
-      const bills = await prisma.bill.findMany({
+      const creditNotes = await prisma.creditNote.findMany({
         where: { company_id: company.id, period },
       });
 
-      return this.responseService.SuccessResponse("Lista de facturas", bills);
+      return this.responseService.SuccessResponse(
+        "Lista de notas de credito",
+        creditNotes
+      );
     } catch (error) {
       return this.responseService.InternalServerErrorException(
         undefined,
@@ -178,6 +181,7 @@ class BillService {
     }
   };
 
+  // [message] para el dasboard
   findAllTargets = async (rucFromHeader: string, token: string) => {
     try {
     } catch (error) {
@@ -235,15 +239,13 @@ class BillService {
           company_id: company.id,
         };
 
-        created = await prisma.bill.create({ data: formData });
+        created = await prisma.creditNote.create({ data: formData });
       } else {
-        // [note] en caso se cree por el sire
-        // [NOTE] en el caso del sire, creo que ya valida si el supplier o proveedor a quien va dirigido ya existe (si lo valida)
-        created = await prisma.bill.create({ data });
+        created = await prisma.ticket.create({ data });
       }
 
       return this.responseService.CreatedResponse(
-        "Comprobante creado",
+        "Nota de credito creada",
         created
       );
     } catch (error) {
@@ -255,4 +257,4 @@ class BillService {
     }
   };
 }
-export default BillService;
+export default CreditNoteService;

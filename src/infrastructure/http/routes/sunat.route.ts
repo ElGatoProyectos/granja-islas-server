@@ -3,6 +3,7 @@ import AuthMiddleware from "../middlewares/auth.middleware";
 import SireController from "../../../application/controllers/sire.controller";
 import SunatController from "../../../application/controllers/sunat.controller";
 import SunatMiddleware from "../middlewares/sunat.middleware";
+import AccessDataMiddleware from "../middlewares/access-data.middleware";
 
 class SunatRouter {
   public router: Router;
@@ -10,6 +11,7 @@ class SunatRouter {
   private authMiddleware: AuthMiddleware;
   private sunatController: SunatController;
   private sunatMiddleware: SunatMiddleware;
+  private accessDataMiddleware: AccessDataMiddleware;
 
   constructor() {
     this._prefix = "/sunat";
@@ -17,6 +19,7 @@ class SunatRouter {
     this.authMiddleware = new AuthMiddleware();
     this.sunatController = new SunatController();
     this.sunatMiddleware = new SunatMiddleware();
+    this.accessDataMiddleware = new AccessDataMiddleware();
     this.initializeRoutes();
   }
 
@@ -29,6 +32,12 @@ class SunatRouter {
       `${this._prefix}/ruc/:ruc`,
       this.sunatMiddleware.validateParamRuc,
       this.sunatController.queryForRuc
+    );
+
+    this.router.get(
+      `${this._prefix}/test-documents`,
+      this.accessDataMiddleware.validateCredentials,
+      this.sunatController.testDocuments
     );
   }
 }
