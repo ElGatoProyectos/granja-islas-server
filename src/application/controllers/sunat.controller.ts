@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import SunatService from "../services/sunat.service";
+import SunatService, { T_DataSynchronize } from "../services/sunat.service";
 
 class SunatController {
   private sunatService: SunatService;
@@ -22,8 +22,8 @@ class SunatController {
     const token = request.get("Authorization") as string;
     const ruc = request.get("ruc") as string;
 
-    const result = await this.sunatService.findDocuments(ruc, token);
-    response.status(result.statusCode).json(result);
+    // const result = await this.sunatService.findDocuments(ruc, token);
+    response.status(200).json({});
   };
 
   synchronizeDataWithDatabase = async (
@@ -33,16 +33,14 @@ class SunatController {
     const token = request.get("Authorization") as string;
     const ruc = request.get("ruc") as string;
 
-    const data = request.body;
+    const data = request.body as T_DataSynchronize;
 
     // [message] esto podria venir dinamicamente de un formulario
-    // const data = {
-    //   type: "RECIBIDO",
-    //   payment_type: "FACTURA",
-    //   ruc: 20607524956,
-    //   serie: "F004",
-    //   number: 1150,
-    // };
+    //   {
+    //     "period": "2024-06",
+    //     "page": "1",
+    //     "perPage": 100
+    // }
 
     const result = await this.sunatService.synchronizeDataWithDatabase(
       data,

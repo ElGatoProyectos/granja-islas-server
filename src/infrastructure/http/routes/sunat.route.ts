@@ -25,6 +25,7 @@ class SunatRouter {
 
   private initializeRoutes() {
     this.getRoutes();
+    this.postRoutes();
   }
 
   private getRoutes() {
@@ -38,6 +39,14 @@ class SunatRouter {
       `${this._prefix}/test-documents`,
       this.accessDataMiddleware.validateCredentials,
       this.sunatController.testDocuments
+    );
+  }
+
+  private postRoutes() {
+    this.router.post(
+      `${this._prefix}/synchronize`,
+      this.accessDataMiddleware.validateCredentials,
+      this.sunatController.synchronizeDataWithDatabase
     );
   }
 }

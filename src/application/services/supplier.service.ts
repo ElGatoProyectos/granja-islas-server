@@ -54,6 +54,29 @@ class SupplierService {
     }
   };
 
+  findAllNoPagination = async (ruc: string) => {
+    try {
+      const responseCompany = await this.getCompanyInitial(ruc);
+      if (responseCompany.error) return responseCompany;
+
+      const company: Company = responseCompany.payload;
+
+      const suppliers = await prisma.supplier.findMany({
+        where: { status_deleted: false, company_id: company.id },
+      });
+
+      return this.responseService.SuccessResponse(
+        "Lista de Proveedores",
+        suppliers
+      );
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
   findAll = async (ruc: string, page: number, limit: number) => {
     const skip = (page - 1) * limit;
     try {

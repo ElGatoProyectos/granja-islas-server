@@ -13,6 +13,7 @@ import labelRouter from "../http/routes/label.route";
 import bankRouter from "../http/routes/bank.route";
 import billRouter from "../http/routes/bill.route";
 import productLabelRouter from "../http/routes/product-label.route";
+import documentRouter from "../http/routes/document.route";
 
 export class RouteManager {
   private _globalPrefix: string;
@@ -37,5 +38,6 @@ export class RouteManager {
     this.app.use(this._globalPrefix, labelRouter);
     this.app.use(this._globalPrefix, bankRouter);
     this.app.use(this._globalPrefix, productLabelRouter);
+    this.app.use(this._globalPrefix, documentRouter);
   }
 }

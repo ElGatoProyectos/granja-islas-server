@@ -14,7 +14,7 @@ class CompanyRouter {
   private documentController: DocumentController = new DocumentController();
 
   constructor() {
-    this._prefix = "/companies";
+    this._prefix = "/documents";
     this.router = Router();
     this.initializeRoutes();
   }
@@ -25,7 +25,7 @@ class CompanyRouter {
 
   private postRoutes(): void {
     this.router.post(
-      this._prefix,
+      `${this._prefix}/test`,
       this.authMiddleware.authorizationSuperAdmin,
       this.documentController.findAll
     );
