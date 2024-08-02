@@ -145,7 +145,7 @@ export default class CompanyService {
         created
       );
     } catch (error) {
-      console.log(error);
+      error;
       return this.responseService.InternalServerErrorException(
         undefined,
         error

@@ -11,10 +11,19 @@ class ProductController {
   findAll = async (request: Request, response: Response) => {
     const page = parseInt(request.query.page as string) || 1;
     const limit = parseInt(request.query.limit as string) || 20;
-    // [error] corregir esto
-    // const result = await this.productService.findAll(page, limit);
+    const token = request.get("Authorization") as string;
+    const ruc = request.get("ruc") as string;
+    const result = await this.productService.findAll(ruc, token, page, limit);
 
-    // response.status(result.statusCode).json(result);
+    response.status(result.statusCode).json(result);
+  };
+
+  findById = async (request: Request, response: Response) => {
+    const id = Number(request.params.id);
+    const token = request.get("Authorization") as string;
+    const ruc = request.get("ruc") as string;
+    const result = await this.productService.findById(id, ruc, token);
+    response.status(result.statusCode).json(result);
   };
 
   create = async (request: Request, response: Response) => {

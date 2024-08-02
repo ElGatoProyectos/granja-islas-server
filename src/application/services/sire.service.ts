@@ -185,7 +185,7 @@ class SireService {
                   formatProduct
                 );
 
-                console.log(responseCreateProduct);
+                responseCreateProduct;
                 if (responseCreateProduct.error) return responseCreateProduct;
                 numberActions++;
               })

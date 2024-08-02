@@ -75,7 +75,7 @@ model Supplier {
   business_status    String
   business_direction String
   description        String?
-  ruc                String   @unique
+  ruc                String
   status_deleted     Boolean? @default(false)
 
   // added new
@@ -102,8 +102,9 @@ model ProductLabel {
   status_deleted  Boolean? @default(false)
 
   // DetailProductLabel DetailProductLabel[]
-  Company Company @relation(fields: [company_id], references: [id])
-  User    User    @relation(fields: [user_created_id], references: [id])
+  Company            Company              @relation(fields: [company_id], references: [id])
+  User               User                 @relation(fields: [user_created_id], references: [id])
+  DetailProductLabel DetailProductLabel[]
 }
 
 model Bank {
@@ -119,13 +120,6 @@ model Bank {
   User    User      @relation(fields: [user_created_id], references: [id])
   Voucher Voucher[]
 }
-
-//! no implementado
-// model UnidadMedida {
-//   id          Int    @id @default(autoincrement())
-//   code        String
-//   description String
-// }
 
 //todo productos
 model Product {
@@ -144,21 +138,22 @@ model Product {
   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt
 
-  Supplier Supplier? @relation(fields: [supplier_id], references: [id])
+  Supplier           Supplier?            @relation(fields: [supplier_id], references: [id])
   // DetailProductLabel DetailProductLabel[]
+  DetailProductLabel DetailProductLabel[]
 }
 
-// model DetailProductLabel {
-//   id               Int @id @default(autoincrement())
-//   product_id       Int
-//   product_label_id Int
+model DetailProductLabel {
+  id               Int @id @default(autoincrement())
+  product_id       Int
+  product_label_id Int
 
-//   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
-//   updated_at DateTime @updatedAt
+  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
+  updated_at DateTime @updatedAt
 
-//   Label   ProductLabel? @relation(fields: [product_label_id], references: [id])
-//   Product Product?      @relation(fields: [product_id], references: [id])
-// }
+  Label   ProductLabel? @relation(fields: [product_label_id], references: [id])
+  Product Product?      @relation(fields: [product_id], references: [id])
+}
 
 //- facturas
 model Bill {

@@ -11,7 +11,7 @@ class TestController {
   // método para testear la carga automática
   testSire = async (request: Request, response: Response) => {
     const data = request.body;
-    console.log(data);
+    data;
     const result = await this.sunatService.captureDataSire(data);
 
     response.status(result.statusCode).json(result);

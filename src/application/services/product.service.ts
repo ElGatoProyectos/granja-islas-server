@@ -6,16 +6,20 @@ import {
 } from "../models/interfaces/product.interface";
 import ProductLabelService from "./product-label.service";
 import ResponseService from "./response.service";
+import InfoService from "./info.service";
+import { Company, User } from "@prisma/client";
 
 class ProductService {
   private responseService: ResponseService;
   private productLabelService: ProductLabelService;
   private supplierService: ProductLabelService;
+  private infoService: InfoService;
 
   constructor() {
     this.responseService = new ResponseService();
     this.productLabelService = new ProductLabelService();
     this.supplierService = new ProductLabelService();
+    this.infoService = new InfoService();
   }
 
   //- QUERY METHODS
@@ -64,11 +68,77 @@ class ProductService {
   //     await prisma.$disconnect();
   //   }
   // };
-
-  findById = async (productId: number) => {
+  //[success]
+  findAll = async (
+    rucFromHeader: string,
+    tokenFromHeader: string,
+    page: number,
+    limit: number
+  ) => {
+    const skip = (page - 1) * limit;
     try {
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        tokenFromHeader,
+        rucFromHeader
+      );
+
+      if (responseInfo.error) return responseInfo;
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+
+      const [products, total] = await prisma.$transaction([
+        prisma.product.findMany({
+          where: { Supplier: { company_id: company.id } },
+          include: { DetailProductLabel: { include: { Label: true } } },
+        }),
+        prisma.product.count({
+          where: { Supplier: { company_id: company.id } },
+        }),
+      ]);
+
+      const pageCount = Math.ceil(total / limit);
+
+      const formatData = {
+        total,
+        page,
+        limit,
+        pageCount,
+        data: products,
+      };
+
+      return this.responseService.SuccessResponse(
+        "Lista de productos",
+        formatData
+      );
+    } catch (error) {
+      error;
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    } finally {
+      await prisma.$disconnect();
+    }
+  };
+
+  //[success]
+  findById = async (
+    productId: number,
+    rucFromHeader: string,
+    tokenFromHeader: string
+  ) => {
+    try {
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        tokenFromHeader,
+        rucFromHeader
+      );
+      if (responseInfo.error) return responseInfo;
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+
       const product = await prisma.product.findMany({
-        where: { id: productId },
+        where: { id: productId, Supplier: { company_id: company.id } },
+        include: { DetailProductLabel: { include: { Label: true } } },
       });
       return this.responseService.SuccessResponse(
         "Producto encontrado",
@@ -84,6 +154,7 @@ class ProductService {
     }
   };
 
+  //[success]
   findBySlug = async (slug: string) => {
     try {
       const product = await prisma.product.findFirst({ where: { slug } });
@@ -149,12 +220,17 @@ class ProductService {
     }
   };
 
-  updateById = async (data: I_UpdateProduct, productId: number) => {
+  updateById = async (
+    data: I_UpdateProduct,
+    productId: number,
+    ruc: string,
+    token: string
+  ) => {
     try {
       // consideremos al titulo como el campo unico que no se debe repetir
       const slug = slugify(data.title, { lower: true });
 
-      const responseProduct = await this.findById(productId);
+      const responseProduct = await this.findById(productId, ruc, token);
 
       if (responseProduct.error)
         return this.responseService.NotFoundException("El producto no existe");
@@ -180,7 +256,7 @@ class ProductService {
 
   //
 
-  // actions to suppliers
+  // [note] ya no es necesario porque el producto se crea para un supplier
 
   // assignSupplierToProduct = async (supplierId: number, productId: number) => {
   //   try {

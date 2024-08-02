@@ -1,17 +1,20 @@
 import { Router } from "express";
 import AuthMiddleware from "../middlewares/auth.middleware";
 import ProductController from "../../../application/controllers/product.controller";
+import AccessDataMiddleware from "../middlewares/access-data.middleware";
 
 class ProductRouter {
   public router: Router;
   private _prefix: string = "/products";
   private authMiddleware: AuthMiddleware;
+  private accessDataMiddleware: AccessDataMiddleware;
   private productController: ProductController;
 
   constructor() {
     this.router = Router();
 
     this.authMiddleware = new AuthMiddleware();
+    this.accessDataMiddleware = new AccessDataMiddleware();
     this.productController = new ProductController();
     this.initializeRoutes();
   }
@@ -25,8 +28,16 @@ class ProductRouter {
   private getRoutes() {
     this.router.get(
       `${this._prefix}`,
-      // this.authMiddleware.authorizationAdmin,
+      this.authMiddleware.authorizationAdmin,
+      this.accessDataMiddleware.validateCredentials,
       this.productController.findAll
+    );
+
+    this.router.get(
+      `${this._prefix}/:id`,
+      this.authMiddleware.authorizationAdmin,
+      this.accessDataMiddleware.validateCredentials,
+      this.productController.findById
     );
   }
 

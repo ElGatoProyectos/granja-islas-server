@@ -178,7 +178,7 @@ class BillService {
         created
       );
     } catch (error) {
-      console.log(error);
+      error;
       return this.responseService.InternalServerErrorException(
         undefined,
         error

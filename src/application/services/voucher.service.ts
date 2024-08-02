@@ -92,7 +92,7 @@ class VoucherService {
 
       return this.responseService.SuccessResponse(undefined, imagePath);
     } catch (error) {
-      console.log(error);
+      error;
       return this.responseService.InternalServerErrorException(
         undefined,
         error
@@ -200,7 +200,7 @@ class VoucherService {
         updated
       );
     } catch (error) {
-      console.log(error);
+      error;
       return this.responseService.InternalServerErrorException(
         undefined,
         error

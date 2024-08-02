@@ -43,7 +43,7 @@ class Server {
 
   public start(): void {
     this.server.listen(environments.PORT, () => {
-      console.log(`The app is running on port ${environments.PORT}`);
+      `The app is running on port ${environments.PORT}`;
     });
   }
 }

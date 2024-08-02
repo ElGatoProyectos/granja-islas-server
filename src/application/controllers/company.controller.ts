@@ -44,8 +44,6 @@ class CompanyController {
         else {
           const data = request.body;
 
-          console.log(data);
-
           try {
             //todo validamos el parse
             createCompanyDTO.parse(request.body);

@@ -7,7 +7,7 @@ import {
 import ResponseService from "./response.service";
 import ProductService from "./product.service";
 import InfoService from "./info.service";
-import { Company, ProductLabel, User } from "@prisma/client";
+import { Company, Product, ProductLabel, User } from "@prisma/client";
 
 class ProductLabelService {
   private responseService: ResponseService;
@@ -18,6 +18,7 @@ class ProductLabelService {
     this.infoService = new InfoService();
   }
 
+  // [success]
   findAll = async (rucFromHeader: string, tokenFromHeader: string) => {
     try {
       //[message] capture data
@@ -28,7 +29,6 @@ class ProductLabelService {
       if (responseInfo.error) return responseInfo;
       const { company, user }: { company: Company; user: User } =
         responseInfo.payload;
-      //[message] end capture data
 
       const labels = await prisma.productLabel.findMany({
         where: { status_deleted: false, company_id: company.id },
@@ -42,6 +42,7 @@ class ProductLabelService {
     }
   };
 
+  // [pending]
   findAllWithDeleted = async (
     rucFromHeader: string,
     tokenFromHeader: string
@@ -68,6 +69,7 @@ class ProductLabelService {
     }
   };
 
+  // [success]
   findById = async (
     product_label_id: number,
     rucFromHeader: string,
@@ -85,7 +87,11 @@ class ProductLabelService {
       //[message] end capture data
 
       const label = await prisma.productLabel.findFirst({
-        where: { id: product_label_id, company_id: company.id },
+        where: {
+          id: product_label_id,
+          company_id: company.id,
+          status_deleted: false,
+        },
       });
       if (!label)
         return this.responseService.NotFoundException("Etiqueta no encontrada");
@@ -98,7 +104,53 @@ class ProductLabelService {
     }
   };
 
-  // [pending] Falta validar el metodo
+  // [success]
+  findProductsByLabel = async (
+    product_label_id: number,
+    rucFromHeader: string,
+    tokenFromHeader: string
+  ) => {
+    try {
+      //[message] capture data
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        tokenFromHeader,
+        rucFromHeader
+      );
+      if (responseInfo.error) return responseInfo;
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+      //[message] end capture data
+
+      const label = await prisma.productLabel.findFirst({
+        where: {
+          id: product_label_id,
+          company_id: company.id,
+          status_deleted: false,
+        },
+      });
+      if (!label)
+        return this.responseService.NotFoundException("Etiqueta no encontrada");
+
+      const items = await prisma.detailProductLabel.findMany({
+        where: { product_label_id },
+        include: { Product: true },
+      });
+
+      items;
+
+      return this.responseService.SuccessResponse(
+        "Lista de productos por etiqueta",
+        items
+      );
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
+  // [success]
   createLabel = async (
     data: I_CreateLabel,
     rucFromHeader: string,
@@ -111,7 +163,7 @@ class ProductLabelService {
         rucFromHeader
       );
 
-      console.log(responseInfo);
+      responseInfo;
       if (responseInfo.error) return responseInfo;
       const { company, user }: { company: Company; user: User } =
         responseInfo.payload;
@@ -129,7 +181,7 @@ class ProductLabelService {
       const created = await prisma.productLabel.create({ data: formatData });
       return this.responseService.CreatedResponse("Etiqueta creada", created);
     } catch (error) {
-      console.log(error);
+      error;
       return this.responseService.InternalServerErrorException(
         undefined,
         error
@@ -137,6 +189,7 @@ class ProductLabelService {
     }
   };
 
+  // [success]
   updateLabel = async (
     data: I_UpdateLabel,
     product_label_id: number,
@@ -152,7 +205,6 @@ class ProductLabelService {
       if (responseInfo.error) return responseInfo;
       const { company, user }: { company: Company; user: User } =
         responseInfo.payload;
-      //[message] end capture data
 
       const responseLabel = await this.findById(
         product_label_id,
@@ -182,7 +234,7 @@ class ProductLabelService {
         updated
       );
     } catch (error) {
-      console.log(error);
+      error;
       return this.responseService.InternalServerErrorException(
         undefined,
         error
@@ -220,7 +272,16 @@ class ProductLabelService {
         return this.responseService.BadRequestException(
           "La etiqueta no pertenece a la empresa"
         );
-      // [message] validar si el label pertenece a la empresa
+
+      // [message] verificar si hay productos relacionados a esta etiqueta
+      const labelsInProduct = await prisma.detailProductLabel.findMany({
+        where: { product_label_id },
+      });
+
+      if (labelsInProduct.length > 0)
+        return this.responseService.BadRequestException(
+          "Hay productos con esta etiqueta, no se puede borrar"
+        );
 
       const updated = await prisma.productLabel.update({
         where: { id: product_label_id, company_id: company.id },
@@ -238,58 +299,108 @@ class ProductLabelService {
     }
   };
 
-  // [error] aqui ya no es necesario esto, ya estamos controlando la creacion de la etiqueta con respecto a la empresa y usuario
-  // assignLabelToProduct = async (
-  //   product_id: number,
-  //   product_label_id: number,
-  //   rucFromHeader: string,
-  //   tokenFromHeader: string
-  // ) => {
-  //   try {
+  assignLabelToProduct = async (
+    product_id: number,
+    product_label_id: number,
+    rucFromHeader: string,
+    tokenFromHeader: string
+  ) => {
+    try {
+      //[message] capture data
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        tokenFromHeader,
+        rucFromHeader
+      );
+      if (responseInfo.error) return responseInfo;
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+      //[message] end capture data
 
-  //      //[message] capture data
-  //      const responseInfo = await this.infoService.getCompanyAndUser(
-  //       tokenFromHeader,
-  //       rucFromHeader
-  //     );
-  //     if (responseInfo.error) return responseInfo;
-  //     const { company, user }: { company: Company; user: User } =
-  //       responseInfo.payload;
-  //     //[message] end capture data
+      // [note] validamos el id del producto si pertence al ruc donde estamos
 
-  //     const created = await prisma.detailProductLabel.create({
-  //       data: { product_id, product_label_id },
-  //     });
-  //     return this.responseService.SuccessResponse(
-  //       "Etiqueta asignada correctamente",
-  //       created
-  //     );
-  //   } catch (error) {
-  //     return this.responseService.InternalServerErrorException(
-  //       "Error al intentar asignar etiqueta",
-  //       error
-  //     );
-  //   }
-  // };
+      const product = await prisma.product.findFirst({
+        where: { id: product_id, status_deleted: false },
+        include: { Supplier: true },
+      });
+      if (!product)
+        return this.responseService.NotFoundException("El producto no existe");
 
-  // removeLabelFromProduct = async (
-  //   product_id: number,
-  //   product_label_id: number
-  // ) => {
-  //   try {
-  //     await prisma.detailProductLabel.deleteMany({
-  //       where: { product_id, product_label_id },
-  //     });
-  //     return this.responseService.SuccessResponse(
-  //       "Asignación eliminada con éxito"
-  //     );
-  //   } catch (error) {
-  //     return this.responseService.InternalServerErrorException(
-  //       "Error al intentar remover etiqueta",
-  //       error
-  //     );
-  //   }
-  // };
+      if (product.Supplier?.company_id !== company.id)
+        return this.responseService.BadRequestException(
+          "El producto no pertenece a la empresa seleccionada"
+        );
+
+      const detail = await prisma.detailProductLabel.findFirst({
+        where: { product_id, product_label_id },
+      });
+      if (detail)
+        return this.responseService.BadRequestException(
+          "La etiqueta seleccionada ya fue asignada al producto"
+        );
+      const created = await prisma.detailProductLabel.create({
+        data: { product_id, product_label_id },
+      });
+      return this.responseService.SuccessResponse(
+        "Etiqueta asignada correctamente",
+        created
+      );
+    } catch (error) {
+      error;
+      return this.responseService.InternalServerErrorException(
+        "Error al intentar asignar etiqueta",
+        error
+      );
+    }
+  };
+
+  removeLabelFromProduct = async (
+    product_id: number,
+    product_label_id: number,
+    rucFromHeader: string,
+    tokenFromHeader: string
+  ) => {
+    try {
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        tokenFromHeader,
+        rucFromHeader
+      );
+      if (responseInfo.error) return responseInfo;
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+      const product = await prisma.product.findFirst({
+        where: { id: product_id, status_deleted: false },
+        include: { Supplier: true },
+      });
+      if (!product)
+        return this.responseService.NotFoundException("El producto no existe");
+
+      if (product.Supplier?.company_id !== company.id)
+        return this.responseService.BadRequestException(
+          "El producto no pertenece a la empresa seleccionada"
+        );
+
+      const detail = await prisma.detailProductLabel.findFirst({
+        where: { product_id, product_label_id },
+      });
+      if (!detail)
+        return this.responseService.BadRequestException(
+          "No existe la etiqueta para el producto seleccionado"
+        );
+
+      await prisma.detailProductLabel.deleteMany({
+        where: { product_id, product_label_id },
+      });
+      return this.responseService.SuccessResponse(
+        "Asignación eliminada con éxito"
+      );
+    } catch (error) {
+      error;
+      return this.responseService.InternalServerErrorException(
+        "Error al intentar remover etiqueta",
+        error
+      );
+    }
+  };
 }
 
 export default ProductLabelService;

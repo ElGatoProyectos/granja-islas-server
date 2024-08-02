@@ -50,14 +50,14 @@ class VoucherController {
   };
 
   create = async (request: Request, response: Response) => {
-    console.log("in controller edit");
+    ("in controller edit");
     this.upload.single(voucherMulterProperties.field)(
       request,
       response,
       async (err: any) => {
         //todo validamos si hay un error
         if (err) {
-          console.log("primer error", err);
+          "primer error", err;
           const customError = this.responseService.BadRequestException(
             "Error al procesar la imagen 2",
             err
@@ -67,7 +67,7 @@ class VoucherController {
         //todo validamos el archivo
         else {
           const data = request.body;
-          console.log(data);
+          data;
 
           try {
             //todo validamos el parse
@@ -95,7 +95,7 @@ class VoucherController {
                 token
               );
 
-              console.log(result);
+              result;
 
               if (result.error) {
                 response.status(result.statusCode).json(result);
@@ -140,7 +140,7 @@ class VoucherController {
               response.status(customError.statusCode).json(customError);
             }
           } catch (error) {
-            console.log("Error in catch", error);
+            "Error in catch", error;
             const customError = this.responseService.BadRequestException(
               "Error al validar los campos",
               error

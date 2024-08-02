@@ -32,8 +32,6 @@ class BillController {
       },
     };
 
-    console.log(format);
-
     const result = await this.billService.findAll({ ...format });
     response.status(result.statusCode).json(result);
   };

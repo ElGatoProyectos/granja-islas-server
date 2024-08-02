@@ -11,10 +11,10 @@ const notificationSocketServer = (server: HttpServer): SocketIOServer => {
   });
 
   io.on("connection", (socket) => {
-    console.log(`New client connected: ${socket.id}`);
+    `New client connected: ${socket.id}`;
 
     socket.on("disconnect", () => {
-      console.log(`Client disconnected: ${socket.id}`);
+      `Client disconnected: ${socket.id}`;
     });
 
     // Add more event listeners here

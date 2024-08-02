@@ -76,7 +76,7 @@ class SunatService {
 
       return this.responseService.SuccessResponse(undefined, response.data);
     } catch (error) {
-      console.log(error);
+      error;
       return this.responseService.InternalServerErrorException(
         undefined,
         error
