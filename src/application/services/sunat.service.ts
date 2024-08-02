@@ -176,28 +176,26 @@ class SunatService {
 
       let numberActions = 0;
 
-      await Promise.all(
-        comprobantes.map(async (item) => {
-          // [pending] en este caso tenemos que validar los 4 tipos de documentos
-          const typeDocument = item.codTipoCDP;
+      comprobantes.map(async (item) => {
+        // [pending] en este caso tenemos que validar los 4 tipos de documentos
+        const typeDocument = item.codTipoCDP;
 
-          // [note] se evalua a cada uno porque cada uno tiene una logica diferente
-          console.log(typeDocument);
-          if (typeDocument === typeDocumentSunat.FACTURA.code) {
-            await this.synchronizeBill(item, rucFromHeader, tokenFromHeader);
-          } else if (typeDocument === typeDocumentSunat.BOLETA_DEV_VENTA.code) {
-            await this.synchronizeBill(item, rucFromHeader, tokenFromHeader);
-          } else if (typeDocument === typeDocumentSunat.NOTA_DE_CREDITO.code) {
-            await this.synchronizeCreditNote(
-              item,
-              rucFromHeader,
-              tokenFromHeader
-            );
-          } else if (typeDocument === typeDocumentSunat.NOTA_DE_DEBITO.code) {
-            await this.synchronizeBill(item, rucFromHeader, tokenFromHeader);
-          }
-        })
-      );
+        // [note] se evalua a cada uno porque cada uno tiene una logica diferente
+        console.log(typeDocument);
+        if (typeDocument === typeDocumentSunat.FACTURA.code) {
+          await this.synchronizeBill(item, rucFromHeader, tokenFromHeader);
+        } else if (typeDocument === typeDocumentSunat.BOLETA_DEV_VENTA.code) {
+          await this.synchronizeBill(item, rucFromHeader, tokenFromHeader);
+        } else if (typeDocument === typeDocumentSunat.NOTA_DE_CREDITO.code) {
+          await this.synchronizeCreditNote(
+            item,
+            rucFromHeader,
+            tokenFromHeader
+          );
+        } else if (typeDocument === typeDocumentSunat.NOTA_DE_DEBITO.code) {
+          await this.synchronizeBill(item, rucFromHeader, tokenFromHeader);
+        }
+      });
 
       return this.responseService.SuccessResponse(
         `Actualización realizada con éxito, ${numberActions} operaciones realizadas`
@@ -212,6 +210,7 @@ class SunatService {
     }
   };
 
+  // [pending]
   synchronizeBill = async (
     item: I_Document_Item,
     rucFromHeader: string,
@@ -222,7 +221,7 @@ class SunatService {
         rucFromHeader
       );
 
-      suppliers = responseSupplier.payload as Supplier[];
+      suppliers = responseSupplier.payload;
 
       // [note] data de usuario y empresa actual
       const responseInfo = await this.infoService.getCompanyAndUser(
@@ -246,11 +245,11 @@ class SunatService {
           rucFromHeader
         );
 
-        console.log("Los proveedores son", responseSupplier.payload);
-
         const existSupplier = suppliers.find(
           (s) => s.ruc === item.numDocIdentidadProveedor
         );
+
+        console.log(suppliers);
 
         let supplier: Supplier | null = responseSupplier.payload;
         if (!existSupplier) {
@@ -276,6 +275,7 @@ class SunatService {
           );
 
           if (responseCreateSupplier.error) return responseCreateSupplier;
+
           suppliers.push(responseCreateSupplier.payload as Supplier);
           supplier = responseCreateSupplier.payload as Supplier;
         }
@@ -314,33 +314,6 @@ class SunatService {
           serie: item.numSerieCDP,
           number: Number(item.numCDP),
         };
-
-        // const products = item.informacionItems as I_ItemsBill[];
-
-        // await Promise.all(
-        //   products.map(async (product: I_ItemsBill) => {
-        //     const slug = slugify(product.desItem, { lower: true });
-
-        //     const formatProduct: I_CreateProduct = {
-        //       title: product.desItem,
-        //       amount: product.cntItems,
-        //       price: product.mtoValUnitario,
-        //       slug,
-        //       supplier_id: supplier ? supplier.id : null,
-        //       description: "",
-        //       unit_measure: product.desUnidadMedida,
-        //       code_measure: product.codUnidadMedida,
-        //     };
-
-        //     const responseCreateProduct = await this.productService.create(
-        //       formatProduct
-        //     );
-
-        //     responseCreateProduct;
-        //     if (responseCreateProduct.error) return responseCreateProduct;
-        //     numberActions++;
-        //   })
-        // );
       }
     } catch (error) {
       return this.responseService.InternalServerErrorException(
