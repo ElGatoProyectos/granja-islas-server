@@ -14,7 +14,8 @@ export type T_Config = {
 };
 
 class SunatService {
-  private base_api_query_module = "ruc";
+  private base_api_query_module = "v1/consulta-ruc";
+
   private responseService: ResponseService;
   private apiService: ApiService;
 
@@ -30,14 +31,34 @@ class SunatService {
         this.base_api_query_module,
         ruc
       );
+      console.log(response.data);
       const data = response.data;
 
+      const destructString = data.razon_social.split(" ");
+
+      destructString.pop();
+
+      const companyName = destructString.join(" ");
+
+      let phone_number;
+
+      if (data.contacto.telefono_3 !== "-") {
+        phone_number = data.contacto.telefono_3;
+      } else if (data.contacto.telefono_2 !== "-") {
+        phone_number = data.contacto.telefono_2;
+      } else if (data.contacto.telefono_1 !== "-") {
+        phone_number = data.contacto.telefono_1;
+      } else {
+        phone_number = "";
+      }
       const formatData = {
-        ruc: data.ruc.split("-")[0].trim(),
-        business_name: data.nombre_comercial,
-        business_type: data.tipo_contribuyente,
-        business_status: data.estado_contribuyente,
-        business_direction_fiscal: data.domicilio_fiscal,
+        ruc: data.ruc.split("-")[0].trim() || "",
+        business_name: companyName || "",
+        business_type: destructString[destructString.length - 1] || "",
+        business_status: data.estado_contribuyente || "",
+        business_direction_fiscal: data.domicilio_fiscal || "",
+        country_code: "+51",
+        phone_number,
       };
 
       return this.responseService.SuccessResponse(
@@ -45,6 +66,7 @@ class SunatService {
         formatData
       );
     } catch (error) {
+      console.log(error);
       return this.responseService.InternalServerErrorException(
         undefined,
         error

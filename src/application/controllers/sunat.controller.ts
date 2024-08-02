@@ -9,9 +9,12 @@ class SunatController {
   }
 
   queryForRuc = async (request: Request, response: Response) => {
-    ("hereee");
+    console.log("hereee");
     const ruc = request.params.ruc;
+
+    console.log(ruc);
     const result = await this.sunatService.queryForRuc(ruc);
+    console.log(result);
     response.status(result.statusCode).json(result);
   };
 }

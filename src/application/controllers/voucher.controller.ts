@@ -57,7 +57,6 @@ class VoucherController {
       async (err: any) => {
         //todo validamos si hay un error
         if (err) {
-          "primer error", err;
           const customError = this.responseService.BadRequestException(
             "Error al procesar la imagen 2",
             err
@@ -140,7 +139,6 @@ class VoucherController {
               response.status(customError.statusCode).json(customError);
             }
           } catch (error) {
-            "Error in catch", error;
             const customError = this.responseService.BadRequestException(
               "Error al validar los campos",
               error

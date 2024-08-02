@@ -60,6 +60,7 @@ class BillService {
     }
   };
 
+  // [success]
   findAll = async ({ body, pagination, header }: T_FindAll) => {
     try {
       const responseValidation = await this.infoService.getCompanyAndUser(
@@ -69,21 +70,24 @@ class BillService {
 
       if (responseValidation.error) return responseValidation;
 
-      type T_RValidation = {
+      const {
+        user,
+        company,
+      }: {
         user: User;
         company: Company;
-      };
-
-      const { user, company }: T_RValidation = responseValidation.payload;
-
-      // --------------
+      } = responseValidation.payload;
 
       let period: string;
       if (body.year && body.month) {
-        period = `${body.month}/${body.year}`;
+        const formattedMonth = body.month.toString().padStart(2, "0");
+        period = `${formattedMonth}/${body.year}`;
       } else {
         const date = new Date();
-        period = `${date.getMonth() + 1}/${date.getFullYear()}`;
+        const formattedMonth = (date.getMonth() + 1)
+          .toString()
+          .padStart(2, "0");
+        period = `${formattedMonth}/${date.getFullYear()}`;
       }
 
       const skip = (pagination.page - 1) * pagination.limit;

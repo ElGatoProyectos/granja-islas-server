@@ -36,6 +36,8 @@ class BillRouter {
       this.billMiddleware.create,
       this.billController.create
     );
+
+    // [message] seccion (registro de compras)
     this.router.post(
       `${this._prefix}/get`,
       this.authMiddleware.authorizationUser,

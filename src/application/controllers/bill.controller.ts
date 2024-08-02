@@ -9,9 +9,6 @@ class BillController {
   }
 
   findAll = async (request: Request, response: Response) => {
-    // filtro por periodo (año)
-    // const year = parseInt(request.query.period as string);
-    // const month = parseInt(request.query.month as string);
     const body = request.body;
 
     const page = parseInt(request.query.page as string) || 1;
