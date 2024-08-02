@@ -186,6 +186,15 @@ class SupplierService {
 
       const { user, company }: T_RValidation = responseValidation.payload;
 
+      const supplier = await prisma.supplier.findFirst({
+        where: { company_id: company.id, ruc: data.ruc },
+      });
+
+      if (supplier)
+        return this.responseService.BadRequestException(
+          "El proveedor ya se encuentra registrado"
+        );
+
       const created = await prisma.supplier.create({
         data: { ...data, company_id: company.id, user_id_created: user.id },
       });
