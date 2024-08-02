@@ -88,6 +88,7 @@ class SupplierService {
       const [suppliers, total] = await prisma.$transaction([
         prisma.supplier.findMany({
           where: { status_deleted: false, company_id: company.id },
+          orderBy: { created_at: "desc" },
           skip,
           take: limit,
         }),
