@@ -1,4 +1,16 @@
-const businessTypes = ["S.A.C.", "S.A.", "S.R.L.", "I.C.C.", "E.I.R.L"];
+const businessTypes = [
+  "S.A.C.",
+  "S.A.",
+  "S.R.L.",
+  "I.C.C.",
+  "E.I.R.L",
+  "EIRL",
+  "SAC",
+  "SA",
+  "SRL",
+  "ICC",
+  "EIRL",
+];
 
 export function extractCompanyDetails(name: string) {
   let businessName = name;

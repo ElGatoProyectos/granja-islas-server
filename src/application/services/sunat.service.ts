@@ -163,18 +163,13 @@ class SunatService {
 
       // [message] debemos recuperar todos los comprabantes tipo boleta, factura, nota de credio y nota de debito
 
-      // Traemos los datos
       const { payload } = await this.findDocuments(
         data,
         rucFromHeader,
         tokenFromHeader
       );
 
-      // console.log(payload);
-
       const comprobantes = payload.registros as I_Document_Item[];
-
-      let numberActions = 0;
 
       comprobantes.map(async (item) => {
         // [pending] en este caso tenemos que validar los 4 tipos de documentos
@@ -198,7 +193,7 @@ class SunatService {
       });
 
       return this.responseService.SuccessResponse(
-        `Actualización realizada con éxito, ${numberActions} operaciones realizadas`
+        `Actualización realizada con éxito`
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException(
@@ -217,12 +212,6 @@ class SunatService {
     tokenFromHeader: string
   ) => {
     try {
-      const responseSupplier = await this.supplierService.findAllNoPagination(
-        rucFromHeader
-      );
-
-      suppliers = responseSupplier.payload;
-
       // [note] data de usuario y empresa actual
       const responseInfo = await this.infoService.getCompanyAndUser(
         tokenFromHeader,
@@ -245,14 +234,8 @@ class SunatService {
           rucFromHeader
         );
 
-        const existSupplier = suppliers.find(
-          (s) => s.ruc === item.numDocIdentidadProveedor
-        );
-
-        console.log(suppliers);
-
         let supplier: Supplier | null = responseSupplier.payload;
-        if (!existSupplier) {
+        if (responseSupplier.error && responseSupplier.statusCode === 404) {
           const formatDataSupplier: I_CreateSupplier = {
             business_direction: "",
             business_name: extractCompanyDetails(item.nomRazonSocialProveedor)
@@ -276,7 +259,6 @@ class SunatService {
 
           if (responseCreateSupplier.error) return responseCreateSupplier;
 
-          suppliers.push(responseCreateSupplier.payload as Supplier);
           supplier = responseCreateSupplier.payload as Supplier;
         }
 
