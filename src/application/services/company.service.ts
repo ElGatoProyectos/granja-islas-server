@@ -161,10 +161,14 @@ export default class CompanyService {
       const responseCompany = await this.findById(companyId);
       if (responseCompany.error) return responseCompany;
 
-      await prisma.company.update({ where: { id: companyId }, data });
+      const updated = await prisma.company.update({
+        where: { id: companyId },
+        data,
+      });
 
       return this.responseService.SuccessResponse(
-        "Empresa modificada correctamente"
+        "Empresa modificada correctamente",
+        updated
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException(

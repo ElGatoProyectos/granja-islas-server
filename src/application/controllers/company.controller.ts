@@ -148,7 +148,7 @@ class CompanyController {
 
           try {
             //todo validamos el parse
-            updateCompanyDTO.parse(request.body);
+            // updateCompanyDTO.parse(request.body);
 
             const { "company-profile": companyProfile, ...restData } =
               request.body;
@@ -159,25 +159,30 @@ class CompanyController {
               restData
             );
 
+            console.log(result);
+
             if (result.error) {
               response.status(result.statusCode).json(result);
               return;
             }
 
             if (request.file) {
+              console.log("hay file");
               const id = result.payload.id;
               const direction = path.join(
                 appRootPath.path,
                 "public",
                 companyMulterProperties.folder
               );
-              const ext = path.extname(request.file.originalname);
+              // const ext = path.extname(request.file.originalname);
+              const ext = ".png";
+
               const fileName = `${companyMulterProperties.folder}_${id}${ext}`;
               const filePath = path.join(direction, fileName);
 
               sharp(request.file.buffer)
                 .resize({ width: 800 })
-                .toFormat("jpeg")
+                .toFormat("png")
                 .jpeg({ quality: 80 })
                 .toFile(filePath, (err) => {
                   if (err) {
