@@ -3,7 +3,7 @@ import { environments } from "../../infrastructure/config/environments.constant"
 import ApiService from "./api.service";
 import ResponseService from "./response.service";
 import InfoService from "./info.service";
-import { Company, Supplier, User } from "@prisma/client";
+import { Company, Supplier, TypeCurrency, User } from "@prisma/client";
 import BillService from "./bill.service";
 import SupplierService from "./supplier.service";
 import { I_CreateSupplier } from "../models/interfaces/supplier.interface";
@@ -20,6 +20,7 @@ import { typeDocumentSunat } from "../models/constants/type_document.constant";
 import { I_Document_Item } from "../models/interfaces/document.interface";
 import { extractCompanyDetails } from "../../infrastructure/utils/sunat.util";
 import CreditNoteService from "./credit-note.service";
+import TicketService from "./ticket.service";
 const base_api_sunat = environments.BASE_API_SUNAT;
 const base_api_query = environments.BASE_API_QUERY;
 
@@ -51,6 +52,7 @@ class SunatService {
   private sunatSecurityService: SunatSecurityService =
     new SunatSecurityService();
   private creditNoteService: CreditNoteService = new CreditNoteService();
+  private ticketService: TicketService = new TicketService();
 
   // [success]
   queryForRuc = async (ruc: string) => {
@@ -88,7 +90,6 @@ class SunatService {
         formatData
       );
     } catch (error) {
-      console.log(error);
       return this.responseService.InternalServerErrorException(
         undefined,
         error
@@ -171,16 +172,16 @@ class SunatService {
 
       const comprobantes = payload.registros as I_Document_Item[];
 
-      comprobantes.map(async (item) => {
+      for (const item of comprobantes) {
         // [pending] en este caso tenemos que validar los 4 tipos de documentos
         const typeDocument = item.codTipoCDP;
 
         // [note] se evalua a cada uno porque cada uno tiene una logica diferente
-        console.log(typeDocument);
+
         if (typeDocument === typeDocumentSunat.FACTURA.code) {
           await this.synchronizeBill(item, rucFromHeader, tokenFromHeader);
         } else if (typeDocument === typeDocumentSunat.BOLETA_DEV_VENTA.code) {
-          await this.synchronizeBill(item, rucFromHeader, tokenFromHeader);
+          await this.synchronizeTicket(item, rucFromHeader, tokenFromHeader);
         } else if (typeDocument === typeDocumentSunat.NOTA_DE_CREDITO.code) {
           await this.synchronizeCreditNote(
             item,
@@ -188,9 +189,9 @@ class SunatService {
             tokenFromHeader
           );
         } else if (typeDocument === typeDocumentSunat.NOTA_DE_DEBITO.code) {
-          await this.synchronizeBill(item, rucFromHeader, tokenFromHeader);
+          await this.synchronizeDebitNote(item, rucFromHeader, tokenFromHeader);
         }
-      });
+      }
 
       return this.responseService.SuccessResponse(
         `Actualización realizada con éxito`
@@ -205,7 +206,7 @@ class SunatService {
     }
   };
 
-  // [pending]
+  // [success]
   synchronizeBill = async (
     item: I_Document_Item,
     rucFromHeader: string,
@@ -273,11 +274,16 @@ class SunatService {
           total: item.montos.mtoBIGravadaDG || 0,
           ammount_pending: 0,
           ammount_paid: 0,
-          period: "",
+          period:
+            item.perTributario.slice(0, 4) +
+            "-" +
+            item.perTributario.slice(4, 6),
           bill_status: "",
           supplier_id: supplier ? supplier.id : null,
           company_id: company.id,
           user_id_created: user.id,
+          currency_code:
+            item.codMoneda === "PEN" ? TypeCurrency.PE : TypeCurrency.USD,
         };
 
         // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
@@ -305,7 +311,109 @@ class SunatService {
     }
   };
 
-  synchronizeTicket = async () => {};
+  synchronizeTicket = async (
+    item: I_Document_Item,
+    rucFromHeader: string,
+    tokenFromHeader: string
+  ) => {
+    try {
+      // [note] data de usuario y empresa actual
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        tokenFromHeader,
+        rucFromHeader
+      );
+
+      if (responseInfo.error) return responseInfo;
+
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+
+      // [note] validamos el comprobante
+      const code = item.numSerieCDP + item.numCDP;
+      const responseBill = await this.ticketService.findForCode(code);
+
+      if (responseBill.error && responseBill.statusCode === 404) {
+        // [message] Si en caso no exista el proveedor para la empresa lo registramos
+        const responseSupplier = await this.supplierService.findForRuc(
+          item.numDocIdentidadProveedor,
+          rucFromHeader
+        );
+
+        let supplier: Supplier | null = responseSupplier.payload;
+        if (responseSupplier.error && responseSupplier.statusCode === 404) {
+          const formatDataSupplier: I_CreateSupplier = {
+            business_direction: "",
+            business_name: extractCompanyDetails(item.nomRazonSocialProveedor)
+              .businessName,
+            business_status: "",
+            business_type: extractCompanyDetails(item.nomRazonSocialProveedor)
+              .businessType,
+            company_id: company.id,
+            description: "",
+            ruc: item.numDocIdentidadProveedor,
+            user_id_created: user.id,
+            phone: null,
+            country_code: null,
+          };
+
+          const responseCreateSupplier = await this.supplierService.create(
+            formatDataSupplier,
+            tokenFromHeader,
+            rucFromHeader
+          );
+
+          if (responseCreateSupplier.error) return responseCreateSupplier;
+
+          supplier = responseCreateSupplier.payload as Supplier;
+        }
+
+        // [message] Registrar comprobante
+
+        const formatDataBill: I_CreateBill = {
+          num_serie: item.numSerieCDP,
+          num_cpe: Number(item.numCDP),
+          code,
+          date: convertToDate(item.fecEmision),
+          igv: item.montos.mtoIgvIpmDG || 0,
+          total: item.montos.mtoBIGravadaDG || 0,
+          ammount_pending: 0,
+          ammount_paid: 0,
+          period:
+            item.perTributario.slice(0, 4) +
+            "-" +
+            item.perTributario.slice(4, 6),
+          bill_status: "",
+          supplier_id: supplier ? supplier.id : null,
+          company_id: company.id,
+          user_id_created: user.id,
+          currency_code:
+            item.codMoneda === "PEN" ? TypeCurrency.PE : TypeCurrency.USD,
+        };
+
+        // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
+        const responseCreateTicket = await this.ticketService.create(
+          formatDataBill
+        );
+
+        if (responseCreateTicket.error) return responseCreateTicket;
+
+        //[pending] Registrar productos - pendiente porque es otra api
+
+        const formatFetchDetail = {
+          type: "RECIBIDO",
+          payment_type: typeDocumentSunat.FACTURA.description,
+          ruc: rucFromHeader,
+          serie: item.numSerieCDP,
+          number: Number(item.numCDP),
+        };
+      }
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
 
   synchronizeCreditNote = async (
     item: I_Document_Item,
@@ -330,6 +438,7 @@ class SunatService {
 
       if (responseBill.error && responseBill.statusCode === 404) {
         // [message] Si en caso no exista el proveedor para la empresa lo registramos
+        // [message] no podemos sacar la logica del registro de proveedor afuera porque es el id dinamico de cada documento
         const responseSupplier = await this.supplierService.findForRuc(
           item.numDocIdentidadProveedor,
           rucFromHeader
@@ -373,19 +482,24 @@ class SunatService {
           total: item.montos.mtoBIGravadaDG || 0,
           ammount_pending: 0,
           ammount_paid: 0,
-          period: "",
+          period:
+            item.perTributario.slice(0, 4) +
+            "-" +
+            item.perTributario.slice(4, 6),
           bill_status: "",
           supplier_id: supplier ? supplier.id : null,
           company_id: company.id,
           user_id_created: user.id,
+          currency_code:
+            item.codMoneda === "PEN" ? TypeCurrency.PE : TypeCurrency.USD,
         };
 
         // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
-        const responseCreateBill = await this.creditNoteService.create(
+        const responseCreateCreditNote = await this.creditNoteService.create(
           formatDataBill
         );
 
-        if (responseCreateBill.error) return responseCreateBill;
+        if (responseCreateCreditNote.error) return responseCreateCreditNote;
 
         //[pending] Registrar productos - pendiente porque es otra api
 
@@ -432,7 +546,109 @@ class SunatService {
     }
   };
 
-  synchronizeDebitNote = async () => {};
+  synchronizeDebitNote = async (
+    item: I_Document_Item,
+    rucFromHeader: string,
+    tokenFromHeader: string
+  ) => {
+    try {
+      // [note] data de usuario y empresa actual
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        tokenFromHeader,
+        rucFromHeader
+      );
+
+      if (responseInfo.error) return responseInfo;
+
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+
+      // [note] validamos el comprobante
+      const code = item.numSerieCDP + item.numCDP;
+      const responseBill = await this.ticketService.findForCode(code);
+
+      if (responseBill.error && responseBill.statusCode === 404) {
+        // [message] Si en caso no exista el proveedor para la empresa lo registramos
+        const responseSupplier = await this.supplierService.findForRuc(
+          item.numDocIdentidadProveedor,
+          rucFromHeader
+        );
+
+        let supplier: Supplier | null = responseSupplier.payload;
+        if (responseSupplier.error && responseSupplier.statusCode === 404) {
+          const formatDataSupplier: I_CreateSupplier = {
+            business_direction: "",
+            business_name: extractCompanyDetails(item.nomRazonSocialProveedor)
+              .businessName,
+            business_status: "",
+            business_type: extractCompanyDetails(item.nomRazonSocialProveedor)
+              .businessType,
+            company_id: company.id,
+            description: "",
+            ruc: item.numDocIdentidadProveedor,
+            user_id_created: user.id,
+            phone: null,
+            country_code: null,
+          };
+
+          const responseCreateSupplier = await this.supplierService.create(
+            formatDataSupplier,
+            tokenFromHeader,
+            rucFromHeader
+          );
+
+          if (responseCreateSupplier.error) return responseCreateSupplier;
+
+          supplier = responseCreateSupplier.payload as Supplier;
+        }
+
+        // [message] Registrar comprobante
+
+        const formatDataBill: I_CreateBill = {
+          num_serie: item.numSerieCDP,
+          num_cpe: Number(item.numCDP),
+          code,
+          date: convertToDate(item.fecEmision),
+          igv: item.montos.mtoIgvIpmDG || 0,
+          total: item.montos.mtoBIGravadaDG || 0,
+          ammount_pending: 0,
+          ammount_paid: 0,
+          period:
+            item.perTributario.slice(0, 4) +
+            "-" +
+            item.perTributario.slice(4, 6),
+          bill_status: "",
+          supplier_id: supplier ? supplier.id : null,
+          company_id: company.id,
+          user_id_created: user.id,
+          currency_code:
+            item.codMoneda === "PEN" ? TypeCurrency.PE : TypeCurrency.USD,
+        };
+
+        // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
+        const responseCreateTicket = await this.ticketService.create(
+          formatDataBill
+        );
+
+        if (responseCreateTicket.error) return responseCreateTicket;
+
+        //[pending] Registrar productos - pendiente porque es otra api
+
+        const formatFetchDetail = {
+          type: "RECIBIDO",
+          payment_type: typeDocumentSunat.FACTURA.description,
+          ruc: rucFromHeader,
+          serie: item.numSerieCDP,
+          number: Number(item.numCDP),
+        };
+      }
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
 }
 
 export default SunatService;

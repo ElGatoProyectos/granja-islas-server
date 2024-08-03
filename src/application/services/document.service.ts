@@ -31,6 +31,7 @@ class DocumentService {
   }
 
   findAllByAccumulated = async ({ body, header }: T_FindAlNopagination) => {
+    console.log(body);
     try {
       const responseBillsAccumulated =
         await this.billService.findAllByAccumulated({ body, header });

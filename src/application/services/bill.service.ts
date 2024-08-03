@@ -156,13 +156,13 @@ class BillService {
       let period: string;
       if (body.year && body.month) {
         const formattedMonth = body.month.toString().padStart(2, "0");
-        period = `${formattedMonth}/${body.year}`;
+        period = `${body.year}-${formattedMonth}`;
       } else {
         const date = new Date();
         const formattedMonth = (date.getMonth() + 1)
           .toString()
           .padStart(2, "0");
-        period = `${formattedMonth}/${date.getFullYear()}`;
+        period = `${date.getFullYear()}-${formattedMonth}`;
       }
 
       const bills = await prisma.bill.findMany({

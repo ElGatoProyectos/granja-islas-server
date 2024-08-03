@@ -241,7 +241,7 @@ class CreditNoteService {
 
         created = await prisma.creditNote.create({ data: formData });
       } else {
-        created = await prisma.ticket.create({ data });
+        created = await prisma.creditNote.create({ data });
       }
 
       return this.responseService.CreatedResponse(

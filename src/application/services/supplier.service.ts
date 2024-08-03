@@ -7,6 +7,7 @@ import {
 import ResponseService from "./response.service";
 import AuthService from "./auth.service";
 import CompanyService from "./company.service";
+import validator from "validator";
 
 class SupplierService {
   private responseService: ResponseService;
@@ -77,7 +78,12 @@ class SupplierService {
     }
   };
 
-  findAll = async (ruc: string, page: number, limit: number) => {
+  findAll = async (
+    ruc: string,
+    page: number,
+    limit: number,
+    nameFilter?: string
+  ) => {
     const skip = (page - 1) * limit;
     try {
       const responseCompany = await this.getCompanyInitial(ruc);
@@ -85,15 +91,38 @@ class SupplierService {
 
       const company: Company = responseCompany.payload;
 
+      //[message] inicializamos los filtros
+
+      const filters: any = {
+        status_deleted: false,
+        company_id: company.id,
+      };
+
+      //[message] seteamos los filtros que necesitamos
+
+      if (nameFilter) {
+        if (validator.isNumeric(nameFilter)) {
+          filters.ruc = {
+            contains: nameFilter,
+            mode: "insensitive",
+          };
+        } else {
+          filters.business_name = {
+            contains: nameFilter,
+            mode: "insensitive",
+          };
+        }
+      }
+
       const [suppliers, total] = await prisma.$transaction([
         prisma.supplier.findMany({
-          where: { status_deleted: false, company_id: company.id },
+          where: filters,
           orderBy: { id: "desc" },
           skip,
           take: limit,
         }),
         prisma.supplier.count({
-          where: { status_deleted: false, company_id: company.id },
+          where: filters,
         }),
       ]);
 
