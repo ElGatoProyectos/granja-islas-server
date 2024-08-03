@@ -4,3 +4,7 @@ prisma/migrations
 dist
 
 /postgres
+
+*.png
+*.jpeg
+*.jpg

@@ -6,7 +6,13 @@ export interface I_CreateBill
 export interface I_CreateBillFromBody
   extends Omit<
     Bill,
-    "id" | "created_at" | "updated_at" | "company_id" | "user_id_created"
+    | "id"
+    | "created_at"
+    | "updated_at"
+    | "company_id"
+    | "user_id_created"
+    | "igv"
+    | "total"
   > {}
 
 // model Bill {

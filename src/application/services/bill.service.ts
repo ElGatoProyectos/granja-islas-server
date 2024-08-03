@@ -190,6 +190,7 @@ class BillService {
     }
   };
 
+  // [note] el crear queda pendiente, las facturas deberian poder llegar de sunat, crearlas no creo
   create = async (
     data: I_CreateBillFromBody | I_CreateBill,
     rucFromHeader?: string,
@@ -222,15 +223,17 @@ class BillService {
             "El proveedor seleccionado no pertenece a la empresa"
           );
 
-        const igv = data.total * 0.18;
+        const igv = data.amount_base * 0.18;
+        const total = data.amount_base + igv;
 
-        data.ammount_paid = data.ammount_paid | 0;
+        data.amount_paid = data.amount_paid | 0;
 
         formData = {
           ...data,
           igv,
-          ammount_paid: data.ammount_paid,
-          ammount_pending: data.total - data.ammount_paid,
+          total,
+          amount_paid: data.amount_paid,
+          amount_pending: total - data.amount_paid,
           user_id_created: user.id,
           company_id: company.id,
         };

@@ -13,7 +13,10 @@ import slugify from "slugify";
 import { I_CreateProduct } from "../models/interfaces/product.interface";
 import ProductService from "./product.service";
 import prisma from "../../infrastructure/database/prisma";
-import { convertToDate } from "../../infrastructure/utils/convert-to-date";
+import {
+  convertStringToDate,
+  convertToDate,
+} from "../../infrastructure/utils/convert-to-date";
 import SireService from "./sire.service";
 import SunatSecurityService from "./sunat-security.service";
 import { typeDocumentSunat } from "../models/constants/type_document.constant";
@@ -225,7 +228,7 @@ class SunatService {
         responseInfo.payload;
 
       // [note] validamos el comprobante
-      const code = item.numSerieCDP + item.numCDP;
+      const code = item.numSerieCDP + "-" + item.numCDP;
       const responseBill = await this.billService.findBillForCode(code);
 
       if (responseBill.error && responseBill.statusCode === 404) {
@@ -269,11 +272,13 @@ class SunatService {
           num_serie: item.numSerieCDP,
           num_cpe: Number(item.numCDP),
           code,
-          date: convertToDate(item.fecEmision),
+          issue_date: convertStringToDate(item.fecEmision),
+          expiration_date: convertStringToDate(item.fecVencPag),
+          amount_base: item.montos.mtoBIGravadaDG || 0,
           igv: item.montos.mtoIgvIpmDG || 0,
           total: item.montos.mtoBIGravadaDG || 0,
-          ammount_pending: 0,
-          ammount_paid: 0,
+          amount_pending: 0,
+          amount_paid: 0,
           period:
             item.perTributario.slice(0, 4) +
             "-" +
@@ -329,7 +334,7 @@ class SunatService {
         responseInfo.payload;
 
       // [note] validamos el comprobante
-      const code = item.numSerieCDP + item.numCDP;
+      const code = item.numSerieCDP + "-" + item.numCDP;
       const responseBill = await this.ticketService.findForCode(code);
 
       if (responseBill.error && responseBill.statusCode === 404) {
@@ -373,11 +378,13 @@ class SunatService {
           num_serie: item.numSerieCDP,
           num_cpe: Number(item.numCDP),
           code,
-          date: convertToDate(item.fecEmision),
+          issue_date: convertStringToDate(item.fecEmision),
+          expiration_date: convertStringToDate(item.fecVencPag),
+          amount_base: item.montos.mtoBIGravadaDG || 0,
           igv: item.montos.mtoIgvIpmDG || 0,
           total: item.montos.mtoBIGravadaDG || 0,
-          ammount_pending: 0,
-          ammount_paid: 0,
+          amount_pending: 0,
+          amount_paid: 0,
           period:
             item.perTributario.slice(0, 4) +
             "-" +
@@ -433,7 +440,7 @@ class SunatService {
         responseInfo.payload;
 
       // [note] validamos el comprobante
-      const code = item.numSerieCDP + item.numCDP;
+      const code = item.numSerieCDP + "-" + item.numCDP;
       const responseBill = await this.creditNoteService.findForCode(code);
 
       if (responseBill.error && responseBill.statusCode === 404) {
@@ -477,11 +484,13 @@ class SunatService {
           num_serie: item.numSerieCDP,
           num_cpe: Number(item.numCDP),
           code,
-          date: convertToDate(item.fecEmision),
+          issue_date: convertStringToDate(item.fecEmision),
+          expiration_date: convertStringToDate(item.fecVencPag),
+          amount_base: item.montos.mtoBIGravadaDG || 0,
           igv: item.montos.mtoIgvIpmDG || 0,
           total: item.montos.mtoBIGravadaDG || 0,
-          ammount_pending: 0,
-          ammount_paid: 0,
+          amount_pending: 0,
+          amount_paid: 0,
           period:
             item.perTributario.slice(0, 4) +
             "-" +
@@ -564,7 +573,7 @@ class SunatService {
         responseInfo.payload;
 
       // [note] validamos el comprobante
-      const code = item.numSerieCDP + item.numCDP;
+      const code = item.numSerieCDP + "-" + item.numCDP;
       const responseBill = await this.ticketService.findForCode(code);
 
       if (responseBill.error && responseBill.statusCode === 404) {
@@ -608,11 +617,14 @@ class SunatService {
           num_serie: item.numSerieCDP,
           num_cpe: Number(item.numCDP),
           code,
-          date: convertToDate(item.fecEmision),
+          issue_date: convertStringToDate(item.fecEmision),
+          expiration_date: convertStringToDate(item.fecVencPag),
+
+          amount_base: item.montos.mtoBIGravadaDG || 0,
           igv: item.montos.mtoIgvIpmDG || 0,
           total: item.montos.mtoBIGravadaDG || 0,
-          ammount_pending: 0,
-          ammount_paid: 0,
+          amount_pending: 0,
+          amount_paid: 0,
           period:
             item.perTributario.slice(0, 4) +
             "-" +

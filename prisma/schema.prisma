@@ -180,17 +180,20 @@ model Bill {
   num_serie       String
   num_cpe         Int
   code            String
-  date            DateTime     @db.Date
+  issue_date      DateTime?    @db.Date
+  expiration_date DateTime?    @db.Date
   period          String
-  igv             Float        @default(0.18)
+  amount_base     Float        @default(0)
+  igv             Float        @default(0)
   total           Float        @default(0)
+  amount_paid     Float        @default(0)
+  amount_pending  Float        @default(0)
   bill_status     String
-  ammount_paid    Float        @default(0)
-  ammount_pending Float        @default(0)
   supplier_id     Int?
   currency_code   TypeCurrency @default(PE)
-  created_at      DateTime     @default(dbgenerated("CURRENT_DATE"))
-  updated_at      DateTime     @updatedAt
+
+  created_at DateTime @default(dbgenerated("CURRENT_DATE"))
+  updated_at DateTime @updatedAt
 
   Company  Company?  @relation(fields: [company_id], references: [id])
   Supplier Supplier? @relation(fields: [supplier_id], references: [id])
@@ -206,13 +209,15 @@ model CreditNote {
   num_serie       String
   num_cpe         Int
   code            String
-  date            DateTime     @db.Date
+  issue_date      DateTime?    @db.Date
+  expiration_date DateTime?    @db.Date
   period          String
-  igv             Float        @default(0.18)
+  amount_base     Float        @default(0)
+  igv             Float        @default(0)
   total           Float        @default(0)
+  amount_paid     Float        @default(0)
+  amount_pending  Float        @default(0)
   bill_status     String
-  ammount_paid    Float        @default(0)
-  ammount_pending Float        @default(0)
   supplier_id     Int?
   currency_code   TypeCurrency @default(PE)
 
@@ -233,15 +238,19 @@ model DebitNote {
   num_serie       String
   num_cpe         Int
   code            String
-  date            DateTime     @db.Date
+  issue_date      DateTime? @db.Date
+  expiration_date DateTime? @db.Date
   period          String
-  igv             Float        @default(0.18)
-  total           Float        @default(0)
-  bill_status     String
-  ammount_paid    Float        @default(0)
-  ammount_pending Float        @default(0)
-  supplier_id     Int?
-  currency_code   TypeCurrency @default(PE)
+
+  amount_base    Float  @default(0)
+  igv            Float  @default(0)
+  total          Float  @default(0)
+  amount_paid    Float  @default(0)
+  amount_pending Float  @default(0)
+  bill_status    String
+
+  supplier_id   Int?
+  currency_code TypeCurrency @default(PE)
 
   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt
@@ -260,13 +269,15 @@ model Ticket {
   num_serie       String
   num_cpe         Int
   code            String
-  date            DateTime     @db.Date
+  issue_date      DateTime?    @db.Date
+  expiration_date DateTime?    @db.Date
   period          String
-  igv             Float        @default(0.18)
+  amount_base     Float        @default(0)
+  igv             Float        @default(0)
   total           Float        @default(0)
+  amount_paid     Float        @default(0)
+  amount_pending  Float        @default(0)
   bill_status     String
-  ammount_paid    Float        @default(0)
-  ammount_pending Float        @default(0)
   supplier_id     Int?
   currency_code   TypeCurrency @default(PE)
 
