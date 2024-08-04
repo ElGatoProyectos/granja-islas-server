@@ -8,11 +8,13 @@ import ResponseService from "./response.service";
 import AuthService from "./auth.service";
 import CompanyService from "./company.service";
 import validator from "validator";
+import InfoService from "./info.service";
 
 class SupplierService {
   private responseService: ResponseService;
   private companyService: CompanyService;
   private authService: AuthService;
+  private infoService: InfoService = new InfoService();
 
   constructor() {
     this.responseService = new ResponseService();
@@ -205,16 +207,20 @@ class SupplierService {
   // - mutations methods --------------------------------------------------------
   create = async (data: I_CreateSupplier, token: string, ruc: string) => {
     try {
-      const responseValidation = await this.validationInitial(token, ruc);
+      const responseValidation = await this.infoService.getCompanyAndUser(
+        token,
+        ruc
+      );
 
       if (responseValidation.error) return responseValidation;
 
-      type T_RValidation = {
+      const {
+        user,
+        company,
+      }: {
         user: User;
         company: Company;
-      };
-
-      const { user, company }: T_RValidation = responseValidation.payload;
+      } = responseValidation.payload;
 
       const supplier = await prisma.supplier.findFirst({
         where: { company_id: company.id, ruc: data.ruc },

@@ -172,25 +172,41 @@ enum TypeCurrency {
   PE
 }
 
+enum TypePayment {
+  CREDITO
+  CONTADO
+}
+
+enum TypeStatus {
+  ACTIVO
+  RECHAZADO
+}
+
+enum TypeStatusPayment {
+  CONTADO
+  CREDITO
+}
+
 model Bill {
   id              Int  @id @default(autoincrement())
   company_id      Int?
   user_id_created Int?
 
-  num_serie       String
-  num_cpe         Int
-  code            String
-  issue_date      DateTime?    @db.Date
-  expiration_date DateTime?    @db.Date
-  period          String
-  amount_base     Float        @default(0)
-  igv             Float        @default(0)
-  total           Float        @default(0)
-  amount_paid     Float        @default(0)
-  amount_pending  Float        @default(0)
-  bill_status     String
-  supplier_id     Int?
-  currency_code   TypeCurrency @default(PE)
+  num_serie           String
+  num_cpe             Int
+  code                String
+  issue_date          DateTime?          @db.Date
+  expiration_date     DateTime?          @db.Date
+  period              String
+  amount_base         Float              @default(0)
+  igv                 Float              @default(0)
+  total               Float              @default(0)
+  amount_paid         Float              @default(0)
+  amount_pending      Float              @default(0)
+  bill_status         TypeStatus?        @default(ACTIVO) // aqui se podria considerar el estado si es activo u otro estado
+  bill_status_payment TypeStatusPayment? @default(CREDITO) // aqui el estado de credito o contado
+  supplier_id         Int?
+  currency_code       TypeCurrency       @default(PE)
 
   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt
@@ -206,20 +222,21 @@ model CreditNote {
   company_id      Int?
   user_id_created Int?
 
-  num_serie       String
-  num_cpe         Int
-  code            String
-  issue_date      DateTime?    @db.Date
-  expiration_date DateTime?    @db.Date
-  period          String
-  amount_base     Float        @default(0)
-  igv             Float        @default(0)
-  total           Float        @default(0)
-  amount_paid     Float        @default(0)
-  amount_pending  Float        @default(0)
-  bill_status     String
-  supplier_id     Int?
-  currency_code   TypeCurrency @default(PE)
+  num_serie           String
+  num_cpe             Int
+  code                String
+  issue_date          DateTime?          @db.Date
+  expiration_date     DateTime?          @db.Date
+  period              String
+  amount_base         Float              @default(0)
+  igv                 Float              @default(0)
+  total               Float              @default(0)
+  amount_paid         Float              @default(0)
+  amount_pending      Float              @default(0)
+  bill_status         TypeStatus?        @default(ACTIVO) // aqui se podria considerar el estado si es activo u otro estado
+  bill_status_payment TypeStatusPayment? @default(CREDITO)
+  supplier_id         Int?
+  currency_code       TypeCurrency       @default(PE)
 
   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt
@@ -242,12 +259,13 @@ model DebitNote {
   expiration_date DateTime? @db.Date
   period          String
 
-  amount_base    Float  @default(0)
-  igv            Float  @default(0)
-  total          Float  @default(0)
-  amount_paid    Float  @default(0)
-  amount_pending Float  @default(0)
-  bill_status    String
+  amount_base         Float              @default(0)
+  igv                 Float              @default(0)
+  total               Float              @default(0)
+  amount_paid         Float              @default(0)
+  amount_pending      Float              @default(0)
+  bill_status         TypeStatus?        @default(ACTIVO) // aqui se podria considerar el estado si es activo u otro estado
+  bill_status_payment TypeStatusPayment? @default(CREDITO)
 
   supplier_id   Int?
   currency_code TypeCurrency @default(PE)
@@ -265,21 +283,22 @@ model Ticket {
   id              Int  @id @default(autoincrement())
   company_id      Int?
   user_id_created Int?
-
-  num_serie       String
-  num_cpe         Int
-  code            String
-  issue_date      DateTime?    @db.Date
-  expiration_date DateTime?    @db.Date
-  period          String
-  amount_base     Float        @default(0)
-  igv             Float        @default(0)
-  total           Float        @default(0)
-  amount_paid     Float        @default(0)
-  amount_pending  Float        @default(0)
-  bill_status     String
   supplier_id     Int?
-  currency_code   TypeCurrency @default(PE)
+
+  num_serie           String
+  num_cpe             Int
+  code                String
+  issue_date          DateTime?          @db.Date
+  expiration_date     DateTime?          @db.Date
+  period              String
+  amount_base         Float              @default(0)
+  igv                 Float              @default(0)
+  total               Float              @default(0)
+  amount_paid         Float              @default(0)
+  amount_pending      Float              @default(0)
+  bill_status         TypeStatus?        @default(ACTIVO) // aqui se podria considerar el estado si es activo u otro estado
+  bill_status_payment TypeStatusPayment? @default(CREDITO)
+  currency_code       TypeCurrency       @default(PE)
 
   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt

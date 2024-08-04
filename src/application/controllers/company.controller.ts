@@ -148,7 +148,7 @@ class CompanyController {
 
           try {
             //todo validamos el parse
-            // updateCompanyDTO.parse(request.body);
+            updateCompanyDTO.parse(request.body);
 
             const { "company-profile": companyProfile, ...restData } =
               request.body;
@@ -167,7 +167,6 @@ class CompanyController {
             }
 
             if (request.file) {
-              console.log("hay file");
               const id = result.payload.id;
               const direction = path.join(
                 appRootPath.path,

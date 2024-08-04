@@ -1,4 +1,4 @@
-import { Company, User } from "@prisma/client";
+import { Company, TypeStatus, TypeStatusPayment, User } from "@prisma/client";
 import prisma from "../../infrastructure/database/prisma";
 import {
   I_CreateBill,
@@ -194,64 +194,81 @@ class DebitNoteService {
     }
   };
 
-  create = async (
-    data: I_CreateBillFromBody | I_CreateBill,
-    rucFromHeader?: string,
-    tokenFromHeader?: string
-  ) => {
+  create = async (data: I_CreateBill) => {
     try {
-      let formData: I_CreateBill;
-      let created;
-
-      if (rucFromHeader && tokenFromHeader) {
-        // [note] en caso se cree por el body
-
-        const responseInfo = await this.infoService.getCompanyAndUser(
-          tokenFromHeader,
-          rucFromHeader
-        );
-        if (responseInfo.error) return responseInfo;
-        const { company, user }: { company: Company; user: User } =
-          responseInfo.payload;
-
-        // [note] validamos si el proveedor pertenece o no a la empresa donde estamos
-        const responseSupplier = await this.supplierService.findById(
-          Number(data.supplier_id),
-          rucFromHeader
-        );
-        if (responseSupplier.error) return responseSupplier;
-
-        if (responseSupplier.payload.company_id !== company.id)
-          return this.responseService.BadRequestException(
-            "El proveedor seleccionado no pertenece a la empresa"
-          );
-
-        const igv = data.amount_base * 0.18;
-        const total = data.amount_base + igv;
-
-        data.amount_paid = data.amount_paid | 0;
-
-        formData = {
-          ...data,
-          igv,
-          total,
-          amount_paid: data.amount_paid,
-          amount_pending: total - data.amount_paid,
-          user_id_created: user.id,
-          company_id: company.id,
-        };
-
-        created = await prisma.debitNote.create({ data: formData });
-      } else {
-        created = await prisma.ticket.create({ data });
-      }
+      const created = await prisma.debitNote.create({ data });
 
       return this.responseService.CreatedResponse(
         "Nota de debito creada",
         created
       );
     } catch (error) {
-      error;
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
+  createFromBody = async (
+    data: I_CreateBillFromBody,
+    rucFromHeader: string,
+    tokenFromHeader: string
+  ) => {
+    try {
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        tokenFromHeader,
+        rucFromHeader
+      );
+      if (responseInfo.error) return responseInfo;
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+
+      const responseSupplier = await this.supplierService.findById(
+        Number(data.supplier_id),
+        rucFromHeader
+      );
+      if (responseSupplier.error) return responseSupplier;
+
+      if (responseSupplier.payload.company_id !== company.id)
+        return this.responseService.BadRequestException(
+          "El proveedor seleccionado no pertenece a la empresa"
+        );
+
+      const igv = data.amount_base * 0.18;
+      const total = data.amount_base + igv;
+
+      data.amount_paid = data.amount_paid | 0;
+
+      const formData: I_CreateBill = {
+        company_id: company.id,
+        user_id_created: user.id,
+        num_serie: data.code.split("-")[0],
+        num_cpe: Number(data.code.split("-")[1]),
+        code: data.code,
+        issue_date: data.issue_date,
+        expiration_date: data.expiration_date,
+        period: data.period,
+        amount_base: data.amount_base,
+        igv,
+        total,
+        amount_paid: data.amount_paid,
+        amount_pending: total - data.amount_paid,
+        bill_status: TypeStatus.ACTIVO,
+        bill_status_payment:
+          data.bill_status_payment === "CONTADO"
+            ? TypeStatusPayment.CONTADO
+            : TypeStatusPayment.CREDITO,
+        currency_code: data.currency_code,
+        supplier_id: data.supplier_id,
+      };
+
+      const created = await prisma.debitNote.create({ data: formData });
+      return this.responseService.CreatedResponse(
+        "Nota de debito creada satisfactoriamente",
+        created
+      );
+    } catch (error) {
       return this.responseService.InternalServerErrorException(
         undefined,
         error

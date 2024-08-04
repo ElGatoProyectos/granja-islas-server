@@ -13,7 +13,13 @@ export interface I_CreateBillFromBody
     | "user_id_created"
     | "igv"
     | "total"
-  > {}
+    | "bill_status"
+    | "num_serie"
+    | "num_cpe"
+    | "bill_status_payment"
+  > {
+  bill_status_payment: string;
+}
 
 // model Bill {
 //   id              Int  @id @default(autoincrement()) --

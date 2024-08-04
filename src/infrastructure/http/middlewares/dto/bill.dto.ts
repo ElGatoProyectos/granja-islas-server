@@ -11,6 +11,16 @@ export const createBillDTO = z.object({
   supplier_id: z.number(),
 });
 
+export const newFormatBillDTO = z.object({
+  code: z.string(),
+  supplier_id: z.number(),
+  issue_date: z.string(),
+  igv: z.number().default(0.18),
+  expiration_date: z.string().optional(),
+  // total: z.number(),
+  bill_status_payment: z.enum(["CONTADO", "CREDITO"]),
+});
+
 export const getBillsDTO = z.object({
   year: z.number(),
   month: z.number(),

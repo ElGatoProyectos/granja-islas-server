@@ -3,7 +3,14 @@ import { environments } from "../../infrastructure/config/environments.constant"
 import ApiService from "./api.service";
 import ResponseService from "./response.service";
 import InfoService from "./info.service";
-import { Company, Supplier, TypeCurrency, User } from "@prisma/client";
+import {
+  Company,
+  Supplier,
+  TypeCurrency,
+  TypeStatus,
+  TypeStatusPayment,
+  User,
+} from "@prisma/client";
 import BillService from "./bill.service";
 import SupplierService from "./supplier.service";
 import { I_CreateSupplier } from "../models/interfaces/supplier.interface";
@@ -67,17 +74,19 @@ class SunatService {
       );
       const data = response.data;
 
-      let phone_number;
-
-      if (data.contacto.telefono_3 !== "-") {
-        phone_number = data.contacto.telefono_3;
-      } else if (data.contacto.telefono_2 !== "-") {
-        phone_number = data.contacto.telefono_2;
-      } else if (data.contacto.telefono_1 !== "-") {
-        phone_number = data.contacto.telefono_1;
-      } else {
-        phone_number = "";
+      let phone_number = "-";
+      if (data.contacto) {
+        if (data.contacto.telefono_3 !== "-") {
+          phone_number = data.contacto.telefono_3;
+        } else if (data.contacto.telefono_2 !== "-") {
+          phone_number = data.contacto.telefono_2;
+        } else if (data.contacto.telefono_1 !== "-") {
+          phone_number = data.contacto.telefono_1;
+        } else {
+          phone_number = "";
+        }
       }
+
       const formatData = {
         ruc: data.ruc.split("-")[0].trim() || "",
         business_name: extractCompanyDetails(data.razon_social).businessName,
@@ -283,7 +292,8 @@ class SunatService {
             item.perTributario.slice(0, 4) +
             "-" +
             item.perTributario.slice(4, 6),
-          bill_status: "",
+          bill_status: TypeStatus.ACTIVO,
+          bill_status_payment: TypeStatusPayment.CONTADO,
           supplier_id: supplier ? supplier.id : null,
           company_id: company.id,
           user_id_created: user.id,
@@ -389,7 +399,8 @@ class SunatService {
             item.perTributario.slice(0, 4) +
             "-" +
             item.perTributario.slice(4, 6),
-          bill_status: "",
+          bill_status: TypeStatus.ACTIVO,
+          bill_status_payment: TypeStatusPayment.CONTADO,
           supplier_id: supplier ? supplier.id : null,
           company_id: company.id,
           user_id_created: user.id,
@@ -495,7 +506,8 @@ class SunatService {
             item.perTributario.slice(0, 4) +
             "-" +
             item.perTributario.slice(4, 6),
-          bill_status: "",
+          bill_status: TypeStatus.ACTIVO,
+          bill_status_payment: TypeStatusPayment.CONTADO,
           supplier_id: supplier ? supplier.id : null,
           company_id: company.id,
           user_id_created: user.id,
@@ -629,7 +641,8 @@ class SunatService {
             item.perTributario.slice(0, 4) +
             "-" +
             item.perTributario.slice(4, 6),
-          bill_status: "",
+          bill_status: TypeStatus.ACTIVO,
+          bill_status_payment: TypeStatusPayment.CONTADO,
           supplier_id: supplier ? supplier.id : null,
           company_id: company.id,
           user_id_created: user.id,
