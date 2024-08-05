@@ -205,34 +205,40 @@ class SunatService {
 
       const comprobantes = payload.registros as I_Document_Item[];
 
-      for (const item of comprobantes) {
-        // [pending] en este caso tenemos que validar los 4 tipos de documentos
-        const typeDocument = item.codTipoCDP;
+      if (comprobantes.length > 0) {
+        for (const item of comprobantes) {
+          // [pending] en este caso tenemos que validar los 4 tipos de documentos
+          const typeDocument = item.codTipoCDP;
 
-        // [note] se evalua a cada uno porque cada uno tiene una logica diferente
+          // [note] se evalua a cada uno porque cada uno tiene una logica diferente
 
-        if (typeDocument === typeDocumentSunat.FACTURA.code) {
-          await this.synchronizeBill(
-            item,
-            rucFromHeader,
-            tokenFromHeader,
-            selling
-          );
-        } else if (typeDocument === typeDocumentSunat.BOLETA_DEV_VENTA.code) {
-          await this.synchronizeTicket(
-            item,
-            rucFromHeader,
-            tokenFromHeader,
-            selling
-          );
-        } else if (typeDocument === typeDocumentSunat.NOTA_DE_CREDITO.code) {
-          await this.synchronizeCreditNote(
-            item,
-            rucFromHeader,
-            tokenFromHeader
-          );
-        } else if (typeDocument === typeDocumentSunat.NOTA_DE_DEBITO.code) {
-          await this.synchronizeDebitNote(item, rucFromHeader, tokenFromHeader);
+          if (typeDocument === typeDocumentSunat.FACTURA.code) {
+            await this.synchronizeBill(
+              item,
+              rucFromHeader,
+              tokenFromHeader,
+              selling
+            );
+          } else if (typeDocument === typeDocumentSunat.BOLETA_DEV_VENTA.code) {
+            await this.synchronizeTicket(
+              item,
+              rucFromHeader,
+              tokenFromHeader,
+              selling
+            );
+          } else if (typeDocument === typeDocumentSunat.NOTA_DE_CREDITO.code) {
+            await this.synchronizeCreditNote(
+              item,
+              rucFromHeader,
+              tokenFromHeader
+            );
+          } else if (typeDocument === typeDocumentSunat.NOTA_DE_DEBITO.code) {
+            await this.synchronizeDebitNote(
+              item,
+              rucFromHeader,
+              tokenFromHeader
+            );
+          }
         }
       }
 
