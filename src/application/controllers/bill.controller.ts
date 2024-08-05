@@ -8,6 +8,7 @@ class BillController {
     this.billService = new BillService();
   }
 
+  // este metodo busca todos los productos en general, tal vez deberiamos llevarlo a products
   findAll = async (request: Request, response: Response) => {
     const body = request.body;
 
@@ -33,6 +34,24 @@ class BillController {
     response.status(result.statusCode).json(result);
   };
 
+  findProducts = async (request: Request, response: Response) => {
+    // se sobre entiende que son los productos de factura y solo factura
+    const document_id = Number(request.params.document_id);
+    const token = request.get("Authorization") as string;
+    const ruc = request.get("ruc") as string;
+
+    const format = {
+      info: { document_id },
+      header: {
+        token,
+        ruc,
+      },
+    };
+
+    const result = await this.billService.findProducts(format);
+    response.status(result.statusCode).json(result);
+  };
+
   captureData = async (request: Request, response: Response) => {
     // necesitamos capturar todos los detalles y validarlo con los proveedores y facturas, en conclusion, primero registrar la factura y luego lo demas
   };
@@ -42,7 +61,7 @@ class BillController {
     const data = request.body;
     const token = request.get("Authorization") as string;
     const ruc = request.get("ruc") as string;
-    const result = await this.billService.create(data, ruc, token);
+    const result = await this.billService.createFromBody(data, ruc, token);
     response.status(result.statusCode).json(result);
   };
 

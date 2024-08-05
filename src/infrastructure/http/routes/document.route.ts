@@ -20,13 +20,13 @@ class CompanyRouter {
   }
 
   private initializeRoutes() {
-    this.postRoutes();
+    this.getRoutes();
   }
 
-  private postRoutes(): void {
-    this.router.post(
-      `${this._prefix}/test`,
-      this.authMiddleware.authorizationSuperAdmin,
+  private getRoutes(): void {
+    this.router.get(
+      `${this._prefix}/report-1`,
+      this.authMiddleware.authorizationAdmin,
       this.documentController.findAll
     );
   }

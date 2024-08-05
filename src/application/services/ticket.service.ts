@@ -1,4 +1,10 @@
-import { Company, TypeStatus, TypeStatusPayment, User } from "@prisma/client";
+import {
+  Company,
+  TypeDocument,
+  TypeStatus,
+  TypeStatusPayment,
+  User,
+} from "@prisma/client";
 import prisma from "../../infrastructure/database/prisma";
 import {
   I_CreateBill,
@@ -9,6 +15,7 @@ import CompanyService from "./company.service";
 import InfoService from "./info.service";
 import ResponseService from "./response.service";
 import SupplierService from "./supplier.service";
+import { T_Header } from "../models/types/methods.type";
 
 type T_FindAll = {
   body: {
@@ -19,10 +26,7 @@ type T_FindAll = {
     page: number;
     limit: number;
   };
-  header: {
-    ruc: string;
-    token: string;
-  };
+  header: T_Header;
 };
 
 type T_FindAllNoPagination = {
@@ -30,10 +34,14 @@ type T_FindAllNoPagination = {
     year: number | undefined;
     month: number | undefined;
   };
-  header: {
-    ruc: string;
-    token: string;
+  header: T_Header;
+};
+
+type T_FindProducts = {
+  info: {
+    document_id: number;
   };
+  header: T_Header;
 };
 
 class TicketService {
@@ -251,12 +259,46 @@ class TicketService {
             : TypeStatusPayment.CREDITO,
         currency_code: data.currency_code,
         supplier_id: data.supplier_id,
+        exchange_rate: data.exchange_rate,
       };
 
       const created = await prisma.ticket.create({ data: formData });
       return this.responseService.CreatedResponse(
         "Factura creada satisfactoriamente",
         created
+      );
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
+  findProducts = async (data: T_FindProducts) => {
+    try {
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        data.header.token,
+        data.header.ruc
+      );
+
+      if (responseInfo.error) return responseInfo;
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+
+      const products = await prisma.product.findMany({
+        where: {
+          document_type: TypeDocument.TICKET,
+          document_id: data.info.document_id,
+          status_deleted: false,
+        },
+        include: {
+          Supplier: true,
+        },
+      });
+      return this.responseService.SuccessResponse(
+        "Lista de productos",
+        products
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException(

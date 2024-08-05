@@ -18,6 +18,11 @@ class SunatController {
     response.status(result.statusCode).json(result);
   };
 
+  currencyRateDollar = async (request: Request, response: Response) => {
+    const result = await this.sunatService.currencyRateDollar();
+    response.status(result.statusCode).json(result);
+  };
+
   testDocuments = async (request: Request, response: Response) => {
     const token = request.get("Authorization") as string;
     const ruc = request.get("ruc") as string;

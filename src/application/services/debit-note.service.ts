@@ -261,6 +261,7 @@ class DebitNoteService {
             : TypeStatusPayment.CREDITO,
         currency_code: data.currency_code,
         supplier_id: data.supplier_id,
+        exchange_rate: data.exchange_rate,
       };
 
       const created = await prisma.debitNote.create({ data: formData });

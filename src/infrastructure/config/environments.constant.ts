@@ -16,4 +16,5 @@ export const environments = {
   CLIENT_SECRET: process.env.CLIENT_SECRET || "",
   USERNAME_SUNAT: process.env.USERNAME_SUNAT || "",
   PASSWORD_SUNAT: process.env.PASSWORD_SUNAT || "",
+  BASE_API_CURRENCY_RANGE: process.env.BASE_API_CURRENCY_RANGE || "",
 };

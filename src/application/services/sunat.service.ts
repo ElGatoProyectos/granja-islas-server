@@ -109,11 +109,24 @@ class SunatService {
     }
   };
 
-  findBills = async (ruc: string, key: string) => {
+  // [success] para el calcula de la tasa de cambio
+  currencyRateDollar = async () => {
     try {
-      const response = await this.apiService.post("", "", {});
+      const { data } = await this.apiService.getWithoutModule(
+        environments.BASE_API_CURRENCY_RANGE
+      );
+
+      const values = data.split("|");
+      const buying = Number(values[1]);
+
+      const selling = Number(values[2]);
+
+      return this.responseService.SuccessResponse("", { buying, selling });
     } catch (error) {
-      return this.responseService.InternalServerErrorException();
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
     }
   };
 
@@ -298,7 +311,8 @@ class SunatService {
           company_id: company.id,
           user_id_created: user.id,
           currency_code:
-            item.codMoneda === "PEN" ? TypeCurrency.PE : TypeCurrency.USD,
+            item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
+          exchange_rate: 0, //[error] evaluar esto, porque debe salir de la api de consulta ruc
         };
 
         // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
@@ -405,7 +419,8 @@ class SunatService {
           company_id: company.id,
           user_id_created: user.id,
           currency_code:
-            item.codMoneda === "PEN" ? TypeCurrency.PE : TypeCurrency.USD,
+            item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
+          exchange_rate: 0, //[error] evaluar esto, porque debe salir de la api de consulta ruc
         };
 
         // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
@@ -512,7 +527,8 @@ class SunatService {
           company_id: company.id,
           user_id_created: user.id,
           currency_code:
-            item.codMoneda === "PEN" ? TypeCurrency.PE : TypeCurrency.USD,
+            item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
+          exchange_rate: 0, //[error] evaluar esto, porque debe salir de la api de consulta ruc
         };
 
         // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
@@ -647,7 +663,8 @@ class SunatService {
           company_id: company.id,
           user_id_created: user.id,
           currency_code:
-            item.codMoneda === "PEN" ? TypeCurrency.PE : TypeCurrency.USD,
+            item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
+          exchange_rate: 0, //[error] evaluar esto, porque debe salir de la api de consulta ruc
         };
 
         // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token

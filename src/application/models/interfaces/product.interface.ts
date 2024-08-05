@@ -3,6 +3,12 @@ import { Product } from "@prisma/client";
 export interface I_CreateProduct
   extends Omit<
     Product,
+    "id" | "status_deleted" | "created_at" | "updated_at" | "slug"
+  > {}
+
+export interface I_CreateProductWithSlug
+  extends Omit<
+    Product,
     "id" | "status_deleted" | "created_at" | "updated_at"
   > {}
 export interface I_UpdateProduct

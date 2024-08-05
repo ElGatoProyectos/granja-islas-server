@@ -1,4 +1,5 @@
 import { Bill } from "@prisma/client";
+import { I_CreateProduct } from "./product.interface";
 
 export interface I_CreateBill
   extends Omit<Bill, "id" | "created_at" | "updated_at"> {}
@@ -17,8 +18,20 @@ export interface I_CreateBillFromBody
     | "num_serie"
     | "num_cpe"
     | "bill_status_payment"
+    | "base_amount"
   > {
   bill_status_payment: string;
+  products: T_ProductInBill[];
+}
+
+export interface T_ProductInBill {
+  title: string;
+  description?: string;
+  amount: number;
+  price: number;
+  currency_code: string;
+  unit_measure: string;
+  supplier_id?: number;
 }
 
 // model Bill {

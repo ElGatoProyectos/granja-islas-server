@@ -11,8 +11,14 @@ class DocumentController {
   findAll = async (request: Request, response: Response) => {
     const token = request.get("Authorization") as string;
     const ruc = request.get("Ruc") as string;
+    const year = Number(request.get("month"));
+    const month = Number(request.get("month"));
+
     const result = await this.documentService.findAllByAccumulated({
-      body: request.body,
+      params: {
+        year,
+        month,
+      },
       header: { ruc, token },
     });
     response.status(result.statusCode).json(result);

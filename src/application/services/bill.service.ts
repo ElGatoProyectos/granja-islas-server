@@ -1,28 +1,36 @@
-import { Company, TypeStatus, TypeStatusPayment, User } from "@prisma/client";
+import {
+  Company,
+  TypeCurrency,
+  TypeDocument,
+  TypeStatus,
+  TypeStatusPayment,
+  User,
+} from "@prisma/client";
 import prisma from "../../infrastructure/database/prisma";
 import {
   I_CreateBill,
   I_CreateBillFromBody,
+  T_ProductInBill,
 } from "../models/interfaces/bill.interface";
 import AuthService from "./auth.service";
 import CompanyService from "./company.service";
 import InfoService from "./info.service";
 import ResponseService from "./response.service";
 import SupplierService from "./supplier.service";
+import { T_Header, T_Pagination } from "../models/types/methods.type";
+import {
+  I_CreateProduct,
+  I_CreateProductWithSlug,
+} from "../models/interfaces/product.interface";
+import slugify from "slugify";
 
 type T_FindAll = {
   body: {
     year: number | undefined;
     month: number | undefined;
   };
-  pagination: {
-    page: number;
-    limit: number;
-  };
-  header: {
-    ruc: string;
-    token: string;
-  };
+  pagination: T_Pagination;
+  header: T_Header;
 };
 
 type T_FindAllNoPagination = {
@@ -30,11 +38,16 @@ type T_FindAllNoPagination = {
     year: number | undefined;
     month: number | undefined;
   };
-  header: {
-    ruc: string;
-    token: string;
-  };
+  header: T_Header;
 };
+
+type T_FindProducts = {
+  info: {
+    document_id: number;
+  };
+  header: T_Header;
+};
+
 class BillService {
   private responseService: ResponseService;
   private authService: AuthService;
@@ -222,8 +235,24 @@ class BillService {
           "El proveedor seleccionado no pertenece a la empresa"
         );
 
-      const igv = data.amount_base * 0.18;
-      const total = data.amount_base + igv;
+      let amount_base;
+
+      if (data.currency_code === "USD") {
+        amount_base = data.products.reduce(
+          (total: number, product: T_ProductInBill) =>
+            total + product.amount * product.price * data.exchange_rate,
+          0
+        );
+      } else {
+        amount_base = data.products.reduce(
+          (total: number, product: T_ProductInBill) =>
+            total + product.amount * product.price,
+          0
+        );
+      }
+
+      const igv = amount_base * 0.18;
+      const total = amount_base + igv;
 
       data.amount_paid = data.amount_paid | 0;
 
@@ -236,7 +265,7 @@ class BillService {
         issue_date: data.issue_date,
         expiration_date: data.expiration_date,
         period: data.period,
-        amount_base: data.amount_base,
+        amount_base,
         igv,
         total,
         amount_paid: data.amount_paid,
@@ -248,12 +277,78 @@ class BillService {
             : TypeStatusPayment.CREDITO,
         currency_code: data.currency_code,
         supplier_id: data.supplier_id,
+        exchange_rate: data.exchange_rate, //[error] evaluar esto, porque debe salir de la api de consulta ruc
       };
 
+      console.log(formData);
+
+      // de aqui deberia crear todos los productos
+
       const created = await prisma.bill.create({ data: formData });
+
+      // [message] Ahora creamos los productos que llegaron por la factura
+
+      const products: I_CreateProductWithSlug[] = data.products.map(
+        (product: T_ProductInBill) => {
+          const slug = slugify(product.title, { lower: true });
+
+          const formatProduct = {
+            title: product.title,
+            description: product.description || "",
+            amount: product.amount,
+            document_id: created.id,
+            document_type: TypeDocument.BILL,
+            price: product.price,
+            supplier_id: data.supplier_id,
+            unit_measure: product.unit_measure,
+            slug,
+          };
+          return formatProduct;
+        }
+      );
+
+      const createdProducts = await prisma.product.createMany({
+        data: products,
+      });
+
       return this.responseService.CreatedResponse(
         "Factura creada satisfactoriamente",
         created
+      );
+    } catch (error) {
+      console.log(error);
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
+  // [pending]
+  findProducts = async (data: T_FindProducts) => {
+    try {
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        data.header.token,
+        data.header.ruc
+      );
+
+      if (responseInfo.error) return responseInfo;
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+
+      const products = await prisma.product.findMany({
+        where: {
+          document_type: TypeDocument.BILL,
+          document_id: data.info.document_id,
+          status_deleted: false,
+        },
+        include: {
+          Supplier: true,
+        },
+      });
+      return this.responseService.SuccessResponse(
+        "Lista de productos",
+        products
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException(

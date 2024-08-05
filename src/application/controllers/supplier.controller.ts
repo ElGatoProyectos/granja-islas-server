@@ -13,12 +13,14 @@ class SupplierController {
     const ruc = request.get("ruc") as string;
     const page = parseInt(request.query.page as string) || 1;
     const limit = parseInt(request.query.limit as string) || 20;
+    const supplier_group = request.query.supplier_group as string;
     const nameFilter = request.query.name as string;
     const result = await this.supplierService.findAll(
       ruc,
       page,
       limit,
-      nameFilter
+      nameFilter,
+      supplier_group
     );
     response.status(result.statusCode).json(result);
   };

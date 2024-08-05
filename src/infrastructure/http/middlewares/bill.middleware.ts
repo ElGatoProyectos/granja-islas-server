@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import ResponseService from "../../../application/services/response.service";
-import { createBillDTO, getBillsDTO } from "./dto/bill.dto";
+import { createBillDTO, getBillsDTO, newFormatBillDTO } from "./dto/bill.dto";
 
 class BillMiddleware {
   private responseService: ResponseService;
@@ -16,7 +16,7 @@ class BillMiddleware {
   ) => {
     try {
       const body = request.body;
-      createBillDTO.parse(body);
+      newFormatBillDTO.parse(body);
       nextFunction();
     } catch (error) {
       const customError = this.responseService.BadRequestException(

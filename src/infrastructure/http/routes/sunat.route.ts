@@ -40,6 +40,11 @@ class SunatRouter {
       this.accessDataMiddleware.validateCredentials,
       this.sunatController.testDocuments
     );
+
+    this.router.get(
+      `${this._prefix}/currency-rate-dollar`,
+      this.sunatController.currencyRateDollar
+    );
   }
 
   private postRoutes() {

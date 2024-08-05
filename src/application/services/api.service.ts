@@ -2,6 +2,10 @@ import axios from "axios";
 import qs from "qs";
 
 class ApiService {
+  getWithoutModule = async (base_api: string) => {
+    return await axios.get(`${base_api}`);
+  };
+
   get = async (base_api: string, module: string) => {
     return await axios.get(`${base_api}/${module}}`);
   };

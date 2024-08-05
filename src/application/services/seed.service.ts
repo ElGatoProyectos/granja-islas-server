@@ -51,7 +51,7 @@ export default class SeedService extends BaseController {
           user: "hans23232",
           phone: "40343040",
           country_code: "+51",
-          ruc: "12345645645",
+          ruc: "20535014940",
           key: "adawdadadwad",
         },
         {

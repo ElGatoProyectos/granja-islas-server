@@ -84,7 +84,8 @@ class SupplierService {
     ruc: string,
     page: number,
     limit: number,
-    nameFilter?: string
+    nameFilter?: string,
+    supplier_group?: string
   ) => {
     const skip = (page - 1) * limit;
     try {
@@ -114,6 +115,13 @@ class SupplierService {
             mode: "insensitive",
           };
         }
+      }
+      // [message] filtros por el grupo de id's
+      if (supplier_group) {
+        const suppliersId = supplier_group.split(",").map(Number);
+        filters.id = {
+          in: suppliersId,
+        };
       }
 
       const [suppliers, total] = await prisma.$transaction([

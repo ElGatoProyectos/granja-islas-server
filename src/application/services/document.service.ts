@@ -1,3 +1,4 @@
+import { T_Header } from "../models/types/methods.type";
 import BillService from "./bill.service";
 import CreditNoteService from "./credit-note.service";
 import DebitNoteService from "./debit-note.service";
@@ -5,14 +6,19 @@ import ResponseService from "./response.service";
 import TicketService from "./ticket.service";
 
 type T_FindAlNopagination = {
-  body: {
+  params: {
     year: number | undefined;
     month: number | undefined;
   };
-  header: {
-    ruc: string;
-    token: string;
+  header: T_Header;
+};
+
+type T_ExportExcel = {
+  params: {
+    date: string | undefined;
+    supplier_group: string | undefined;
   };
+  header: T_Header;
 };
 
 class DocumentService {
@@ -30,8 +36,11 @@ class DocumentService {
     this.responseService = new ResponseService();
   }
 
-  findAllByAccumulated = async ({ body, header }: T_FindAlNopagination) => {
-    console.log(body);
+  findAllByAccumulated = async ({ params, header }: T_FindAlNopagination) => {
+    const body = {
+      year: params.year,
+      month: params.month,
+    };
     try {
       const responseBillsAccumulated =
         await this.billService.findAllByAccumulated({ body, header });
