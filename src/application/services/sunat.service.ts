@@ -205,7 +205,7 @@ class SunatService {
 
       const comprobantes = payload.registros as I_Document_Item[];
 
-      if (comprobantes.length > 0) {
+      if (comprobantes) {
         for (const item of comprobantes) {
           // [pending] en este caso tenemos que validar los 4 tipos de documentos
           const typeDocument = item.codTipoCDP;
