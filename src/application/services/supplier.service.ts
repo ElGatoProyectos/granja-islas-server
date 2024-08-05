@@ -85,7 +85,7 @@ class SupplierService {
     page: number,
     limit: number,
     nameFilter?: string,
-    supplier_group?: string
+    status_group?: string
   ) => {
     const skip = (page - 1) * limit;
     try {
@@ -117,10 +117,10 @@ class SupplierService {
         }
       }
       // [message] filtros por el grupo de id's
-      if (supplier_group) {
-        const suppliersId = supplier_group.split(",").map(Number);
-        filters.id = {
-          in: suppliersId,
+      if (status_group) {
+        const status = status_group.split(",").map(String);
+        filters.business_status = {
+          in: status,
         };
       }
 

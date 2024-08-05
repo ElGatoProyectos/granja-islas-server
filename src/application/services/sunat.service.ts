@@ -333,7 +333,7 @@ class SunatService {
             business_direction: "",
             business_name: extractCompanyDetails(item.nomRazonSocialProveedor)
               .businessName,
-            business_status: "",
+            business_status: "ACTIVO",
             business_type: extractCompanyDetails(item.nomRazonSocialProveedor)
               .businessType,
             company_id: company.id,
@@ -472,7 +472,7 @@ class SunatService {
             business_direction: "",
             business_name: extractCompanyDetails(item.nomRazonSocialProveedor)
               .businessName,
-            business_status: "",
+            business_status: "ACTIVO",
             business_type: extractCompanyDetails(item.nomRazonSocialProveedor)
               .businessType,
             company_id: company.id,
@@ -603,7 +603,8 @@ class SunatService {
             business_direction: "",
             business_name: extractCompanyDetails(item.nomRazonSocialProveedor)
               .businessName,
-            business_status: "",
+            business_status: "ACTIVO",
+
             business_type: extractCompanyDetails(item.nomRazonSocialProveedor)
               .businessType,
             company_id: company.id,
@@ -737,7 +738,8 @@ class SunatService {
             business_direction: "",
             business_name: extractCompanyDetails(item.nomRazonSocialProveedor)
               .businessName,
-            business_status: "",
+            business_status: "ACTIVO",
+
             business_type: extractCompanyDetails(item.nomRazonSocialProveedor)
               .businessType,
             company_id: company.id,
