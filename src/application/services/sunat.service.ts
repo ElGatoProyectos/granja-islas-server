@@ -365,7 +365,7 @@ class SunatService {
           expiration_date: convertStringToDate(item.fecVencPag),
           amount_base: item.montos.mtoBIGravadaDG || 0,
           igv: item.montos.mtoIgvIpmDG || 0,
-          total: item.montos.mtoBIGravadaDG || 0,
+          total: item.montos.mtoTotalCp || 0,
           amount_pending: 0,
           amount_paid: 0,
           period:
@@ -504,7 +504,7 @@ class SunatService {
           expiration_date: convertStringToDate(item.fecVencPag),
           amount_base: item.montos.mtoBIGravadaDG || 0,
           igv: item.montos.mtoIgvIpmDG || 0,
-          total: item.montos.mtoBIGravadaDG || 0,
+          total: item.montos.mtoTotalCp || 0,
           amount_pending: 0,
           amount_paid: 0,
           period:
@@ -635,7 +635,7 @@ class SunatService {
           expiration_date: convertStringToDate(item.fecVencPag),
           amount_base: item.montos.mtoBIGravadaDG || 0,
           igv: item.montos.mtoIgvIpmDG || 0,
-          total: item.montos.mtoBIGravadaDG || 0,
+          total: item.montos.mtoTotalCp || 0,
           amount_pending: 0,
           amount_paid: 0,
           period:
@@ -772,7 +772,7 @@ class SunatService {
 
           amount_base: item.montos.mtoBIGravadaDG || 0,
           igv: item.montos.mtoIgvIpmDG || 0,
-          total: item.montos.mtoBIGravadaDG || 0,
+          total: item.montos.mtoTotalCp || 0,
           amount_pending: 0,
           amount_paid: 0,
           period:
