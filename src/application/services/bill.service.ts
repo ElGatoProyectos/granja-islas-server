@@ -168,6 +168,8 @@ class BillService {
         company: Company;
       } = responseValidation.payload;
 
+      console.log("body===", body);
+
       let period: string;
       if (body.year && body.month) {
         const formattedMonth = body.month.toString().padStart(2, "0");

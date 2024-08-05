@@ -11,8 +11,9 @@ class DocumentController {
   findAll = async (request: Request, response: Response) => {
     const token = request.get("Authorization") as string;
     const ruc = request.get("Ruc") as string;
-    const year = Number(request.get("month"));
-    const month = Number(request.get("month"));
+    console.log(request.get("year"));
+    const year = Number(request.query.year);
+    const month = Number(request.query.month);
 
     const result = await this.documentService.findAllByAccumulated({
       params: {
