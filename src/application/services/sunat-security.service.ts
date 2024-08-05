@@ -26,7 +26,6 @@ class SunatSecurityService {
         tokenFromHeader,
         rucFromHeader
       );
-
       if (responseInfo.error) return responseInfo;
       const { company, user }: { company: Company; user: User } =
         responseInfo.payload;
@@ -34,12 +33,12 @@ class SunatSecurityService {
       // [note] por ahora sacaremos de frente la data de la base de datos, pero es recomendable que se encripte
 
       const data = {
-        grant_type: "client_credentials",
-        scope: "https://api.sunat.gob.pe/v1/contribuyente/contribuyentes",
+        grant_type: "password",
+        scope: "https://api-cpe.sunat.gob.pe",
         client_id: company.client_id,
         client_secret: company.client_secret,
-        // username: company.user,
-        // password: company.key,
+        username: company.user,
+        password: company.key,
       };
       const response = await this.apiService.post_x_www_urlencoded(
         environments.BASE_API_GET_TOKEN,

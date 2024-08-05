@@ -7,6 +7,7 @@ import {
   Company,
   Supplier,
   TypeCurrency,
+  TypeDocument,
   TypeStatus,
   TypeStatusPayment,
   User,
@@ -17,7 +18,11 @@ import { I_CreateSupplier } from "../models/interfaces/supplier.interface";
 import { I_CreateBill } from "../models/interfaces/bill.interface";
 import { I_ItemsBill } from "../models/interfaces/company.interface";
 import slugify from "slugify";
-import { I_CreateProduct } from "../models/interfaces/product.interface";
+import {
+  I_CreateProduct,
+  I_CreateProductWithSlug,
+  I_ResponseDetail,
+} from "../models/interfaces/product.interface";
 import ProductService from "./product.service";
 import prisma from "../../infrastructure/database/prisma";
 import {
@@ -195,6 +200,9 @@ class SunatService {
         tokenFromHeader
       );
 
+      const exchange_range = await this.currencyRateDollar();
+      const { buying, selling } = exchange_range.payload;
+
       const comprobantes = payload.registros as I_Document_Item[];
 
       for (const item of comprobantes) {
@@ -204,9 +212,19 @@ class SunatService {
         // [note] se evalua a cada uno porque cada uno tiene una logica diferente
 
         if (typeDocument === typeDocumentSunat.FACTURA.code) {
-          await this.synchronizeBill(item, rucFromHeader, tokenFromHeader);
+          await this.synchronizeBill(
+            item,
+            rucFromHeader,
+            tokenFromHeader,
+            selling
+          );
         } else if (typeDocument === typeDocumentSunat.BOLETA_DEV_VENTA.code) {
-          await this.synchronizeTicket(item, rucFromHeader, tokenFromHeader);
+          await this.synchronizeTicket(
+            item,
+            rucFromHeader,
+            tokenFromHeader,
+            selling
+          );
         } else if (typeDocument === typeDocumentSunat.NOTA_DE_CREDITO.code) {
           await this.synchronizeCreditNote(
             item,
@@ -222,6 +240,7 @@ class SunatService {
         `Actualización realizada con éxito`
       );
     } catch (error) {
+      console.log(error);
       return this.responseService.InternalServerErrorException(
         undefined,
         error
@@ -231,11 +250,52 @@ class SunatService {
     }
   };
 
+  registerProductsInSynchronize = async (
+    documents: I_ResponseDetail[],
+    supplier: Supplier,
+    document_type: TypeDocument,
+    document_id: number
+  ) => {
+    try {
+      for (const document of documents) {
+        const items = document.informacionItems;
+
+        for (const product of items) {
+          const slug = slugify(product.desItem, { lower: true });
+          const formatProduct: I_CreateProductWithSlug = {
+            title: product.desItem,
+            amount: product.cntItems,
+            price: product.mtoValUnitario,
+            slug,
+            supplier_id: supplier ? supplier.id : null,
+            description: "",
+            unit_measure: product.desUnidadMedida,
+            document_type,
+            document_id,
+          };
+
+          const responseCreateProduct = await this.productService.create(
+            formatProduct
+          );
+          if (responseCreateProduct.error) return responseCreateProduct;
+        }
+      }
+
+      return this.responseService.SuccessResponse();
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
   // [success]
   synchronizeBill = async (
     item: I_Document_Item,
     rucFromHeader: string,
-    tokenFromHeader: string
+    tokenFromHeader: string,
+    selling: number
   ) => {
     try {
       // [note] data de usuario y empresa actual
@@ -260,7 +320,8 @@ class SunatService {
           rucFromHeader
         );
 
-        let supplier: Supplier | null = responseSupplier.payload;
+        let supplier: Supplier = responseSupplier.payload;
+
         if (responseSupplier.error && responseSupplier.statusCode === 404) {
           const formatDataSupplier: I_CreateSupplier = {
             business_direction: "",
@@ -312,7 +373,7 @@ class SunatService {
           user_id_created: user.id,
           currency_code:
             item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
-          exchange_rate: 0, //[error] evaluar esto, porque debe salir de la api de consulta ruc
+          exchange_rate: selling,
         };
 
         // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
@@ -327,12 +388,42 @@ class SunatService {
         const formatFetchDetail = {
           type: "RECIBIDO",
           payment_type: typeDocumentSunat.FACTURA.description,
-          ruc: rucFromHeader,
+          ruc: item.numDocIdentidadProveedor,
           serie: item.numSerieCDP,
           number: Number(item.numCDP),
         };
+
+        // console.log(formatFetchDetail);
+
+        const response = await this.apiService.post(
+          environments.BASE_API_QUERY,
+          "v1/comprobantes/detalle",
+          formatFetchDetail
+        );
+        const products = response.data.comprobantes as I_ResponseDetail[];
+
+        // if(response.data)
+
+        // console.log("response products", response);
+
+        // console.log(products);
+
+        const createdProducts = await this.registerProductsInSynchronize(
+          products,
+          supplier,
+          TypeDocument.TICKET,
+          responseCreateBill.payload.id
+        );
+        if (createdProducts?.error)
+          return this.responseService.BadRequestException(
+            "Error al registrar los productos, por favor verifique los campos"
+          );
+        return this.responseService.SuccessResponse(
+          "Sincronizacion realizada con exito, verifique los productos registrados"
+        );
       }
     } catch (error) {
+      console.log(error);
       return this.responseService.InternalServerErrorException(
         undefined,
         error
@@ -343,7 +434,8 @@ class SunatService {
   synchronizeTicket = async (
     item: I_Document_Item,
     rucFromHeader: string,
-    tokenFromHeader: string
+    tokenFromHeader: string,
+    selling: number
   ) => {
     try {
       // [note] data de usuario y empresa actual
@@ -368,7 +460,7 @@ class SunatService {
           rucFromHeader
         );
 
-        let supplier: Supplier | null = responseSupplier.payload;
+        let supplier: Supplier = responseSupplier.payload;
         if (responseSupplier.error && responseSupplier.statusCode === 404) {
           const formatDataSupplier: I_CreateSupplier = {
             business_direction: "",
@@ -420,7 +512,7 @@ class SunatService {
           user_id_created: user.id,
           currency_code:
             item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
-          exchange_rate: 0, //[error] evaluar esto, porque debe salir de la api de consulta ruc
+          exchange_rate: selling, //[error] evaluar esto, porque debe salir de la api de consulta ruc
         };
 
         // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
@@ -439,6 +531,28 @@ class SunatService {
           serie: item.numSerieCDP,
           number: Number(item.numCDP),
         };
+
+        const response = await this.apiService.post(
+          environments.BASE_API_QUERY,
+          "v1/comprobante/detalle",
+          formatFetchDetail
+        );
+
+        const products = response.data.informacionItems as I_ResponseDetail[];
+
+        const createdProducts = await this.registerProductsInSynchronize(
+          products,
+          supplier,
+          TypeDocument.TICKET,
+          responseCreateTicket.payload.id
+        );
+        if (createdProducts?.error)
+          return this.responseService.BadRequestException(
+            "Error al registrar los productos, por favor verifique los campos"
+          );
+        return this.responseService.SuccessResponse(
+          "Sincronizacion realizada con exito, verifique los productos registrados"
+        );
       }
     } catch (error) {
       return this.responseService.InternalServerErrorException(

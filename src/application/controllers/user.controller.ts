@@ -81,6 +81,8 @@ class UserController {
             request.body;
             const { "user-profile": userProfile, ...restData } = request.body;
 
+            console.log(restData);
+
             // [message] solo deberia usarse un metodo, y evaluar si soy admin, user o superadmin, por ende, deberia recibir el token por header
             const id = Number(request.params.id);
             const token = request.get("Authorization") as string;

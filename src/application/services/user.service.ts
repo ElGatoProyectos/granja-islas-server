@@ -148,6 +148,8 @@ class UserService {
       if (data.password && data.password !== "") {
         const newPassword = bcrypt.hashSync(data.password, 11);
         formatData = { ...data, password: newPassword };
+      } else {
+        formatData = { ...data };
       }
 
       if (user.role === E_Role.SUPERADMIN) {
