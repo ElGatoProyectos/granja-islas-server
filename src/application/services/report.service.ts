@@ -244,38 +244,46 @@ class ReportService {
       }
 
       let filtereds = {
-        period: period, // Asegurarte que `period` esté en la estructura correcta
+        period: period,
         Supplier: { company_id: company.id },
       };
 
-      const detailProducts = await prisma.bill.findMany({
+      const detailBills = await prisma.bill.findMany({
         where: filtereds,
-        include: { Supplier: true },
       });
 
-      const groupedSuppliers = detailProducts.reduce((acc: any, bill: any) => {
-        const supplierId = bill.supplier_id;
-        const supplier = bill.Supplier;
+      const detailProducts = await prisma.product.findMany({
+        where: { document_id: { in: detailBills.map((item: any) => item.id) } },
+      });
 
-        if (!acc[supplierId]) {
-          acc[supplierId] = {
-            ruc: supplier.ruc,
-            business_name: supplier.business_name,
-            total: 0,
-          };
+      const detailLabels = await prisma.detailProductLabel.findMany({
+        where: {
+          product_id: { in: detailProducts.map((item: any) => item.id) },
+        },
+        include: { Label: true, Product: true },
+      });
+
+      const labelTotals = detailLabels.reduce((acc: any, current: any) => {
+        const labelName = current.Label.title;
+        const bill = detailBills.find(
+          (bill: any) => bill.id === current.Product.document_id
+        );
+        const totalBillAmount = bill ? bill.total : 0;
+
+        if (!acc[labelName]) {
+          acc[labelName] = 0;
         }
 
-        acc[supplierId].total += bill.total;
-
+        acc[labelName] += totalBillAmount;
         return acc;
       }, {});
 
-      console.log(filtereds);
+      const topLabels = Object.entries(labelTotals)
+        .map(([label, total]: any) => ({ label, total }))
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 3);
 
-      const result = Object.values(groupedSuppliers);
-
-      result.sort((a: any, b: any) => b.total - a.total);
-      return this.responseService.SuccessResponse("Report detalle", result);
+      return this.responseService.SuccessResponse("Report detalle", topLabels);
     } catch (error) {
       return this.responseService.InternalServerErrorException(
         undefined,

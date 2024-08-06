@@ -62,9 +62,10 @@ class ReportController {
         filter_month,
       },
     };
-    const result = await this.reportService.detailGeneralAnalysis_Supplier(
-      options
-    );
+    const result =
+      await this.reportService.detailGeneralAnalysis_ExpenditureComposition(
+        options
+      );
     response.status(result.statusCode).json(result);
   };
 }

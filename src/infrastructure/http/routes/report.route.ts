@@ -42,7 +42,7 @@ class ReportRoute {
       `${this._prefix}/general-analysis-detail-expenditure-composition`,
       this.authMiddleware.authorizationAdmin,
       this.accessDataMiddleware.validateCredentials,
-      this.reportController.detailGeneralAnalysis_Supplier
+      this.reportController.detailGeneralAnalysis_ExpenditureComposition
     );
   }
 }
