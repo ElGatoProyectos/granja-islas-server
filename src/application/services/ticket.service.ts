@@ -116,6 +116,7 @@ class TicketService {
 
       const response = await prisma.ticket.findMany({
         where: { company_id: company.id, ...dynamicFilter },
+        include: { Supplier: true },
       });
 
       return this.responseService.SuccessResponse("Lista de Boletas", response);

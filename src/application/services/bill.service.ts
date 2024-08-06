@@ -129,6 +129,7 @@ class BillService {
 
       const response = await prisma.bill.findMany({
         where: { company_id: company.id, ...dynamicFilter },
+        include: { Supplier: true },
       });
 
       return this.responseService.SuccessResponse(

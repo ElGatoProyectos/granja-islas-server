@@ -118,6 +118,7 @@ class CreditNoteService {
 
       const response = await prisma.creditNote.findMany({
         where: { company_id: company.id, ...dynamicFilter },
+        include: { Supplier: true },
       });
 
       return this.responseService.SuccessResponse("Lista de Boletas", response);
