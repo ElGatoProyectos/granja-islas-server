@@ -39,7 +39,7 @@ class AuthService {
           "Error al validar credenciales"
         );
       const token = jwt.sign({ id: user.id, role: user.role }, jwt_token, {
-        expiresIn: "24h",
+        expiresIn: "30d",
       });
       const responseFormat = {
         user: {

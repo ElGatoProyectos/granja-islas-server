@@ -8,10 +8,9 @@ class DocumentController {
     this.documentService = new DocumentService();
   }
 
-  findAll = async (request: Request, response: Response) => {
+  findAllAccumulated = async (request: Request, response: Response) => {
     const token = request.get("Authorization") as string;
-    const ruc = request.get("Ruc") as string;
-    console.log(request.get("year"));
+    const ruc = request.get("ruc") as string;
     const year = Number(request.query.year);
     const month = Number(request.query.month);
 
@@ -19,6 +18,33 @@ class DocumentController {
       params: {
         year,
         month,
+      },
+      header: { ruc, token },
+    });
+    response.status(result.statusCode).json(result);
+  };
+
+  findAll = async (request: Request, response: Response) => {
+    const token = request.get("Authorization") as string;
+    const ruc = request.get("ruc") as string;
+    const year = Number(request.query.year);
+    const month = Number(request.query.month);
+    const supplier_group_id = request.query.supplier_group_id as string;
+    const filter = request.query.filter as string;
+
+    const page = parseInt(request.query.page as string) || 1;
+    const limit = parseInt(request.query.limit as string) || 20;
+
+    const result = await this.documentService.findAll({
+      params: {
+        year,
+        month,
+        supplier_group_id,
+        filter,
+      },
+      pagination: {
+        page,
+        limit,
       },
       header: { ruc, token },
     });

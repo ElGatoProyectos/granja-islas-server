@@ -27,6 +27,12 @@ class CompanyRouter {
     this.router.get(
       `${this._prefix}/report-1`,
       this.authMiddleware.authorizationAdmin,
+      this.documentController.findAllAccumulated
+    );
+
+    this.router.get(
+      `${this._prefix}`,
+      this.authMiddleware.authorizationAdmin,
       this.documentController.findAll
     );
   }

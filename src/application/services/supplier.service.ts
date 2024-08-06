@@ -9,6 +9,22 @@ import AuthService from "./auth.service";
 import CompanyService from "./company.service";
 import validator from "validator";
 import InfoService from "./info.service";
+import { T_Header } from "../models/types/methods.type";
+
+type T_FindProducts = {
+  params: {
+    supplier_id: number;
+    year: number | undefined;
+    month: number | undefined;
+    label_group_id: string | undefined;
+    filter: string | undefined;
+  };
+  pagination: {
+    page: number;
+    limit: number;
+  };
+  headers: T_Header;
+};
 
 class SupplierService {
   private responseService: ResponseService;
@@ -203,6 +219,113 @@ class SupplierService {
       return this.responseService.SuccessResponse(
         "Proveedor encontrado",
         supplier
+      );
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
+  findProducts = async (data: T_FindProducts) => {
+    try {
+      const skip = (data.pagination.page - 1) * data.pagination.limit;
+
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        data.headers.token,
+        data.headers.ruc
+      );
+      if (responseInfo.error) return responseInfo;
+
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+
+      const supplier = await prisma.supplier.findFirst({
+        where: {
+          id: data.params.supplier_id,
+          company_id: company.id,
+          status_deleted: false,
+        },
+      });
+
+      if (!supplier)
+        return this.responseService.NotFoundException(
+          "Proveedor no encontrado"
+        );
+
+      let dynamicFilter: any = {};
+
+      let period: string = "";
+      if (data.params.year && data.params.month) {
+        const formattedMonth = data.params.month.toString().padStart(2, "0");
+        period = `${data.params.year}-${formattedMonth}`;
+
+        const documents = await prisma.bill.findMany({
+          where: {
+            supplier_id: data.params.supplier_id,
+            company_id: company.id,
+            period,
+          },
+        });
+
+        dynamicFilter.document_id = {
+          in: documents.map((doc) => doc.id),
+        };
+      }
+
+      if (data.params.filter) {
+        dynamicFilter.title = {
+          contains: data.params.filter,
+          mode: "insensitive",
+        };
+      }
+
+      if (data.params.label_group_id) {
+        const ids = data.params.label_group_id.split(",").map(Number);
+        const labels = await prisma.detailProductLabel.findMany({
+          where: { product_label_id: { in: ids } },
+        });
+        dynamicFilter.id = {
+          in: labels.map((label) => label.product_id),
+        };
+      }
+
+      console.log(dynamicFilter);
+
+      const [products, total] = await prisma.$transaction([
+        prisma.product.findMany({
+          where: {
+            supplier_id: data.params.supplier_id,
+            status_deleted: false,
+            ...dynamicFilter,
+          },
+          orderBy: { id: "desc" },
+          skip,
+          take: data.pagination.limit,
+        }),
+        prisma.product.count({
+          where: {
+            supplier_id: data.params.supplier_id,
+            status_deleted: false,
+            ...dynamicFilter,
+          },
+        }),
+      ]);
+
+      const pageCount = Math.ceil(total / data.pagination.limit);
+
+      const formatData = {
+        total,
+        page: data.pagination.page,
+        limit: data.pagination.limit,
+        pageCount,
+        data: products,
+      };
+
+      return this.responseService.SuccessResponse(
+        "Lista de productos",
+        formatData
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException(

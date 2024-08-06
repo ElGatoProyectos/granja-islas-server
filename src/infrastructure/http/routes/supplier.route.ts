@@ -41,6 +41,13 @@ class SupplierRouter {
       this.authMiddleware.authorizationUser,
       this.supplierController.findById
     );
+
+    this.router.get(
+      `${this._prefix}/:id/products`,
+      this.accessDataMiddleware.validateCredentials,
+      this.authMiddleware.authorizationUser,
+      this.supplierController.findProducts
+    );
   }
 
   private postRoutes() {

@@ -14,10 +14,8 @@ type T_FindAll = {
   body: {
     year: number | undefined;
     month: number | undefined;
-  };
-  pagination: {
-    page: number;
-    limit: number;
+    supplier_group_id: string | undefined;
+    filter: string | undefined;
   };
   header: {
     ruc: string;
@@ -72,7 +70,7 @@ class DebitNoteService {
   };
 
   // [success]
-  findAll = async ({ body, pagination, header }: T_FindAll) => {
+  findAll = async ({ body, header }: T_FindAll) => {
     try {
       const responseValidation = await this.infoService.getCompanyAndUser(
         header.token,
@@ -101,41 +99,34 @@ class DebitNoteService {
         period = `${date.getFullYear()}-${formattedMonth}`;
       }
 
-      const skip = (pagination.page - 1) * pagination.limit;
+      let dynamicFilter: any = {};
 
-      const [debitNotes, total] = await prisma.$transaction([
-        prisma.debitNote.findMany({
-          where: { period, company_id: company.id },
-          skip,
-          take: pagination.limit,
-        }),
-        prisma.debitNote.count({
-          where: { period, company_id: company.id },
-        }),
-      ]);
+      if (body.supplier_group_id) {
+        const supplier_ids = body.supplier_group_id.split(",").map(Number);
+        dynamicFilter.supplier_id = {
+          in: supplier_ids,
+        };
+      }
+      if (body.filter) {
+        dynamicFilter.code = {
+          contains: body.filter,
+          mode: "insensitive",
+        };
+      }
 
-      const pageCount = Math.ceil(total / pagination.limit);
+      const response = await prisma.debitNote.findMany({
+        where: { period, company_id: company.id, ...dynamicFilter },
+      });
 
-      const formatData = {
-        total,
-        page: pagination.page,
-        perPage: pagination.limit,
-        pageCount,
-        data: debitNotes,
-      };
-
-      return this.responseService.SuccessResponse(
-        "Lista de notas de credito",
-        formatData
-      );
+      return this.responseService.SuccessResponse("Lista de Boletas", response);
     } catch (error) {
+      console.log(error);
       return this.responseService.InternalServerErrorException(
         undefined,
         error
       );
     }
   };
-
   findAllByAccumulated = async ({ body, header }: T_FindAllNoPagination) => {
     try {
       const responseValidation = await this.infoService.getCompanyAndUser(

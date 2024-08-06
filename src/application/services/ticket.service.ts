@@ -21,10 +21,8 @@ type T_FindAll = {
   body: {
     year: number | undefined;
     month: number | undefined;
-  };
-  pagination: {
-    page: number;
-    limit: number;
+    supplier_group_id: string | undefined;
+    filter: string | undefined;
   };
   header: T_Header;
 };
@@ -76,7 +74,7 @@ class TicketService {
   };
 
   // [success]
-  findAll = async ({ body, pagination, header }: T_FindAll) => {
+  findAll = async ({ body, header }: T_FindAll) => {
     try {
       const responseValidation = await this.infoService.getCompanyAndUser(
         header.token,
@@ -105,34 +103,28 @@ class TicketService {
         period = `${date.getFullYear()}-${formattedMonth}`;
       }
 
-      const skip = (pagination.page - 1) * pagination.limit;
+      let dynamicFilter: any = {};
 
-      const [tickets, total] = await prisma.$transaction([
-        prisma.ticket.findMany({
-          where: { period, company_id: company.id },
-          skip,
-          take: pagination.limit,
-        }),
-        prisma.ticket.count({
-          where: { period, company_id: company.id },
-        }),
-      ]);
+      if (body.supplier_group_id) {
+        const supplier_ids = body.supplier_group_id.split(",").map(Number);
+        dynamicFilter.supplier_id = {
+          in: supplier_ids,
+        };
+      }
+      if (body.filter) {
+        dynamicFilter.code = {
+          contains: body.filter,
+          mode: "insensitive",
+        };
+      }
 
-      const pageCount = Math.ceil(total / pagination.limit);
+      const response = await prisma.ticket.findMany({
+        where: { period, company_id: company.id, ...dynamicFilter },
+      });
 
-      const formatData = {
-        total,
-        page: pagination.page,
-        perPage: pagination.limit,
-        pageCount,
-        data: tickets,
-      };
-
-      return this.responseService.SuccessResponse(
-        "Lista de boletas",
-        formatData
-      );
+      return this.responseService.SuccessResponse("Lista de Boletas", response);
     } catch (error) {
+      console.log(error);
       return this.responseService.InternalServerErrorException(
         undefined,
         error

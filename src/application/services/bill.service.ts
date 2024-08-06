@@ -28,8 +28,9 @@ type T_FindAll = {
   body: {
     year: number | undefined;
     month: number | undefined;
+    supplier_group_id: string | undefined;
+    filter: string | undefined;
   };
-  pagination: T_Pagination;
   header: T_Header;
 };
 
@@ -86,7 +87,7 @@ class BillService {
   };
 
   // [success]
-  findAll = async ({ body, pagination, header }: T_FindAll) => {
+  findAll = async ({ body, header }: T_FindAll) => {
     try {
       const responseValidation = await this.infoService.getCompanyAndUser(
         header.token,
@@ -106,43 +107,42 @@ class BillService {
       let period: string;
       if (body.year && body.month) {
         const formattedMonth = body.month.toString().padStart(2, "0");
-        period = `${formattedMonth}/${body.year}`;
+        period = `${body.year}-${formattedMonth}`;
       } else {
         const date = new Date();
         const formattedMonth = (date.getMonth() + 1)
           .toString()
           .padStart(2, "0");
-        period = `${formattedMonth}/${date.getFullYear()}`;
+        period = `${date.getFullYear()}-${formattedMonth}`;
       }
 
-      const skip = (pagination.page - 1) * pagination.limit;
+      let dynamicFilter: any = {};
 
-      const [bills, total] = await prisma.$transaction([
-        prisma.bill.findMany({
-          where: { period, company_id: company.id },
-          skip,
-          take: pagination.limit,
-        }),
-        prisma.bill.count({
-          where: { period, company_id: company.id },
-        }),
-      ]);
+      if (body.supplier_group_id) {
+        const supplier_ids = body.supplier_group_id.split(",").map(Number);
+        dynamicFilter.supplier_id = {
+          in: supplier_ids,
+        };
+      }
+      if (body.filter) {
+        dynamicFilter.code = {
+          contains: body.filter,
+          mode: "insensitive",
+        };
+      }
 
-      const pageCount = Math.ceil(total / pagination.limit);
+      console.log(dynamicFilter);
 
-      const formatData = {
-        total,
-        page: pagination.page,
-        perPage: pagination.limit,
-        pageCount,
-        data: bills,
-      };
+      const response = await prisma.bill.findMany({
+        where: { period, company_id: company.id, ...dynamicFilter },
+      });
 
       return this.responseService.SuccessResponse(
         "Lista de facturas",
-        formatData
+        response
       );
     } catch (error) {
+      console.log(error);
       return this.responseService.InternalServerErrorException(
         undefined,
         error
