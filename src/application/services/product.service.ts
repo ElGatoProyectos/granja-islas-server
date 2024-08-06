@@ -89,6 +89,8 @@ class ProductService {
       const [products, total] = await prisma.$transaction([
         prisma.product.findMany({
           where: { Supplier: { company_id: company.id } },
+          skip,
+          take: limit,
           include: { DetailProductLabel: { include: { Label: true } } },
         }),
         prisma.product.count({

@@ -9,6 +9,7 @@ import {
   TypeCurrency,
   TypeDocument,
   TypeStatus,
+  TypeStatusCreated,
   TypeStatusPayment,
   User,
 } from "@prisma/client";
@@ -380,6 +381,7 @@ class SunatService {
           currency_code:
             item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
           exchange_rate: selling,
+          created_status: TypeStatusCreated.SUNAT,
         };
 
         // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
@@ -407,12 +409,6 @@ class SunatService {
           formatFetchDetail
         );
         const products = response.data.comprobantes as I_ResponseDetail[];
-
-        // if(response.data)
-
-        // console.log("response products", response);
-
-        // console.log(products);
 
         const createdProducts = await this.registerProductsInSynchronize(
           products,
@@ -519,6 +515,7 @@ class SunatService {
           currency_code:
             item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
           exchange_rate: selling, //[error] evaluar esto, porque debe salir de la api de consulta ruc
+          created_status: TypeStatusCreated.SUNAT,
         };
 
         // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
@@ -650,6 +647,7 @@ class SunatService {
           currency_code:
             item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
           exchange_rate: 0, //[error] evaluar esto, porque debe salir de la api de consulta ruc
+          created_status: TypeStatusCreated.SUNAT,
         };
 
         // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
@@ -787,6 +785,7 @@ class SunatService {
           currency_code:
             item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
           exchange_rate: 0, //[error] evaluar esto, porque debe salir de la api de consulta ruc
+          created_status: TypeStatusCreated.SUNAT,
         };
 
         // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token

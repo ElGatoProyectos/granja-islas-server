@@ -1,4 +1,10 @@
-import { Company, TypeStatus, TypeStatusPayment, User } from "@prisma/client";
+import {
+  Company,
+  TypeStatus,
+  TypeStatusCreated,
+  TypeStatusPayment,
+  User,
+} from "@prisma/client";
 import prisma from "../../infrastructure/database/prisma";
 import {
   I_CreateBill,
@@ -88,19 +94,14 @@ class CreditNoteService {
         company: Company;
       } = responseValidation.payload;
 
+      let dynamicFilter: any = {};
+
       let period: string;
       if (body.year && body.month) {
         const formattedMonth = body.month.toString().padStart(2, "0");
         period = `${body.year}-${formattedMonth}`;
-      } else {
-        const date = new Date();
-        const formattedMonth = (date.getMonth() + 1)
-          .toString()
-          .padStart(2, "0");
-        period = `${date.getFullYear()}-${formattedMonth}`;
+        dynamicFilter.period = period;
       }
-
-      let dynamicFilter: any = {};
 
       if (body.supplier_group_id) {
         const supplier_ids = body.supplier_group_id.split(",").map(Number);
@@ -116,7 +117,7 @@ class CreditNoteService {
       }
 
       const response = await prisma.creditNote.findMany({
-        where: { period, company_id: company.id, ...dynamicFilter },
+        where: { company_id: company.id, ...dynamicFilter },
       });
 
       return this.responseService.SuccessResponse("Lista de Boletas", response);
@@ -255,6 +256,7 @@ class CreditNoteService {
         currency_code: data.currency_code,
         supplier_id: data.supplier_id,
         exchange_rate: data.exchange_rate,
+        created_status: TypeStatusCreated.LOCAL,
       };
 
       const created = await prisma.creditNote.create({ data: formData });

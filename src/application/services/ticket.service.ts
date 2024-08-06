@@ -2,6 +2,7 @@ import {
   Company,
   TypeDocument,
   TypeStatus,
+  TypeStatusCreated,
   TypeStatusPayment,
   User,
 } from "@prisma/client";
@@ -91,19 +92,14 @@ class TicketService {
         company: Company;
       } = responseValidation.payload;
 
+      let dynamicFilter: any = {};
+
       let period: string;
       if (body.year && body.month) {
         const formattedMonth = body.month.toString().padStart(2, "0");
         period = `${body.year}-${formattedMonth}`;
-      } else {
-        const date = new Date();
-        const formattedMonth = (date.getMonth() + 1)
-          .toString()
-          .padStart(2, "0");
-        period = `${date.getFullYear()}-${formattedMonth}`;
+        dynamicFilter.period = period;
       }
-
-      let dynamicFilter: any = {};
 
       if (body.supplier_group_id) {
         const supplier_ids = body.supplier_group_id.split(",").map(Number);
@@ -119,7 +115,7 @@ class TicketService {
       }
 
       const response = await prisma.ticket.findMany({
-        where: { period, company_id: company.id, ...dynamicFilter },
+        where: { company_id: company.id, ...dynamicFilter },
       });
 
       return this.responseService.SuccessResponse("Lista de Boletas", response);
@@ -252,6 +248,7 @@ class TicketService {
         currency_code: data.currency_code,
         supplier_id: data.supplier_id,
         exchange_rate: data.exchange_rate,
+        created_status: TypeStatusCreated.LOCAL,
       };
 
       const created = await prisma.ticket.create({ data: formData });

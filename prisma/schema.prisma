@@ -190,6 +190,11 @@ enum TypeStatusPayment {
   CREDITO
 }
 
+enum TypeStatusCreated {
+  SUNAT
+  LOCAL
+}
+
 model Bill {
   id              Int  @id @default(autoincrement())
   company_id      Int?
@@ -206,6 +211,7 @@ model Bill {
   total               Float              @default(0)
   amount_paid         Float              @default(0)
   amount_pending      Float              @default(0)
+  created_status      TypeStatusCreated  @default(SUNAT)
   bill_status         TypeStatus?        @default(ACTIVO)
   bill_status_payment TypeStatusPayment? @default(CREDITO)
   supplier_id         Int?
@@ -236,6 +242,7 @@ model CreditNote {
   total               Float              @default(0)
   amount_paid         Float              @default(0)
   amount_pending      Float              @default(0)
+  created_status      TypeStatusCreated  @default(SUNAT)
   bill_status         TypeStatus?        @default(ACTIVO)
   bill_status_payment TypeStatusPayment? @default(CREDITO)
   supplier_id         Int?
@@ -268,6 +275,7 @@ model DebitNote {
   total               Float              @default(0)
   amount_paid         Float              @default(0)
   amount_pending      Float              @default(0)
+  created_status      TypeStatusCreated  @default(SUNAT)
   bill_status         TypeStatus?        @default(ACTIVO) // aqui se podria considerar el estado si es activo u otro estado
   bill_status_payment TypeStatusPayment? @default(CREDITO)
 
@@ -301,6 +309,7 @@ model Ticket {
   total               Float              @default(0)
   amount_paid         Float              @default(0)
   amount_pending      Float              @default(0)
+  created_status      TypeStatusCreated  @default(SUNAT)
   bill_status         TypeStatus?        @default(ACTIVO) // aqui se podria considerar el estado si es activo u otro estado
   bill_status_payment TypeStatusPayment? @default(CREDITO)
   currency_code       TypeCurrency       @default(PEN)

@@ -3,6 +3,7 @@ import {
   TypeCurrency,
   TypeDocument,
   TypeStatus,
+  TypeStatusCreated,
   TypeStatusPayment,
   User,
 } from "@prisma/client";
@@ -104,19 +105,14 @@ class BillService {
         company: Company;
       } = responseValidation.payload;
 
+      let dynamicFilter: any = {};
+
       let period: string;
       if (body.year && body.month) {
         const formattedMonth = body.month.toString().padStart(2, "0");
         period = `${body.year}-${formattedMonth}`;
-      } else {
-        const date = new Date();
-        const formattedMonth = (date.getMonth() + 1)
-          .toString()
-          .padStart(2, "0");
-        period = `${date.getFullYear()}-${formattedMonth}`;
+        dynamicFilter.period = period;
       }
-
-      let dynamicFilter: any = {};
 
       if (body.supplier_group_id) {
         const supplier_ids = body.supplier_group_id.split(",").map(Number);
@@ -131,10 +127,8 @@ class BillService {
         };
       }
 
-      console.log(dynamicFilter);
-
       const response = await prisma.bill.findMany({
-        where: { period, company_id: company.id, ...dynamicFilter },
+        where: { company_id: company.id, ...dynamicFilter },
       });
 
       return this.responseService.SuccessResponse(
@@ -280,6 +274,7 @@ class BillService {
         currency_code: data.currency_code,
         supplier_id: data.supplier_id,
         exchange_rate: data.exchange_rate, //[error] evaluar esto, porque debe salir de la api de consulta ruc
+        created_status: TypeStatusCreated.LOCAL,
       };
 
       console.log(formData);

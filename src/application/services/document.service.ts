@@ -86,46 +86,41 @@ class DocumentService {
       };
 
       const skip = (data.pagination.page - 1) * data.pagination.limit;
+      const limit = data.pagination.limit;
 
       const allData = [];
 
+      // Recopilar datos de todos los servicios
       const responseBills = await this.billService.findAll(format);
       if (responseBills.error) return responseBills;
-
-      console.log(responseBills);
-
       allData.push(...responseBills.payload);
 
       const responseTicket = await this.ticketService.findAll(format);
       if (responseTicket.error) return responseTicket;
-
       allData.push(...responseTicket.payload);
 
       const responseCreditNotes = await this.creditNoteService.findAll(format);
       if (responseCreditNotes.error) return responseCreditNotes;
-
       allData.push(...responseCreditNotes.payload);
 
       const responseDebitNotes = await this.debitNoteService.findAll(format);
       if (responseDebitNotes.error) return responseDebitNotes;
-
       allData.push(...responseDebitNotes.payload);
 
-      console.log(allData);
+      // Obtener el total de registros
+      const total = allData.length;
+      const pageCount = Math.ceil(total / limit);
 
-      const total =
-        responseBills.payload.length +
-        responseTicket.payload.length +
-        responseCreditNotes.payload.length +
-        responseDebitNotes.payload.length;
-      const pageCount = Math.ceil(total / data.pagination.limit);
+      // Aplicar paginación
+      const paginatedData = allData.slice(skip, skip + limit);
 
+      // Formatear la respuesta
       const formatData = {
         total,
         page: data.pagination.page,
-        limit: data.pagination.limit,
+        limit,
         pageCount,
-        data: allData,
+        data: paginatedData,
       };
 
       return this.responseService.SuccessResponse(
