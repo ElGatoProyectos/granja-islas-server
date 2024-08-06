@@ -28,7 +28,21 @@ class ReportRoute {
       `${this._prefix}/general-analysis-basic/:label_id`,
       this.authMiddleware.authorizationAdmin,
       this.accessDataMiddleware.validateCredentials,
-      this.reportController.generalAnaysisBasic
+      this.reportController.generalAnalysisBasic
+    );
+
+    this.router.get(
+      `${this._prefix}/general-analysis-detail-supplier`,
+      this.authMiddleware.authorizationAdmin,
+      this.accessDataMiddleware.validateCredentials,
+      this.reportController.detailGeneralAnalysis_Supplier
+    );
+
+    this.router.get(
+      `${this._prefix}/general-analysis-detail-expenditure-composition`,
+      this.authMiddleware.authorizationAdmin,
+      this.accessDataMiddleware.validateCredentials,
+      this.reportController.detailGeneralAnalysis_Supplier
     );
   }
 }

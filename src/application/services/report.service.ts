@@ -1,8 +1,9 @@
-import { Bill, Product } from "@prisma/client";
+import { Bill, Company, Product, User } from "@prisma/client";
 import prisma from "../../infrastructure/database/prisma";
 import { T_Header } from "../models/types/methods.type";
 import ProductLabelService from "./product-label.service";
 import ResponseService from "./response.service";
+import InfoService from "./info.service";
 
 type T_GeneralAnalysisBasic = {
   params: {
@@ -13,7 +14,6 @@ type T_GeneralAnalysisBasic = {
 
 type T_GeneralAnalysisDetail = {
   params: {
-    label_id: number;
     filter_month: number;
   };
   headers: T_Header;
@@ -22,6 +22,7 @@ type T_GeneralAnalysisDetail = {
 class ReportService {
   private responseService: ResponseService = new ResponseService();
   private productLabelService: ProductLabelService = new ProductLabelService();
+  private infoService: InfoService = new InfoService();
 
   principalSuppliers(response: any) {
     const groupedSuppliers = response.reduce((acc: any, bill: any) => {
@@ -98,6 +99,15 @@ class ReportService {
 
   generalAnaysisBasic = async (data: T_GeneralAnalysisBasic) => {
     try {
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        data.headers.token,
+        data.headers.ruc
+      );
+      if (responseInfo.error) return responseInfo;
+
+      const { user, company }: { user: User; company: Company } =
+        responseInfo.payload;
+
       const detailProducts = await prisma.detailProductLabel.findMany({
         where: {
           product_label_id: data.params.label_id,
@@ -110,7 +120,10 @@ class ReportService {
           const product = detail.Product as any;
 
           return await prisma.bill.findFirst({
-            where: { id: product.document_id },
+            where: {
+              id: product.document_id,
+              Supplier: { company_id: company.id },
+            },
             include: { Supplier: true },
           });
         })
@@ -131,45 +144,45 @@ class ReportService {
     }
   };
 
-  detailGeneralAnaysis_Supplier = async (data: T_GeneralAnalysisDetail) => {
+  detailGeneralAnalysis_Supplier = async (data: T_GeneralAnalysisDetail) => {
     try {
-      const year = new Date().getFullYear();
-      const month = new Date().getMonth() + 1;
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        data.headers.token,
+        data.headers.ruc
+      );
+      if (responseInfo.error) return responseInfo;
 
-      let period: any = `${year}-${month.toString().padStart(2, "0")}`;
+      const { user, company }: { user: User; company: Company } =
+        responseInfo.payload;
+
+      const year = new Date().getFullYear();
+      const month = new Date().getMonth() - 1;
+
+      let period: any = `${year}-${(month + 1).toString().padStart(2, "0")}`;
 
       if (data.params.filter_month === 6 || data.params.filter_month === 12) {
-        const months = Array.from(
-          { length: data.params.filter_month },
-          (_, i) => `${year}-${(i + 1).toString().padStart(2, "0")}`
-        );
+        const months = [];
+        for (let i = 0; i < data.params.filter_month; i++) {
+          const date = new Date(year, month - i);
+          const y = date.getFullYear();
+          const m = (date.getMonth() + 1).toString().padStart(2, "0");
+          months.push(`${y}-${m}`);
+        }
 
         period = { in: months };
       }
 
       let filtereds = {
-        product_label_id: data.params.label_id,
-        period,
+        period: period, // Asegurarte que `period` esté en la estructura correcta
+        Supplier: { company_id: company.id },
       };
 
-      const detailProducts = await prisma.detailProductLabel.findMany({
+      const detailProducts = await prisma.bill.findMany({
         where: filtereds,
-
-        include: { Product: true },
+        include: { Supplier: true },
       });
 
-      const response = await Promise.all(
-        detailProducts.map(async (detail) => {
-          const product = detail.Product as any;
-
-          return await prisma.bill.findFirst({
-            where: { id: product.document_id },
-            include: { Supplier: true },
-          });
-        })
-      );
-
-      const groupedSuppliers = response.reduce((acc: any, bill: any) => {
+      const groupedSuppliers = detailProducts.reduce((acc: any, bill: any) => {
         const supplierId = bill.supplier_id;
         const supplier = bill.Supplier;
 
@@ -186,9 +199,83 @@ class ReportService {
         return acc;
       }, {});
 
+      console.log(filtereds);
+
       const result = Object.values(groupedSuppliers);
 
       result.sort((a: any, b: any) => b.total - a.total);
+      return this.responseService.SuccessResponse("Report detalle", result);
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
+  detailGeneralAnalysis_ExpenditureComposition = async (
+    data: T_GeneralAnalysisDetail
+  ) => {
+    try {
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        data.headers.token,
+        data.headers.ruc
+      );
+      if (responseInfo.error) return responseInfo;
+
+      const { user, company }: { user: User; company: Company } =
+        responseInfo.payload;
+
+      const year = new Date().getFullYear();
+      const month = new Date().getMonth() - 1;
+
+      let period: any = `${year}-${(month + 1).toString().padStart(2, "0")}`;
+
+      if (data.params.filter_month === 6 || data.params.filter_month === 12) {
+        const months = [];
+        for (let i = 0; i < data.params.filter_month; i++) {
+          const date = new Date(year, month - i);
+          const y = date.getFullYear();
+          const m = (date.getMonth() + 1).toString().padStart(2, "0");
+          months.push(`${y}-${m}`);
+        }
+
+        period = { in: months };
+      }
+
+      let filtereds = {
+        period: period, // Asegurarte que `period` esté en la estructura correcta
+        Supplier: { company_id: company.id },
+      };
+
+      const detailProducts = await prisma.bill.findMany({
+        where: filtereds,
+        include: { Supplier: true },
+      });
+
+      const groupedSuppliers = detailProducts.reduce((acc: any, bill: any) => {
+        const supplierId = bill.supplier_id;
+        const supplier = bill.Supplier;
+
+        if (!acc[supplierId]) {
+          acc[supplierId] = {
+            ruc: supplier.ruc,
+            business_name: supplier.business_name,
+            total: 0,
+          };
+        }
+
+        acc[supplierId].total += bill.total;
+
+        return acc;
+      }, {});
+
+      console.log(filtereds);
+
+      const result = Object.values(groupedSuppliers);
+
+      result.sort((a: any, b: any) => b.total - a.total);
+      return this.responseService.SuccessResponse("Report detalle", result);
     } catch (error) {
       return this.responseService.InternalServerErrorException(
         undefined,

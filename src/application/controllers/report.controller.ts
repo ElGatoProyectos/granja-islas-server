@@ -6,7 +6,7 @@ class ReportController {
   private reportService: ReportService = new ReportService();
   reportPurchaseRecord = async (request: Request, response: Response) => {};
 
-  generalAnaysisBasic = async (request: Request, response: Response) => {
+  generalAnalysisBasic = async (request: Request, response: Response) => {
     const ruc = request.get("ruc") as string;
     const token = request.get("Authorization") as string;
     const label_id = Number(request.params.label_id);
@@ -21,6 +21,50 @@ class ReportController {
       },
     };
     const result = await this.reportService.generalAnaysisBasic(options);
+    response.status(result.statusCode).json(result);
+  };
+
+  detailGeneralAnalysis_Supplier = async (
+    request: Request,
+    response: Response
+  ) => {
+    const ruc = request.get("ruc") as string;
+    const token = request.get("Authorization") as string;
+    const filter_month = Number(request.query.filter_month);
+    const options = {
+      headers: {
+        ruc,
+        token,
+      },
+      params: {
+        filter_month,
+      },
+    };
+    const result = await this.reportService.detailGeneralAnalysis_Supplier(
+      options
+    );
+    response.status(result.statusCode).json(result);
+  };
+
+  detailGeneralAnalysis_ExpenditureComposition = async (
+    request: Request,
+    response: Response
+  ) => {
+    const ruc = request.get("ruc") as string;
+    const token = request.get("Authorization") as string;
+    const filter_month = Number(request.query.filter_month);
+    const options = {
+      headers: {
+        ruc,
+        token,
+      },
+      params: {
+        filter_month,
+      },
+    };
+    const result = await this.reportService.detailGeneralAnalysis_Supplier(
+      options
+    );
     response.status(result.statusCode).json(result);
   };
 }
