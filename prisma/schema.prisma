@@ -73,7 +73,6 @@ model Company {
   Ticket       Ticket[]
 }
 
-//todo Proveedores
 model Supplier {
   id                 Int      @id @default(autoincrement())
   company_id         Int
@@ -86,7 +85,6 @@ model Supplier {
   ruc                String
   status_deleted     Boolean? @default(false)
 
-  // added new
   phone        String?
   country_code String?
 
@@ -112,7 +110,6 @@ model ProductLabel {
   description     String?  @db.Text()
   status_deleted  Boolean? @default(false)
 
-  // DetailProductLabel DetailProductLabel[]
   Company            Company              @relation(fields: [company_id], references: [id])
   User               User                 @relation(fields: [user_created_id], references: [id])
   DetailProductLabel DetailProductLabel[]
@@ -139,7 +136,6 @@ enum TypeDocument {
   TICKET
 }
 
-//todo productos
 model Product {
   id           Int     @id @default(autoincrement())
   title        String
@@ -150,17 +146,15 @@ model Product {
   unit_measure String
   supplier_id  Int?
 
-  document_type TypeDocument? @default(BILL) // recien agegado
-  document_id   Int? // recien agegado
-  // [error] tambien necesitamos ver a que documento le pertenece el producto
-
-  status_deleted Boolean? @default(false)
+  document_type  TypeDocument? @default(BILL)
+  document_id    Int?
+  status_deleted Boolean?      @default(false)
 
   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt
 
-  Supplier           Supplier?            @relation(fields: [supplier_id], references: [id])
-  // DetailProductLabel DetailProductLabel[]
+  Supplier Supplier? @relation(fields: [supplier_id], references: [id])
+
   DetailProductLabel DetailProductLabel[]
 }
 
@@ -176,7 +170,6 @@ model DetailProductLabel {
   Product Product?      @relation(fields: [product_id], references: [id])
 }
 
-// [note] En este caso habran 4 entidades, Facturas, Boleta de venta, Nota de credito, Nota de debito
 enum TypeCurrency {
   USD
   PEN
@@ -213,8 +206,8 @@ model Bill {
   total               Float              @default(0)
   amount_paid         Float              @default(0)
   amount_pending      Float              @default(0)
-  bill_status         TypeStatus?        @default(ACTIVO) // aqui se podria considerar el estado si es activo u otro estado
-  bill_status_payment TypeStatusPayment? @default(CREDITO) // aqui el estado de credito o contado
+  bill_status         TypeStatus?        @default(ACTIVO)
+  bill_status_payment TypeStatusPayment? @default(CREDITO)
   supplier_id         Int?
   currency_code       TypeCurrency       @default(PEN)
   exchange_rate       Float              @default(0)
@@ -243,7 +236,7 @@ model CreditNote {
   total               Float              @default(0)
   amount_paid         Float              @default(0)
   amount_pending      Float              @default(0)
-  bill_status         TypeStatus?        @default(ACTIVO) // aqui se podria considerar el estado si es activo u otro estado
+  bill_status         TypeStatus?        @default(ACTIVO)
   bill_status_payment TypeStatusPayment? @default(CREDITO)
   supplier_id         Int?
   currency_code       TypeCurrency       @default(PEN)

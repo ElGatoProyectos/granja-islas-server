@@ -417,7 +417,7 @@ class SunatService {
         const createdProducts = await this.registerProductsInSynchronize(
           products,
           supplier,
-          TypeDocument.TICKET,
+          TypeDocument.BILL,
           responseCreateBill.payload.id
         );
         if (createdProducts?.error)
