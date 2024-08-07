@@ -358,6 +358,7 @@ model Voucher {
   operation_number String
   amount           Float
   type_currency    TypeCurrency
+  exchange_rate    Float         @default(0)
   date             DateTime      @default(now()) @db.Date
   status           StatusVoucher @default(PENDING)
   status_deleted   Boolean       @default(false)

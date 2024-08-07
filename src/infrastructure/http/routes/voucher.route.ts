@@ -26,6 +26,7 @@ class VoucherRouter {
     this.getRoutes();
     this.postRoutes();
     this.patchRoutes();
+    this.deleteRoutes();
   }
 
   private getRoutes() {
@@ -49,7 +50,6 @@ class VoucherRouter {
       `${this._prefix}/:bill_id/vouchers`,
       this.authMiddleware.authorizationUser,
       this.accessDataMiddleware.validateCredentials,
-      // this.voucherMiddleware.validateBody,
       this.voucherController.create
     );
   }
@@ -61,6 +61,15 @@ class VoucherRouter {
       this.accessDataMiddleware.validateCredentials,
       this.voucherMiddleware.validateUpdate,
       this.voucherController.update
+    );
+  }
+
+  private deleteRoutes() {
+    this.router.delete(
+      `${this._prefix}/:bill_id/vouchers/:voucher_id`,
+      this.authMiddleware.authorizationSuperAdmin,
+      this.accessDataMiddleware.validateCredentials,
+      this.voucherController.delete
     );
   }
 }

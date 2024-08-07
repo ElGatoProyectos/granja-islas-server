@@ -7,7 +7,30 @@ import {
 import ResponseService from "./response.service";
 import ProductService from "./product.service";
 import InfoService from "./info.service";
-import { Company, Product, ProductLabel, User } from "@prisma/client";
+import {
+  Company,
+  Product,
+  ProductLabel,
+  TypeDocument,
+  User,
+} from "@prisma/client";
+
+type T_FindDocumentsByLabel = {
+  params: {
+    product_label_id: number;
+    year: number | undefined;
+    month: number | undefined;
+    supplier_group_id: string | undefined;
+  };
+  pagination: {
+    page: number;
+    limit: number;
+  };
+  headers: {
+    ruc: string;
+    token: string;
+  };
+};
 
 class ProductLabelService {
   private responseService: ResponseService;
@@ -104,6 +127,102 @@ class ProductLabelService {
     }
   };
 
+  findDocuments = async (data: T_FindDocumentsByLabel) => {
+    // [message] puede ser que tambien se evalue boletas, etc...
+    try {
+      const skip = (data.pagination.page - 1) * data.pagination.limit;
+
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        data.headers.token,
+        data.headers.ruc
+      );
+      if (responseInfo.error) return responseInfo;
+
+      const { user, company }: { user: User; company: Company } =
+        responseInfo.payload;
+
+      let period: any;
+
+      let filtereds: any = { company_id: company.id };
+
+      let filteredsSecond: any = { company_id: company.id };
+
+      if (data.params.year && data.params.month) {
+        period = `${data.params.year}-${data.params.month
+          .toString()
+          .padStart(2, "0")}`;
+        filtereds.period = period;
+      }
+
+      if (data.params.supplier_group_id) {
+        filtereds.supplier_id = {
+          in: data.params.supplier_group_id.split(",").map(Number),
+        };
+      }
+      console.log(filtereds);
+
+      const detailBills = await prisma.bill.findMany({ where: filtereds });
+
+      const detailLabelProducts = await prisma.detailProductLabel.findMany({
+        where: {
+          product_label_id: data.params.product_label_id,
+        },
+        include: { Product: true },
+      });
+
+      const detailProducts = await prisma.product.findMany({
+        where: {
+          id: {
+            in: detailLabelProducts.map((item) => item.product_id),
+          },
+          document_id: {
+            in: detailBills.map((item) => item.id),
+          },
+          document_type: TypeDocument.BILL,
+        },
+        include: { Supplier: true },
+      });
+
+      const formattedData = detailProducts.map((item) => {
+        return {
+          ...item,
+          Supplier: item.Supplier,
+          Document: detailBills.find((bill) => bill.id === item.document_id),
+        };
+      });
+
+      // Obtener el total de registros
+      const total = formattedData.length;
+      const pageCount = Math.ceil(total / data.pagination.limit);
+
+      // Aplicar paginación
+      const paginatedData = formattedData.slice(
+        skip,
+        skip + data.pagination.limit
+      );
+
+      // Formatear la respuesta
+      const formattedPagination = {
+        total,
+        page: data.pagination.page,
+        limit: data.pagination.limit,
+        pageCount,
+        data: paginatedData,
+      };
+
+      return this.responseService.SuccessResponse(
+        "Lista de productos",
+        formattedPagination
+      );
+    } catch (error) {
+      console.log(error);
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
   // [success]
   findProductsByLabel = async (
     product_label_id: number,
@@ -135,8 +254,6 @@ class ProductLabelService {
         where: { product_label_id },
         include: { Product: true },
       });
-
-      items;
 
       return this.responseService.SuccessResponse(
         "Lista de productos por etiqueta",

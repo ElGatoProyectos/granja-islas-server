@@ -3,8 +3,9 @@ import { z } from "zod";
 export const registerVoucherDTO = z.object({
   bank_id: z.string(),
   operation_number: z.string(),
-  type_currency: z.enum(["PE", "USD"]),
+  type_currency: z.enum(["PEN", "USD"]),
   amount: z.string(),
+  exchange_rate: z.string(),
 });
 
 export const updateVoucherDTO = z.object({

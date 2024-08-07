@@ -50,7 +50,6 @@ class VoucherController {
   };
 
   create = async (request: Request, response: Response) => {
-    ("in controller edit");
     this.upload.single(voucherMulterProperties.field)(
       request,
       response,
@@ -66,7 +65,6 @@ class VoucherController {
         //todo validamos el archivo
         else {
           const data = request.body;
-          data;
 
           try {
             //todo validamos el parse
@@ -94,7 +92,7 @@ class VoucherController {
                 token
               );
 
-              result;
+              console.log(result);
 
               if (result.error) {
                 response.status(result.statusCode).json(result);
@@ -158,6 +156,20 @@ class VoucherController {
     const ruc = request.get("ruc") as string;
     const result = await this.voucherService.updateStatus(
       data,
+      bill_id,
+      voucher_id,
+      ruc,
+      token
+    );
+    response.status(result.statusCode).json(result);
+  };
+
+  delete = async (request: Request, response: Response) => {
+    const bill_id = Number(request.params.bill_id);
+    const voucher_id = Number(request.params.voucher_id);
+    const token = request.get("Authorization") as string;
+    const ruc = request.get("ruc") as string;
+    const result = await this.voucherService.deleteById(
       bill_id,
       voucher_id,
       ruc,

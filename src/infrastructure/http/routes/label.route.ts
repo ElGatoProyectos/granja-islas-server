@@ -50,6 +50,13 @@ class LabelRouter {
       this.authMiddleware.authorizationUser,
       this.labelController.findById
     );
+
+    this.router.get(
+      `${this._prefix}/:id/documents`,
+      this.accessDataMiddleware.validateCredentials,
+      this.authMiddleware.authorizationUser,
+      this.labelController.findDocuments
+    );
   }
 
   private postRoutes() {

@@ -7,7 +7,6 @@ import {
 import prisma from "../../infrastructure/database/prisma";
 import ResponseService, { T_Response } from "./response.service";
 import * as bcrypt from "bcrypt";
-import BaseController from "../controllers/config/base.controller";
 import { E_Role } from "../models/enums/user.enum";
 import appRootPath from "app-root-path";
 import { userMulterProperties } from "../models/constants/multer.constant";

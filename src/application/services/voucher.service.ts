@@ -123,6 +123,7 @@ class VoucherService {
         company_id: company.id,
         user_id_created: user.id,
         bill_id: billId,
+        exchange_rate: Number(data.exchange_rate),
       };
 
       const bill = await prisma.bill.findFirst({
@@ -198,6 +199,81 @@ class VoucherService {
       return this.responseService.CreatedResponse(
         "Voucher modificado satisfactoriamentente",
         updated
+      );
+    } catch (error) {
+      error;
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    } finally {
+      prisma.$disconnect();
+    }
+  };
+
+  deleteById = async (
+    billId: number,
+    voucherId: number,
+    rucFromHeader: string,
+    token: string
+  ) => {
+    try {
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        token,
+        rucFromHeader
+      );
+
+      if (responseInfo.error) return responseInfo;
+
+      const { user, company }: { user: User; company: Company } =
+        responseInfo.payload;
+
+      const bill = await prisma.bill.findFirst({
+        where: { id: billId, company_id: company.id },
+      });
+
+      if (!bill)
+        return this.responseService.BadRequestException(
+          "La factura o la empresa seleccionada no corresponden"
+        );
+
+      const voucher = await prisma.voucher.findFirst({
+        where: { company_id: company.id, id: voucherId },
+      });
+
+      if (!voucher)
+        return this.responseService.NotFoundException(
+          "El voucher no peternece a la empresa seleccionada"
+        );
+
+      const pathImage =
+        appRootPath + "/public/vouchers/vouchers_" + voucher.id + ".png";
+
+      // validamos la imagen
+
+      try {
+        await fs.access(pathImage, fs.constants.F_OK);
+        fs.unlink(pathImage)
+          .then(() => {
+            console.log("Imagen eliminada");
+          })
+          .catch((error) => {
+            return this.responseService.BadRequestException(
+              "Error al eliminar la imagen",
+              error
+            );
+          });
+      } catch (error) {
+        return this.responseService.BadRequestException("Imagen no encontrada");
+      }
+
+      const deleted = await prisma.voucher.delete({
+        where: { id: voucherId },
+      });
+
+      return this.responseService.CreatedResponse(
+        "Voucher eliminado satisfactoriamentente",
+        deleted
       );
     } catch (error) {
       error;
