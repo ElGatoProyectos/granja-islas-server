@@ -4,6 +4,7 @@ import BaseController from "../controllers/config/base.controller";
 import prisma from "../../infrastructure/database/prisma";
 import * as bcrypt from "bcrypt";
 import slugify from "slugify";
+import { environments } from "../../infrastructure/config/environments.constant";
 
 export default class SeedService extends BaseController {
   private responseService: ResponseService;
@@ -43,16 +44,18 @@ export default class SeedService extends BaseController {
 
       const companies = [
         {
-          business_name: "Empresa 1",
+          business_name: "Empresa Principal",
           business_type: "Tipo 1",
           business_status: "Example status",
           business_direction_fiscal: "Example direction",
           description: "Description example company",
-          user: "hans23232",
+          user: environments.USERNAME_SUNAT,
           phone: "40343040",
           country_code: "+51",
           ruc: "20535014940",
-          key: "adawdadadwad",
+          key: environments.PASSWORD_SUNAT,
+          client_id: environments.CLIENT_ID,
+          client_secret: environments.CLIENT_SECRET,
         },
         {
           business_name: "Empresa 2",

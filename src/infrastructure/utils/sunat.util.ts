@@ -4,6 +4,7 @@ const businessTypes = [
   "S.R.L.",
   "I.C.C.",
   "E.I.R.L",
+  "E.I.R.L.",
   "EIRL",
   "SAC",
   "SA",

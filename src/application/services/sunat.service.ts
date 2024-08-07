@@ -618,6 +618,7 @@ class SunatService {
         if (responseCreateCreditNote.error) return responseCreateCreditNote;
 
         //[pending] Registrar productos - pendiente porque es otra api
+        //[pending] En este caso, los productos que se reciben son de devolucion, como eso no se contemplo, no procedemos a evaluarlo
 
         const formatFetchDetail = {
           type: "RECIBIDO",
@@ -626,6 +627,49 @@ class SunatService {
           serie: item.numSerieCDP,
           number: Number(item.numCDP),
         };
+
+        // [note] registramos los documentos relacionados
+        const itemDocuments = item.lisDocumentosMod;
+
+        await Promise.all(
+          itemDocuments.map(async (itemD) => {
+            const formatCreditNotedocument = {
+              credit_note_id: responseCreateCreditNote.payload.id,
+              issue_date: convertStringToDate(itemD.fecEmisionMod),
+              code_type_document: itemD.codTipoCDPMod,
+              num_serie: itemD.numSerieCDPMod,
+              num_cpe: Number(itemD.numCDPMod),
+            };
+            const responseCreateCreditNoteDocument =
+              await prisma.creditNoteDocuments.create({
+                data: formatCreditNotedocument,
+              });
+
+            const creditNoteDocument: CreditNoteDocuments =
+              responseCreateCreditNoteDocument;
+
+            const billCode =
+              creditNoteDocument.num_serie + "-" + creditNoteDocument.num_cpe;
+
+            const billInstance = await this.billService.findBillForCode(
+              billCode
+            );
+
+            if (billInstance.error) return billInstance;
+
+            await prisma.bill.update({
+              where: { code },
+              data: {
+                amount_paid: {
+                  increment: Number(item.montos.mtoBIGravadaDG),
+                },
+                amount_pending: {
+                  decrement: Number(item.montos.mtoBIGravadaDG),
+                },
+              },
+            });
+          })
+        );
       } else {
         // verificamos si es de estado local o sunat, solo eliminamos si es de estado local
 
