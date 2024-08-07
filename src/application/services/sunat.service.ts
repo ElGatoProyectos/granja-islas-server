@@ -635,11 +635,12 @@ class SunatService {
           itemDocuments.map(async (itemD) => {
             const formatCreditNotedocument = {
               credit_note_id: responseCreateCreditNote.payload.id,
-              issue_date: convertStringToDate(itemD.fecEmisionMod),
+              issue_date: convertToDate(itemD.fecEmisionMod),
               code_type_document: itemD.codTipoCDPMod,
               num_serie: itemD.numSerieCDPMod,
               num_cpe: Number(itemD.numCDPMod),
             };
+
             const responseCreateCreditNoteDocument =
               await prisma.creditNoteDocuments.create({
                 data: formatCreditNotedocument,

@@ -25,6 +25,12 @@ class SupplierController {
     response.status(result.statusCode).json(result);
   };
 
+  findAllNoPagination = async (request: Request, response: Response) => {
+    const ruc = request.get("ruc") as string;
+    const result = await this.supplierService.findAllNoPagination(ruc);
+    response.status(result.statusCode).json(result);
+  };
+
   findById = async (request: Request, response: Response) => {
     const ruc = request.get("ruc") as string;
     const id = Number(request.params.id as string);

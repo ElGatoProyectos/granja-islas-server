@@ -43,6 +43,13 @@ class SupplierRouter {
     );
 
     this.router.get(
+      `${this._prefix}/no-pagination`,
+      this.accessDataMiddleware.validateCredentials,
+      this.authMiddleware.authorizationUser,
+      this.supplierController.findAllNoPagination
+    );
+
+    this.router.get(
       `${this._prefix}/:id/products`,
       this.accessDataMiddleware.validateCredentials,
       this.authMiddleware.authorizationUser,
