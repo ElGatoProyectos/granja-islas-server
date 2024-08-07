@@ -46,6 +46,7 @@ class SupplierService {
         return this.responseService.NotFoundException("La empresa no existe");
       return this.responseService.SuccessResponse(undefined, company);
     } catch (error) {
+      console.log(error);
       return this.responseService.InternalServerErrorException(
         undefined,
         error
@@ -76,6 +77,8 @@ class SupplierService {
   findAllNoPagination = async (ruc: string) => {
     try {
       const responseCompany = await this.getCompanyInitial(ruc);
+
+      console.log(responseCompany);
       if (responseCompany.error) return responseCompany;
 
       const company: Company = responseCompany.payload;
@@ -89,6 +92,7 @@ class SupplierService {
         suppliers
       );
     } catch (error) {
+      console.log(error);
       return this.responseService.InternalServerErrorException(
         undefined,
         error

@@ -16,6 +16,7 @@ class AccessDataMiddleware {
     nextFunction: NextFunction
   ) => {
     try {
+      console.log("validation");
       // [message] solo deberia pasar el ruc, la key y el user se recupera consultando el ruc
       // [message] Aqui se valida los campos que debes pasar por el header
       const ruc = request.get("ruc") as string;

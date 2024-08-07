@@ -35,18 +35,19 @@ class SupplierRouter {
       this.authMiddleware.authorizationUser,
       this.supplierController.findAll
     );
-    this.router.get(
-      `${this._prefix}/:id`,
-      this.accessDataMiddleware.validateCredentials,
-      this.authMiddleware.authorizationUser,
-      this.supplierController.findById
-    );
 
     this.router.get(
       `${this._prefix}/no-pagination`,
       this.accessDataMiddleware.validateCredentials,
       this.authMiddleware.authorizationUser,
       this.supplierController.findAllNoPagination
+    );
+
+    this.router.get(
+      `${this._prefix}/:id`,
+      this.accessDataMiddleware.validateCredentials,
+      this.authMiddleware.authorizationUser,
+      this.supplierController.findById
     );
 
     this.router.get(

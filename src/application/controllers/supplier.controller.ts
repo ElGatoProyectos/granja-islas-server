@@ -26,6 +26,7 @@ class SupplierController {
   };
 
   findAllNoPagination = async (request: Request, response: Response) => {
+    console.log("controller");
     const ruc = request.get("ruc") as string;
     const result = await this.supplierService.findAllNoPagination(ruc);
     response.status(result.statusCode).json(result);
