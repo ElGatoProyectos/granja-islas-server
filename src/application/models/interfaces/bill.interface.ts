@@ -2,7 +2,14 @@ import { Bill } from "@prisma/client";
 import { I_CreateProduct } from "./product.interface";
 
 export interface I_CreateBill
-  extends Omit<Bill, "id" | "created_at" | "updated_at"> {}
+  extends Omit<
+    Bill,
+    | "id"
+    | "created_at"
+    | "updated_at"
+    | "document_code"
+    | "document_description"
+  > {}
 
 export interface I_CreateBillFromBody
   extends Omit<

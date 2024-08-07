@@ -200,25 +200,27 @@ model Bill {
   company_id      Int?
   user_id_created Int?
 
-  num_serie           String
-  num_cpe             Int
-  code                String             @unique
-  issue_date          DateTime?          @db.Date
-  expiration_date     DateTime?          @db.Date
-  period              String
-  amount_base         Float              @default(0)
-  igv                 Float              @default(0)
-  total               Float              @default(0)
-  amount_paid         Float              @default(0)
-  amount_pending      Float              @default(0)
-  created_status      TypeStatusCreated  @default(SUNAT)
-  bill_status         TypeStatus?        @default(ACTIVO)
-  bill_status_payment TypeStatusPayment? @default(CREDITO)
-  supplier_id         Int?
-  currency_code       TypeCurrency       @default(PEN)
-  exchange_rate       Float              @default(0)
-  created_at          DateTime           @default(dbgenerated("CURRENT_DATE"))
-  updated_at          DateTime           @updatedAt
+  num_serie            String
+  document_code        String?            @default("01")
+  document_description String?            @default("FACTURA")
+  num_cpe              Int
+  code                 String             @unique
+  issue_date           DateTime?          @db.Date
+  expiration_date      DateTime?          @db.Date
+  period               String
+  amount_base          Float              @default(0)
+  igv                  Float              @default(0)
+  total                Float              @default(0)
+  amount_paid          Float              @default(0)
+  amount_pending       Float              @default(0)
+  created_status       TypeStatusCreated  @default(SUNAT)
+  bill_status          TypeStatus?        @default(ACTIVO)
+  bill_status_payment  TypeStatusPayment? @default(CREDITO)
+  supplier_id          Int?
+  currency_code        TypeCurrency       @default(PEN)
+  exchange_rate        Float              @default(0)
+  created_at           DateTime           @default(dbgenerated("CURRENT_DATE"))
+  updated_at           DateTime           @updatedAt
 
   Company  Company?  @relation(fields: [company_id], references: [id])
   Supplier Supplier? @relation(fields: [supplier_id], references: [id])
@@ -231,23 +233,25 @@ model CreditNote {
   company_id      Int?
   user_id_created Int?
 
-  num_serie           String
-  num_cpe             Int
-  code                String
-  issue_date          DateTime?          @db.Date
-  expiration_date     DateTime?          @db.Date
-  period              String
-  amount_base         Float              @default(0)
-  igv                 Float              @default(0)
-  total               Float              @default(0)
-  amount_paid         Float              @default(0)
-  amount_pending      Float              @default(0)
-  created_status      TypeStatusCreated  @default(SUNAT)
-  bill_status         TypeStatus?        @default(ACTIVO)
-  bill_status_payment TypeStatusPayment? @default(CREDITO)
-  supplier_id         Int?
-  currency_code       TypeCurrency       @default(PEN)
-  exchange_rate       Float              @default(0)
+  document_code        String?            @default("07")
+  document_description String?            @default("NOTA_CREDITO")
+  num_serie            String
+  num_cpe              Int
+  code                 String
+  issue_date           DateTime?          @db.Date
+  expiration_date      DateTime?          @db.Date
+  period               String
+  amount_base          Float              @default(0)
+  igv                  Float              @default(0)
+  total                Float              @default(0)
+  amount_paid          Float              @default(0)
+  amount_pending       Float              @default(0)
+  created_status       TypeStatusCreated  @default(SUNAT)
+  bill_status          TypeStatus?        @default(ACTIVO)
+  bill_status_payment  TypeStatusPayment? @default(CREDITO)
+  supplier_id          Int?
+  currency_code        TypeCurrency       @default(PEN)
+  exchange_rate        Float              @default(0)
 
   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt
@@ -275,12 +279,14 @@ model DebitNote {
   company_id      Int?
   user_id_created Int?
 
-  num_serie       String
-  num_cpe         Int
-  code            String
-  issue_date      DateTime? @db.Date
-  expiration_date DateTime? @db.Date
-  period          String
+  document_code        String?   @default("08")
+  document_description String?   @default("NOTA_DEBITO")
+  num_serie            String
+  num_cpe              Int
+  code                 String
+  issue_date           DateTime? @db.Date
+  expiration_date      DateTime? @db.Date
+  period               String
 
   amount_base         Float              @default(0)
   igv                 Float              @default(0)
@@ -305,27 +311,28 @@ model DebitNote {
 }
 
 model Ticket {
-  id              Int  @id @default(autoincrement())
-  company_id      Int?
-  user_id_created Int?
-  supplier_id     Int?
-
-  num_serie           String
-  num_cpe             Int
-  code                String
-  issue_date          DateTime?          @db.Date
-  expiration_date     DateTime?          @db.Date
-  period              String
-  amount_base         Float              @default(0)
-  igv                 Float              @default(0)
-  total               Float              @default(0)
-  amount_paid         Float              @default(0)
-  amount_pending      Float              @default(0)
-  created_status      TypeStatusCreated  @default(SUNAT)
-  bill_status         TypeStatus?        @default(ACTIVO) // aqui se podria considerar el estado si es activo u otro estado
-  bill_status_payment TypeStatusPayment? @default(CREDITO)
-  currency_code       TypeCurrency       @default(PEN)
-  exchange_rate       Float              @default(0)
+  id                   Int                @id @default(autoincrement())
+  company_id           Int?
+  user_id_created      Int?
+  supplier_id          Int?
+  document_code        String?            @default("03")
+  document_description String?            @default("BOLETA")
+  num_serie            String
+  num_cpe              Int
+  code                 String
+  issue_date           DateTime?          @db.Date
+  expiration_date      DateTime?          @db.Date
+  period               String
+  amount_base          Float              @default(0)
+  igv                  Float              @default(0)
+  total                Float              @default(0)
+  amount_paid          Float              @default(0)
+  amount_pending       Float              @default(0)
+  created_status       TypeStatusCreated  @default(SUNAT)
+  bill_status          TypeStatus?        @default(ACTIVO) // aqui se podria considerar el estado si es activo u otro estado
+  bill_status_payment  TypeStatusPayment? @default(CREDITO)
+  currency_code        TypeCurrency       @default(PEN)
+  exchange_rate        Float              @default(0)
 
   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt
