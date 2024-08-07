@@ -5,6 +5,7 @@ import ResponseService from "./response.service";
 import InfoService from "./info.service";
 import {
   Company,
+  CreditNoteDocuments,
   Supplier,
   TypeCurrency,
   TypeDocument,
@@ -193,8 +194,6 @@ class SunatService {
     try {
       // Validamos a la empresa y al usuario donde pertenece
 
-      // [message] debemos recuperar todos los comprabantes tipo boleta, factura, nota de credio y nota de debito
-
       const { payload } = await this.findDocuments(
         data,
         rucFromHeader,
@@ -208,10 +207,7 @@ class SunatService {
 
       if (comprobantes) {
         for (const item of comprobantes) {
-          // [pending] en este caso tenemos que validar los 4 tipos de documentos
           const typeDocument = item.codTipoCDP;
-
-          // [note] se evalua a cada uno porque cada uno tiene una logica diferente
 
           if (typeDocument === typeDocumentSunat.FACTURA.code) {
             await this.synchronizeBill(
@@ -231,7 +227,8 @@ class SunatService {
             await this.synchronizeCreditNote(
               item,
               rucFromHeader,
-              tokenFromHeader
+              tokenFromHeader,
+              selling
             );
           } else if (typeDocument === typeDocumentSunat.NOTA_DE_DEBITO.code) {
             await this.synchronizeDebitNote(
@@ -318,6 +315,7 @@ class SunatService {
 
       // [note] validamos el comprobante
       const code = item.numSerieCDP + "-" + item.numCDP;
+
       const responseBill = await this.billService.findBillForCode(code);
 
       if (responseBill.error && responseBill.statusCode === 404) {
@@ -368,7 +366,8 @@ class SunatService {
           igv: item.montos.mtoIgvIpmDG || 0,
           total: item.montos.mtoTotalCp || 0,
           amount_pending: 0,
-          amount_paid: 0,
+          amount_paid:
+            item.fecVencPag === "" ? Number(item.montos.mtoTotalCp) : 0,
           period:
             item.perTributario.slice(0, 4) +
             "-" +
@@ -384,14 +383,11 @@ class SunatService {
           created_status: TypeStatusCreated.SUNAT,
         };
 
-        // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
         const responseCreateBill = await this.billService.create(
           formatDataBill
         );
 
         if (responseCreateBill.error) return responseCreateBill;
-
-        //[pending] Registrar productos - pendiente porque es otra api
 
         const formatFetchDetail = {
           type: "RECIBIDO",
@@ -400,8 +396,6 @@ class SunatService {
           serie: item.numSerieCDP,
           number: Number(item.numCDP),
         };
-
-        // console.log(formatFetchDetail);
 
         const response = await this.apiService.post(
           environments.BASE_API_QUERY,
@@ -423,9 +417,335 @@ class SunatService {
         return this.responseService.SuccessResponse(
           "Sincronizacion realizada con exito, verifique los productos registrados"
         );
+      } else {
+        // [note] si ya esta registrado lo que debemos hacer es eliminar todas las referencias con respecto a la factura
+
+        // verificamos si es de estado local o sunat, solo eliminamos si es de estado local
+
+        if (responseBill.payload.created_status === TypeStatusCreated.LOCAL) {
+          // boramos la factura si esta en modo local
+
+          const supplier = await prisma.supplier.findFirst({
+            where: { id: responseBill.payload.supplier_id },
+          });
+
+          if (!supplier)
+            return this.responseService.NotFoundException(
+              "Proveedor no encontrado"
+            );
+
+          await prisma.bill.delete({
+            where: { id: responseBill.payload.id },
+          });
+
+          const products = await prisma.product.findMany({
+            where: { document_id: responseBill.payload.id },
+          });
+          for (const product of products) {
+            await prisma.product.delete({ where: { id: product.id } });
+          }
+
+          // boramos los productos registrados
+
+          await prisma.detailProductLabel.deleteMany({
+            where: {
+              product_id: { in: products.map((product) => product.id) },
+            },
+          });
+
+          // [note] una vez borrado todas las referencias, procedemos a hacer un nuevo registro
+
+          const formatDataBill: I_CreateBill = {
+            num_serie: item.numSerieCDP,
+            num_cpe: Number(item.numCDP),
+            code,
+            issue_date: convertStringToDate(item.fecEmision),
+            expiration_date: convertStringToDate(item.fecVencPag),
+            amount_base: item.montos.mtoBIGravadaDG || 0,
+            igv: item.montos.mtoIgvIpmDG || 0,
+            total: item.montos.mtoTotalCp || 0,
+            amount_pending: 0,
+            amount_paid:
+              item.fecVencPag === "" ? Number(item.montos.mtoTotalCp) : 0,
+            period:
+              item.perTributario.slice(0, 4) +
+              "-" +
+              item.perTributario.slice(4, 6),
+            bill_status: TypeStatus.ACTIVO,
+            bill_status_payment: TypeStatusPayment.CONTADO,
+            supplier_id: responseBill.payload.supplier_id,
+            company_id: company.id,
+            user_id_created: user.id,
+            currency_code:
+              item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
+            exchange_rate: selling,
+            created_status: TypeStatusCreated.SUNAT,
+          };
+
+          const responseCreateBill = await this.billService.create(
+            formatDataBill
+          );
+
+          if (responseCreateBill.error) return responseBill;
+
+          const formatFetchDetail = {
+            type: "RECIBIDO",
+            payment_type: typeDocumentSunat.FACTURA.description,
+            ruc: item.numDocIdentidadProveedor,
+            serie: item.numSerieCDP,
+            number: Number(item.numCDP),
+          };
+
+          const response = await this.apiService.post(
+            environments.BASE_API_QUERY,
+            "v1/comprobantes/detalle",
+            formatFetchDetail
+          );
+          const productsRestore = response.data
+            .comprobantes as I_ResponseDetail[];
+
+          await this.registerProductsInSynchronize(
+            productsRestore,
+            supplier,
+            TypeDocument.BILL,
+            responseCreateBill.payload.id
+          );
+
+          return this.responseService.SuccessResponse(
+            "Sincronizacion realizada con exito, verifique los productos registrados"
+          );
+        }
       }
     } catch (error) {
-      console.log(error);
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
+  synchronizeCreditNote = async (
+    item: I_Document_Item,
+    rucFromHeader: string,
+    tokenFromHeader: string,
+    selling: number
+  ) => {
+    try {
+      // [note] data de usuario y empresa actual
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        tokenFromHeader,
+        rucFromHeader
+      );
+
+      if (responseInfo.error) return responseInfo;
+
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+
+      // [note] validamos el comprobante
+      const code = item.numSerieCDP + "-" + item.numCDP;
+      const responseBill = await this.creditNoteService.findForCode(code);
+
+      if (responseBill.error && responseBill.statusCode === 404) {
+        // [message] Si en caso no exista el proveedor para la empresa lo registramos
+        // [message] no podemos sacar la logica del registro de proveedor afuera porque es el id dinamico de cada documento
+        const responseSupplier = await this.supplierService.findForRuc(
+          item.numDocIdentidadProveedor,
+          rucFromHeader
+        );
+
+        let supplier: Supplier | null = responseSupplier.payload;
+        if (responseSupplier.error && responseSupplier.statusCode === 404) {
+          const formatDataSupplier: I_CreateSupplier = {
+            business_direction: "",
+            business_name: extractCompanyDetails(item.nomRazonSocialProveedor)
+              .businessName,
+            business_status: "ACTIVO",
+
+            business_type: extractCompanyDetails(item.nomRazonSocialProveedor)
+              .businessType,
+            company_id: company.id,
+            description: "",
+            ruc: item.numDocIdentidadProveedor,
+            user_id_created: user.id,
+            phone: null,
+            country_code: null,
+          };
+
+          const responseCreateSupplier = await this.supplierService.create(
+            formatDataSupplier,
+            tokenFromHeader,
+            rucFromHeader
+          );
+
+          if (responseCreateSupplier.error) return responseCreateSupplier;
+          supplier = responseCreateSupplier.payload as Supplier;
+        }
+
+        // [message] Registrar comprobante
+
+        const formatDataBill: I_CreateBill = {
+          num_serie: item.numSerieCDP,
+          num_cpe: Number(item.numCDP),
+          code,
+          issue_date: convertStringToDate(item.fecEmision),
+          expiration_date: convertStringToDate(item.fecVencPag),
+          amount_base: item.montos.mtoBIGravadaDG || 0,
+          igv: item.montos.mtoIgvIpmDG || 0,
+          total: item.montos.mtoTotalCp || 0,
+          amount_pending: 0,
+          amount_paid: 0,
+          period:
+            item.perTributario.slice(0, 4) +
+            "-" +
+            item.perTributario.slice(4, 6),
+          bill_status: TypeStatus.ACTIVO,
+          bill_status_payment: TypeStatusPayment.CONTADO,
+          supplier_id: supplier ? supplier.id : null,
+          company_id: company.id,
+          user_id_created: user.id,
+          currency_code:
+            item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
+          exchange_rate: 0, //[error] evaluar esto, porque debe salir de la api de consulta ruc
+          created_status: TypeStatusCreated.SUNAT,
+        };
+
+        // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
+        const responseCreateCreditNote = await this.creditNoteService.create(
+          formatDataBill
+        );
+
+        if (responseCreateCreditNote.error) return responseCreateCreditNote;
+
+        //[pending] Registrar productos - pendiente porque es otra api
+
+        const formatFetchDetail = {
+          type: "RECIBIDO",
+          payment_type: typeDocumentSunat.FACTURA.description,
+          ruc: rucFromHeader,
+          serie: item.numSerieCDP,
+          number: Number(item.numCDP),
+        };
+      } else {
+        // verificamos si es de estado local o sunat, solo eliminamos si es de estado local
+
+        if (responseBill.payload.created_status === TypeStatusCreated.LOCAL) {
+          // boramos la factura si esta en modo local
+
+          const supplier = await prisma.supplier.findFirst({
+            where: { id: responseBill.payload.supplier_id },
+          });
+
+          if (!supplier)
+            return this.responseService.NotFoundException(
+              "Proveedor no encontrado"
+            );
+
+          await prisma.bill.delete({
+            where: { id: responseBill.payload.id },
+          });
+
+          // [message] dudo que en una nota de credito haya productos, asi que no necesitamos borrar nada
+          // const products = await prisma.product.findMany({
+          //   where: { document_id: responseBill.payload.id },
+          // });
+          // for (const product of products) {
+          //   await prisma.product.delete({ where: { id: product.id } });
+          // }
+
+          // // boramos los productos registrados
+
+          // await prisma.detailProductLabel.deleteMany({
+          //   where: {
+          //     product_id: { in: products.map((product) => product.id) },
+          //   },
+          // });
+
+          // [note] una vez borrado todas las referencias, procedemos a hacer un nuevo registro
+
+          const formatDataCreditNote: I_CreateBill = {
+            num_serie: item.numSerieCDP,
+            num_cpe: Number(item.numCDP),
+            code,
+            issue_date: convertStringToDate(item.fecEmision),
+            expiration_date: convertStringToDate(item.fecVencPag),
+            amount_base: item.montos.mtoBIGravadaDG || 0,
+            igv: item.montos.mtoIgvIpmDG || 0,
+            total: item.montos.mtoTotalCp || 0,
+            amount_pending: 0,
+            amount_paid:
+              item.fecVencPag === "" ? Number(item.montos.mtoTotalCp) : 0,
+            period:
+              item.perTributario.slice(0, 4) +
+              "-" +
+              item.perTributario.slice(4, 6),
+            bill_status: TypeStatus.ACTIVO,
+            bill_status_payment: TypeStatusPayment.CONTADO,
+            supplier_id: responseBill.payload.supplier_id,
+            company_id: company.id,
+            user_id_created: user.id,
+            currency_code:
+              item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
+            exchange_rate: selling,
+            created_status: TypeStatusCreated.SUNAT,
+          };
+
+          const responseCreateCreditNote = await this.creditNoteService.create(
+            formatDataCreditNote
+          );
+
+          if (responseCreateCreditNote.error) return responseBill;
+
+          // [note] en este caso no necesitamos registrar los productos porque es una nota de credito, esta tiene unos items que debemos revisar
+
+          const itemDocuments = item.lisDocumentosMod;
+
+          await Promise.all(
+            itemDocuments.map(async (itemD) => {
+              const formatCreditNotedocument = {
+                credit_note_id: responseCreateCreditNote.payload.id,
+                issue_date: convertStringToDate(itemD.fecEmisionMod),
+                code_type_document: itemD.codTipoCDPMod,
+                num_serie: itemD.numSerieCDPMod,
+                num_cpe: Number(itemD.numCDPMod),
+              };
+              const responseCreateCreditNoteDocument =
+                await prisma.creditNoteDocuments.create({
+                  data: formatCreditNotedocument,
+                });
+
+              const creditNoteDocument: CreditNoteDocuments =
+                responseCreateCreditNoteDocument;
+
+              const billCode =
+                creditNoteDocument.num_serie + "-" + creditNoteDocument.num_cpe;
+
+              const billInstance = await this.billService.findBillForCode(
+                billCode
+              );
+
+              if (billInstance.error) return billInstance;
+
+              await prisma.bill.update({
+                where: { code },
+                data: {
+                  amount_paid: {
+                    increment: Number(item.montos.mtoBIGravadaDG),
+                  },
+                  amount_pending: {
+                    decrement: Number(item.montos.mtoBIGravadaDG),
+                  },
+                },
+              });
+            })
+          );
+
+          return this.responseService.SuccessResponse(
+            "Sincronizacion realizada con exito, verifique los productos registrados"
+          );
+        }
+      }
+    } catch (error) {
       return this.responseService.InternalServerErrorException(
         undefined,
         error
@@ -556,143 +876,6 @@ class SunatService {
         return this.responseService.SuccessResponse(
           "Sincronizacion realizada con exito, verifique los productos registrados"
         );
-      }
-    } catch (error) {
-      return this.responseService.InternalServerErrorException(
-        undefined,
-        error
-      );
-    }
-  };
-
-  synchronizeCreditNote = async (
-    item: I_Document_Item,
-    rucFromHeader: string,
-    tokenFromHeader: string
-  ) => {
-    try {
-      // [note] data de usuario y empresa actual
-      const responseInfo = await this.infoService.getCompanyAndUser(
-        tokenFromHeader,
-        rucFromHeader
-      );
-
-      if (responseInfo.error) return responseInfo;
-
-      const { company, user }: { company: Company; user: User } =
-        responseInfo.payload;
-
-      // [note] validamos el comprobante
-      const code = item.numSerieCDP + "-" + item.numCDP;
-      const responseBill = await this.creditNoteService.findForCode(code);
-
-      if (responseBill.error && responseBill.statusCode === 404) {
-        // [message] Si en caso no exista el proveedor para la empresa lo registramos
-        // [message] no podemos sacar la logica del registro de proveedor afuera porque es el id dinamico de cada documento
-        const responseSupplier = await this.supplierService.findForRuc(
-          item.numDocIdentidadProveedor,
-          rucFromHeader
-        );
-
-        let supplier: Supplier | null = responseSupplier.payload;
-        if (responseSupplier.error && responseSupplier.statusCode === 404) {
-          const formatDataSupplier: I_CreateSupplier = {
-            business_direction: "",
-            business_name: extractCompanyDetails(item.nomRazonSocialProveedor)
-              .businessName,
-            business_status: "ACTIVO",
-
-            business_type: extractCompanyDetails(item.nomRazonSocialProveedor)
-              .businessType,
-            company_id: company.id,
-            description: "",
-            ruc: item.numDocIdentidadProveedor,
-            user_id_created: user.id,
-            phone: null,
-            country_code: null,
-          };
-
-          const responseCreateSupplier = await this.supplierService.create(
-            formatDataSupplier,
-            tokenFromHeader,
-            rucFromHeader
-          );
-
-          if (responseCreateSupplier.error) return responseCreateSupplier;
-          supplier = responseCreateSupplier.payload as Supplier;
-        }
-
-        // [message] Registrar comprobante
-
-        const formatDataBill: I_CreateBill = {
-          num_serie: item.numSerieCDP,
-          num_cpe: Number(item.numCDP),
-          code,
-          issue_date: convertStringToDate(item.fecEmision),
-          expiration_date: convertStringToDate(item.fecVencPag),
-          amount_base: item.montos.mtoBIGravadaDG || 0,
-          igv: item.montos.mtoIgvIpmDG || 0,
-          total: item.montos.mtoTotalCp || 0,
-          amount_pending: 0,
-          amount_paid: 0,
-          period:
-            item.perTributario.slice(0, 4) +
-            "-" +
-            item.perTributario.slice(4, 6),
-          bill_status: TypeStatus.ACTIVO,
-          bill_status_payment: TypeStatusPayment.CONTADO,
-          supplier_id: supplier ? supplier.id : null,
-          company_id: company.id,
-          user_id_created: user.id,
-          currency_code:
-            item.codMoneda === "PEN" ? TypeCurrency.PEN : TypeCurrency.USD,
-          exchange_rate: 0, //[error] evaluar esto, porque debe salir de la api de consulta ruc
-          created_status: TypeStatusCreated.SUNAT,
-        };
-
-        // [note] paso esto porque el metodo puede ser que no necesite de el ruc header y el token
-        const responseCreateCreditNote = await this.creditNoteService.create(
-          formatDataBill
-        );
-
-        if (responseCreateCreditNote.error) return responseCreateCreditNote;
-
-        //[pending] Registrar productos - pendiente porque es otra api
-
-        const formatFetchDetail = {
-          type: "RECIBIDO",
-          payment_type: typeDocumentSunat.FACTURA.description,
-          ruc: rucFromHeader,
-          serie: item.numSerieCDP,
-          number: Number(item.numCDP),
-        };
-
-        // const products = item.informacionItems as I_ItemsBill[];
-
-        // await Promise.all(
-        //   products.map(async (product: I_ItemsBill) => {
-        //     const slug = slugify(product.desItem, { lower: true });
-
-        //     const formatProduct: I_CreateProduct = {
-        //       title: product.desItem,
-        //       amount: product.cntItems,
-        //       price: product.mtoValUnitario,
-        //       slug,
-        //       supplier_id: supplier ? supplier.id : null,
-        //       description: "",
-        //       unit_measure: product.desUnidadMedida,
-        //       code_measure: product.codUnidadMedida,
-        //     };
-
-        //     const responseCreateProduct = await this.productService.create(
-        //       formatProduct
-        //     );
-
-        //     responseCreateProduct;
-        //     if (responseCreateProduct.error) return responseCreateProduct;
-        //     numberActions++;
-        //   })
-        // );
       }
     } catch (error) {
       return this.responseService.InternalServerErrorException(

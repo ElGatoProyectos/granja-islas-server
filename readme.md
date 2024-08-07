@@ -40,7 +40,7 @@ Para iniciar el proyecto backend deberas seguir los siguientes pasos
 
 <br/>
 <br/>
-Apis funcionales
+<!-- Apis funcionales -->
 <br/>
 <br/>
 

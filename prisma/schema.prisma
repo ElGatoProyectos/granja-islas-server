@@ -252,10 +252,22 @@ model CreditNote {
   created_at DateTime @default(dbgenerated("CURRENT_DATE"))
   updated_at DateTime @updatedAt
 
-  Company  Company?  @relation(fields: [company_id], references: [id])
-  Supplier Supplier? @relation(fields: [supplier_id], references: [id])
-  User     User?     @relation(fields: [user_id_created], references: [id])
-  Voucher  Voucher[]
+  Company             Company?              @relation(fields: [company_id], references: [id])
+  Supplier            Supplier?             @relation(fields: [supplier_id], references: [id])
+  User                User?                 @relation(fields: [user_id_created], references: [id])
+  Voucher             Voucher[]
+  CreditNoteDocuments CreditNoteDocuments[]
+}
+
+model CreditNoteDocuments {
+  id                 Int       @id @default(autoincrement())
+  credit_note_id     Int
+  issue_date         DateTime? @db.Date
+  code_type_document String
+  num_serie          String
+  num_cpe            Int
+
+  CreditNote CreditNote? @relation(fields: [credit_note_id], references: [id])
 }
 
 model DebitNote {
