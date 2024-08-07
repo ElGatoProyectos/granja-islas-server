@@ -50,6 +50,22 @@ class DocumentController {
     });
     response.status(result.statusCode).json(result);
   };
+
+  findDetail = async (request: Request, response: Response) => {
+    const token = request.get("Authorization") as string;
+    const ruc = request.get("ruc") as string;
+    const document_code = request.query.document_code as string;
+    const document_id = Number(request.query.document_id);
+
+    const result = await this.documentService.findDetail({
+      params: {
+        document_code,
+        document_id,
+      },
+      header: { ruc, token },
+    });
+    response.status(result.statusCode).json(result);
+  };
 }
 
 export default DocumentController;

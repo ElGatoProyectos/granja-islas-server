@@ -26,6 +26,8 @@ export interface I_CreateBillFromBody
     | "num_cpe"
     | "bill_status_payment"
     | "base_amount"
+    | "document_code"
+    | "document_description"
   > {
   bill_status_payment: string;
   products: T_ProductInBill[];

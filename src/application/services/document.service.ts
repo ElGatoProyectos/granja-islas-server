@@ -1,9 +1,20 @@
+import {
+  Bill,
+  Company,
+  CreditNote,
+  DebitNote,
+  Ticket,
+  User,
+} from "@prisma/client";
+import { typeDocumentSunat } from "../models/constants/type_document.constant";
 import { T_Header } from "../models/types/methods.type";
 import BillService from "./bill.service";
 import CreditNoteService from "./credit-note.service";
 import DebitNoteService from "./debit-note.service";
 import ResponseService from "./response.service";
 import TicketService from "./ticket.service";
+import prisma from "../../infrastructure/database/prisma";
+import InfoService from "./info.service";
 
 type T_FindAllNopagination = {
   params: {
@@ -27,20 +38,21 @@ type T_FindAll = {
   header: T_Header;
 };
 
-class DocumentService {
-  private billService: BillService;
-  private ticketService: TicketService;
-  private creditNoteService: CreditNoteService;
-  private debitNoteService: DebitNoteService;
-  private responseService: ResponseService;
+type T_FindDetail = {
+  params: {
+    document_code: string;
+    document_id: number;
+  };
+  header: T_Header;
+};
 
-  constructor() {
-    this.billService = new BillService();
-    this.ticketService = new TicketService();
-    this.creditNoteService = new CreditNoteService();
-    this.debitNoteService = new DebitNoteService();
-    this.responseService = new ResponseService();
-  }
+class DocumentService {
+  private billService: BillService = new BillService();
+  private ticketService: TicketService = new TicketService();
+  private creditNoteService: CreditNoteService = new CreditNoteService();
+  private debitNoteService: DebitNoteService = new DebitNoteService();
+  private responseService: ResponseService = new ResponseService();
+  private infoService: InfoService = new InfoService();
 
   findAllByAccumulated = async ({ params, header }: T_FindAllNopagination) => {
     const body = {
@@ -126,6 +138,55 @@ class DocumentService {
       return this.responseService.SuccessResponse(
         "Reporte por tipo de documento",
         formatData
+      );
+    } catch (error) {
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
+  findDetail = async (data: T_FindDetail) => {
+    try {
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        data.header.token,
+        data.header.ruc
+      );
+
+      if (responseInfo.error) return responseInfo;
+
+      const { company, user }: { company: Company; user: User } =
+        responseInfo.payload;
+
+      const document_code = data.params.document_code;
+
+      let document: Bill | CreditNote | DebitNote | Ticket | null = null;
+
+      if (document_code === typeDocumentSunat.FACTURA.code) {
+        document = await prisma.bill.findFirst({
+          where: { id: data.params.document_id, company_id: company.id },
+          include: { Supplier: true },
+        });
+      } else if (document_code === typeDocumentSunat.BOLETA_DE_VENTA.code) {
+        document = await prisma.ticket.findFirst({
+          where: { id: data.params.document_id, company_id: company.id },
+          include: { Supplier: true },
+        });
+      } else if (document_code === typeDocumentSunat.NOTA_DE_CREDITO.code) {
+        document = await prisma.creditNote.findFirst({
+          where: { id: data.params.document_id, company_id: company.id },
+          include: { Supplier: true },
+        });
+      }
+
+      if (!document)
+        return this.responseService.NotFoundException(
+          "Documento no encontrado"
+        );
+      return this.responseService.SuccessResponse(
+        "Detalle del documento",
+        document
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException(

@@ -216,7 +216,7 @@ class SunatService {
               tokenFromHeader,
               selling
             );
-          } else if (typeDocument === typeDocumentSunat.BOLETA_DEV_VENTA.code) {
+          } else if (typeDocument === typeDocumentSunat.BOLETA_DE_VENTA.code) {
             await this.synchronizeTicket(
               item,
               rucFromHeader,

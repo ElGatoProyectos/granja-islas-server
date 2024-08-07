@@ -1,6 +1,6 @@
 export const typeDocumentSunat = {
   FACTURA: { code: "01", description: "FACTURA" },
-  BOLETA_DEV_VENTA: { code: "03", description: "BOLETA DE VENTA" },
+  BOLETA_DE_VENTA: { code: "03", description: "BOLETA DE VENTA" },
   LIQUIDACION_DE_COMPRA: { code: "04", description: "LIQUIDACION DE COMPRA" },
   NOTA_DE_CREDITO: { code: "07", description: "NOTA DE CREDITO" },
   NOTA_DE_DEBITO: { code: "08", description: "NOTA DE DEBITO" },
