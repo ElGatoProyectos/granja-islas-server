@@ -38,6 +38,7 @@ type T_FindByReport = {
     year: number | undefined;
     month: number | undefined;
     supplier_group_id: string | undefined;
+    status_group: string | undefined;
   };
   pagination: {
     page: number;
@@ -252,19 +253,48 @@ class ProductLabelService {
       const { user, company }: { user: User; company: Company } =
         responseInfo.payload;
 
+      let filtered: any = {};
+
+      let filteredSuppliers: any = {};
+
+      if (data.params.filter) {
+        filtered.title = {
+          contains: data.params.filter,
+        };
+      }
+
+      if (data.params.supplier_group_id) {
+        filteredSuppliers.supplier_id = {
+          in: data.params.supplier_group_id.split(",").map(Number),
+        };
+      }
+
+      if (data.params.year && data.params.month) {
+        filteredSuppliers.period = `${data.params.year}-${data.params.month
+          .toString()
+          .padStart(2, "0")}`;
+      }
+
+      if (data.params.status_group) {
+        filteredSuppliers.Supplier.business_status = {
+          in: data.params.status_group.split(","),
+        };
+      }
+
+      console.log(filteredSuppliers);
+
       const detailLabels = await prisma.productLabel.findMany({
-        where: { company_id: company.id, status_deleted: false },
+        where: { company_id: company.id, status_deleted: false, ...filtered },
       });
 
       const detailProductLabels = await prisma.detailProductLabel.findMany({
+        // where: {
+        //   Label: { company_id: company.id, status_deleted: false },
+        // },
         where: {
-          Label: { company_id: company.id, status_deleted: false },
+          product_label_id: { in: detailLabels.map((item) => item.id) },
         },
         include: { Product: true, Label: true },
-      });
-
-      const products = await prisma.product.findMany({
-        where: { status_deleted: false },
       });
 
       const labeldsSet = new Set(
@@ -287,6 +317,7 @@ class ProductLabelService {
           const bills = await prisma.bill.findMany({
             where: {
               id: { in: billIds },
+              ...filteredSuppliers,
             },
             orderBy: { issue_date: "desc" }, // Ordenar por fecha de emisión
             include: { Supplier: true },
@@ -295,12 +326,7 @@ class ProductLabelService {
           if (bills.length === 0) {
             return null;
           }
-          // console.log("-----------------------------------------");
-          // console.log(detail);
-          // console.log(bills);
-          // console.log("-----------------------------------------");
 
-          // Datos para calcular
           const lastBill = bills[0];
           const lastPrice = lastBill.amount_base;
           const currencyCode = lastBill.currency_code;
@@ -327,8 +353,6 @@ class ProductLabelService {
             (b) => b.supplier_id === productIdMinPrice
           )?.Supplier;
 
-          console.log("El producto de menor precio es: ", productIdMinPrice);
-
           const lastPurchaseDate = lastBill.issue_date;
 
           return {
@@ -343,9 +367,30 @@ class ProductLabelService {
         })
       );
 
+      const responseNoNull = response.filter((item) => item !== null);
+
+      // Obtener el total de registros
+      const total = responseNoNull.length;
+      const pageCount = Math.ceil(total / data.pagination.limit);
+
+      // Aplicar paginación
+      const paginatedData = responseNoNull.slice(
+        skip,
+        skip + data.pagination.limit
+      );
+
+      // Formatear la respuesta
+      const formatData = {
+        total,
+        page: data.pagination.page,
+        limit: data.pagination.limit,
+        pageCount,
+        data: paginatedData,
+      };
+
       return this.responseService.SuccessResponse(
         "Lista de etiquetas",
-        response
+        formatData
       );
     } catch (error) {
       return this.responseService.InternalServerErrorException(

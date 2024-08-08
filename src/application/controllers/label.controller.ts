@@ -97,6 +97,7 @@ class LabelController {
     const limit = Number(request.query.limit) || 20;
     const filter = request.query.filter as string;
     const supplier_group_id = request.query.supplier_group_id as string;
+    const status_group = request.query.status as string;
 
     const format = {
       params: {
@@ -104,6 +105,7 @@ class LabelController {
         year,
         month,
         supplier_group_id,
+        status_group,
       },
       pagination: {
         page,
