@@ -72,7 +72,7 @@ class VoucherService {
 
       const voucher = await prisma.voucher.findFirst({
         where: {
-          company_id: company.id,
+          // company_id: company.id,  // [error] remove here
           id: voucherId,
         },
       });
