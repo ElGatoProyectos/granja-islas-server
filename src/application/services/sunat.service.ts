@@ -203,12 +203,13 @@ class SunatService {
       // Validamos a la empresa y al usuario donde pertenece
 
       const range = getPeriodRange(format.start, format.end);
+
       await Promise.all(
         range.map(async (period) => {
           const data = {
             period,
             page: 1,
-            perPage: 1000,
+            perPage: 100,
           };
 
           const { payload } = await this.findDocuments(
