@@ -6,7 +6,7 @@ import VoucherMiddleware from "../middlewares/voucher.middleware";
 
 class VoucherRouter {
   public router: Router;
-  private _prefix: string = "/bills";
+  private _prefix: string = "/vouchers";
   private authMiddleware: AuthMiddleware;
   private accessDataMiddleware: AccessDataMiddleware;
   private voucherMiddleware: VoucherMiddleware;
@@ -29,49 +29,92 @@ class VoucherRouter {
     this.deleteRoutes();
   }
 
-  private getRoutes() {
-    this.router.get(
-      `${this._prefix}/:bill_id/vouchers`,
+  private postRoutes() {
+    this.router.post(
+      `${this._prefix}`,
       this.authMiddleware.authorizationUser,
       this.accessDataMiddleware.validateCredentials,
-      this.voucherController.findAll
+      this.voucherController.create
+    );
+  }
+  private getRoutes() {
+    this.router.get(
+      `${this._prefix}/`,
+      this.authMiddleware.authorizationUser,
+      this.accessDataMiddleware.validateCredentials,
+      this.voucherController.findAllForDocument
     );
 
     this.router.get(
-      `${this._prefix}/:bill_id/vouchers/:voucher_id/file`,
+      `${this._prefix}/:voucher_id/image`,
       this.authMiddleware.authorizationUser,
       this.accessDataMiddleware.validateCredentials,
       this.voucherController.getImage
     );
   }
 
-  private postRoutes() {
-    this.router.post(
-      `${this._prefix}/:bill_id/vouchers`,
-      this.authMiddleware.authorizationUser,
-      this.accessDataMiddleware.validateCredentials,
-      this.voucherController.create
-    );
-  }
-
   private patchRoutes() {
     this.router.patch(
-      `${this._prefix}/:bill_id/vouchers/:voucher_id`,
+      `${this._prefix}/:voucher_id`,
       this.authMiddleware.authorizationSuperAdmin,
       this.accessDataMiddleware.validateCredentials,
       this.voucherMiddleware.validateUpdate,
-      this.voucherController.update
+      this.voucherController.updateStatus
     );
   }
 
   private deleteRoutes() {
     this.router.delete(
-      `${this._prefix}/:bill_id/vouchers/:voucher_id`,
+      `${this._prefix}/:voucher_id`,
       this.authMiddleware.authorizationSuperAdmin,
       this.accessDataMiddleware.validateCredentials,
       this.voucherController.delete
     );
   }
+
+  // private getRoutes() {
+  //   this.router.get(
+  //     `${this._prefix}/:bill_id/vouchers`,
+  //     this.authMiddleware.authorizationUser,
+  //     this.accessDataMiddleware.validateCredentials,
+  //     this.voucherController.findAllForDocument
+  //   );
+
+  //   this.router.get(
+  //     `${this._prefix}/:bill_id/vouchers/:voucher_id/file`,
+  //     this.authMiddleware.authorizationUser,
+  //     this.accessDataMiddleware.validateCredentials,
+  //     this.voucherController.getImage
+  //   );
+  // }
+
+  // private postRoutes() {
+  //   this.router.post(
+  //     `${this._prefix}/:bill_id/vouchers`,
+  //     this.authMiddleware.authorizationUser,
+  //     this.accessDataMiddleware.validateCredentials,
+  //     this.voucherController.create
+  //   );
+  // }
+
+  // private patchRoutes() {
+  //   this.router.patch(
+  //     `${this._prefix}/:bill_id/vouchers/:voucher_id`,
+  //     this.authMiddleware.authorizationSuperAdmin,
+  //     this.accessDataMiddleware.validateCredentials,
+  //     this.voucherMiddleware.validateUpdate,
+  //     this.voucherController.update
+  //   );
+  // }
+
+  // private deleteRoutes() {
+  //   this.router.delete(
+  //     `${this._prefix}/:bill_id/vouchers/:voucher_id`,
+  //     this.authMiddleware.authorizationSuperAdmin,
+  //     this.accessDataMiddleware.validateCredentials,
+  //     this.voucherController.delete
+  //   );
+  // }
 }
 
 export default new VoucherRouter().router;

@@ -225,7 +225,6 @@ model Bill {
   Company  Company?  @relation(fields: [company_id], references: [id])
   Supplier Supplier? @relation(fields: [supplier_id], references: [id])
   User     User?     @relation(fields: [user_id_created], references: [id])
-  Voucher  Voucher[]
 }
 
 model CreditNote {
@@ -352,11 +351,13 @@ enum StatusVoucher {
 model Voucher {
   id               Int           @id @default(autoincrement())
   bank_id          Int
-  bill_id          Int
+  document_id      Int
+  document_code    String
   company_id       Int
   user_id_created  Int?
   operation_number String
-  amount           Float
+  amount_original  Float
+  amount_converted Float
   type_currency    TypeCurrency
   exchange_rate    Float         @default(0)
   date             DateTime      @default(now()) @db.Date
@@ -364,7 +365,6 @@ model Voucher {
   status_deleted   Boolean       @default(false)
 
   Bank         Bank        @relation(fields: [bank_id], references: [id])
-  Bill         Bill        @relation(fields: [bill_id], references: [id])
   Company      Company     @relation(fields: [company_id], references: [id])
   User         User?       @relation(fields: [user_id_created], references: [id])
   CreditNote   CreditNote? @relation(fields: [creditNoteId], references: [id])

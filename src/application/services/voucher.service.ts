@@ -20,7 +20,12 @@ class VoucherService {
     this.infoService = new InfoService();
   }
 
-  findAll = async (billId: number, rucFromHeader: string, token: string) => {
+  findAll = async (
+    document_id: number,
+    document_code: string,
+    rucFromHeader: string,
+    token: string
+  ) => {
     try {
       const responseInfo = await this.infoService.getCompanyAndUser(
         token,
@@ -32,7 +37,7 @@ class VoucherService {
         responseInfo.payload;
 
       const vouchers = await prisma.voucher.findMany({
-        where: { company_id: company.id, bill_id: billId },
+        where: { company_id: company.id, document_id, document_code },
       });
 
       return this.responseService.SuccessResponse(
@@ -50,7 +55,6 @@ class VoucherService {
   };
 
   getImage = async (
-    billId: number,
     voucherId: number,
     rucFromHeader: string,
     token: string
@@ -66,7 +70,10 @@ class VoucherService {
         responseInfo.payload;
 
       const voucher = await prisma.voucher.findFirst({
-        where: { company_id: company.id, bill_id: billId, id: voucherId },
+        where: {
+          company_id: company.id,
+          id: voucherId,
+        },
       });
 
       if (!voucher)
@@ -104,7 +111,6 @@ class VoucherService {
 
   registerVoucher = async (
     data: I_CreateVoucher,
-    billId: number,
     rucFromHeader: string,
     token: string
   ) => {
@@ -120,18 +126,33 @@ class VoucherService {
 
       const formatData = {
         ...data,
+        amount_original: data.amount_original,
+        amount_converted: data.amount_original * data.exchange_rate,
         company_id: company.id,
         user_id_created: user.id,
-        bill_id: billId,
-        exchange_rate: Number(data.exchange_rate),
+        exchange_rate: data.exchange_rate,
       };
 
-      const bill = await prisma.bill.findFirst({
-        where: { id: billId, company_id: company.id },
-      });
-      if (!bill)
+      let document = undefined;
+
+      if (data.document_code === "01") {
+        document = await prisma.bill.findFirst({
+          where: { id: data.document_id, company_id: company.id },
+        });
+      } else if (data.document_code === "07") {
+        document = await prisma.creditNote.findFirst({
+          where: { id: data.document_id, company_id: company.id },
+        });
+      }
+
+      // const bill = await prisma.bill.findFirst({
+      //   where: { document_code: data.document_code,
+      //     document_id: data.document_id,
+      //     company_id: company.id },
+      // });
+      if (!document)
         return this.responseService.BadRequestException(
-          "La factura o la empresa seleccionada no corresponden"
+          "Ocurrio un error al solicitar la informacion"
         );
 
       const created = await prisma.voucher.create({ data: formatData });
@@ -152,8 +173,7 @@ class VoucherService {
 
   updateStatus = async (
     data: I_StatusVoucher,
-    billId: number,
-    voucherId: number,
+    voucher_id: number,
     rucFromHeader: string,
     token: string
   ) => {
@@ -168,17 +188,17 @@ class VoucherService {
       const { user, company }: { user: User; company: Company } =
         responseInfo.payload;
 
-      const bill = await prisma.bill.findFirst({
-        where: { id: billId, company_id: company.id },
-      });
+      // const bill = await prisma.bill.findFirst({
+      //   where: { id: billId, company_id: company.id },
+      // });
 
-      if (!bill)
-        return this.responseService.BadRequestException(
-          "La factura o la empresa seleccionada no corresponden"
-        );
+      // if (!bill)
+      //   return this.responseService.BadRequestException(
+      //     "La factura o la empresa seleccionada no corresponden"
+      //   );
 
       const voucher = await prisma.voucher.findFirst({
-        where: { company_id: company.id, id: voucherId },
+        where: { company_id: company.id, id: voucher_id },
       });
 
       if (!voucher)
@@ -192,7 +212,7 @@ class VoucherService {
       if (data.status === E_Status.PENDING) status = StatusVoucher.PENDING;
 
       const updated = await prisma.voucher.update({
-        where: { id: voucherId },
+        where: { id: voucher_id },
         data: { status },
       });
 
@@ -212,7 +232,6 @@ class VoucherService {
   };
 
   deleteById = async (
-    billId: number,
     voucherId: number,
     rucFromHeader: string,
     token: string
@@ -228,14 +247,14 @@ class VoucherService {
       const { user, company }: { user: User; company: Company } =
         responseInfo.payload;
 
-      const bill = await prisma.bill.findFirst({
-        where: { id: billId, company_id: company.id },
-      });
+      // const bill = await prisma.bill.findFirst({
+      //   where: { id: billId, company_id: company.id },
+      // });
 
-      if (!bill)
-        return this.responseService.BadRequestException(
-          "La factura o la empresa seleccionada no corresponden"
-        );
+      // if (!bill)
+      //   return this.responseService.BadRequestException(
+      //     "La factura o la empresa seleccionada no corresponden"
+      //   );
 
       const voucher = await prisma.voucher.findFirst({
         where: { company_id: company.id, id: voucherId },

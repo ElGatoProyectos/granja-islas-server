@@ -8,6 +8,7 @@ import path from "path";
 import sharp from "sharp";
 import VoucherService from "../services/voucher.service";
 import fs from "fs/promises";
+import { E_Status } from "../models/enums/voucher.enum";
 const storage = multer.memoryStorage();
 
 class VoucherController {
@@ -21,26 +22,26 @@ class VoucherController {
     this.upload = multer({ storage: storage });
   }
 
-  findAll = async (request: Request, response: Response) => {
-    const bill_id = Number(request.params.bill_id);
-
+  findAllForDocument = async (request: Request, response: Response) => {
+    const document_id = Number(request.query.document_id);
+    const document_code = request.query.document_code as string;
     const token = request.get("Authorization") as string;
     const ruc = request.get("ruc") as string;
-    const result = await this.voucherService.findAll(bill_id, ruc, token);
+
+    const result = await this.voucherService.findAll(
+      document_id,
+      document_code,
+      ruc,
+      token
+    );
     response.status(result.statusCode).json(result);
   };
 
   getImage = async (request: Request, response: Response) => {
-    const bill_id = Number(request.params.bill_id);
     const voucher_id = Number(request.params.voucher_id);
     const token = request.get("Authorization") as string;
     const ruc = request.get("ruc") as string;
-    const result = await this.voucherService.getImage(
-      bill_id,
-      voucher_id,
-      ruc,
-      token
-    );
+    const result = await this.voucherService.getImage(voucher_id, ruc, token);
     if (result.error) {
       response.status(result.statusCode).json(result);
     } else {
@@ -69,6 +70,7 @@ class VoucherController {
           try {
             //todo validamos el parse
             registerVoucherDTO.parse(request.body);
+
             // - esto ya se valido en el middleware
 
             if (request.file) {
@@ -78,16 +80,16 @@ class VoucherController {
 
               const newFormat = {
                 ...restData,
-                amount: Number(restData.amount),
+                amount_original: Number(restData.amount_original),
+                exchange_rate: Number(restData.exchange_rate),
                 bank_id: Number(restData.bank_id),
+                document_id: Number(restData.document_id),
               };
 
-              const billId = Number(request.params.bill_id);
               const token = request.get("Authorization") as string;
               const ruc = request.get("ruc") as string;
               const result = await this.voucherService.registerVoucher(
                 newFormat,
-                billId,
                 ruc,
                 token
               );
@@ -148,15 +150,13 @@ class VoucherController {
     );
   };
 
-  update = async (request: Request, response: Response) => {
-    const bill_id = Number(request.params.bill_id);
+  updateStatus = async (request: Request, response: Response) => {
     const voucher_id = Number(request.params.voucher_id);
-    const data = request.body;
+    const status = request.query.status as E_Status;
     const token = request.get("Authorization") as string;
     const ruc = request.get("ruc") as string;
     const result = await this.voucherService.updateStatus(
-      data,
-      bill_id,
+      { status },
       voucher_id,
       ruc,
       token
@@ -165,16 +165,10 @@ class VoucherController {
   };
 
   delete = async (request: Request, response: Response) => {
-    const bill_id = Number(request.params.bill_id);
     const voucher_id = Number(request.params.voucher_id);
     const token = request.get("Authorization") as string;
     const ruc = request.get("ruc") as string;
-    const result = await this.voucherService.deleteById(
-      bill_id,
-      voucher_id,
-      ruc,
-      token
-    );
+    const result = await this.voucherService.deleteById(voucher_id, ruc, token);
     response.status(result.statusCode).json(result);
   };
 }

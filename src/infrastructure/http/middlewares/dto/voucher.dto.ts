@@ -4,8 +4,10 @@ export const registerVoucherDTO = z.object({
   bank_id: z.string(),
   operation_number: z.string(),
   type_currency: z.enum(["PEN", "USD"]),
-  amount: z.string(),
+  amount_original: z.string(),
   exchange_rate: z.string(),
+  document_code: z.string(),
+  document_id: z.string(),
 });
 
 export const updateVoucherDTO = z.object({
