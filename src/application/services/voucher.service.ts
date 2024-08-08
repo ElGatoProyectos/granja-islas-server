@@ -38,6 +38,7 @@ class VoucherService {
 
       const vouchers = await prisma.voucher.findMany({
         where: { company_id: company.id, document_id, document_code },
+        include: { Bank: true },
       });
 
       return this.responseService.SuccessResponse(
