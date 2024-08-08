@@ -34,6 +34,13 @@ class ProductRouter {
     );
 
     this.router.get(
+      `${this._prefix}/report`,
+      this.authMiddleware.authorizationAdmin,
+      this.accessDataMiddleware.validateCredentials,
+      this.productController.findByReport
+    );
+
+    this.router.get(
       `${this._prefix}/:id`,
       this.authMiddleware.authorizationAdmin,
       this.accessDataMiddleware.validateCredentials,
