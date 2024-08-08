@@ -61,14 +61,14 @@ class VoucherService {
     token: string
   ) => {
     try {
-      const responseInfo = await this.infoService.getCompanyAndUser(
-        token,
-        rucFromHeader
-      );
-      if (responseInfo.error) return responseInfo;
+      // const responseInfo = await this.infoService.getCompanyAndUser(
+      //   token,
+      //   rucFromHeader
+      // );
+      // if (responseInfo.error) return responseInfo;
 
-      const { user, company }: { user: User; company: Company } =
-        responseInfo.payload;
+      // const { user, company }: { user: User; company: Company } =
+      //   responseInfo.payload;
 
       const voucher = await prisma.voucher.findFirst({
         where: {
