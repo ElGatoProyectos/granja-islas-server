@@ -47,8 +47,8 @@ class VoucherRouter {
 
     this.router.get(
       `${this._prefix}/:voucher_id/image`,
-      this.authMiddleware.authorizationUser,
-      this.accessDataMiddleware.validateCredentials,
+      // this.authMiddleware.authorizationUser,
+      // this.accessDataMiddleware.validateCredentials,
       this.voucherController.getImage
     );
   }
