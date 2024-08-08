@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
-import SunatService, { T_DataSynchronize } from "../services/sunat.service";
+import SunatService, {
+  T_DataSynchronize,
+  T_DataSynchronizeRange,
+} from "../services/sunat.service";
 
 class SunatController {
   private sunatService: SunatService;
@@ -38,7 +41,7 @@ class SunatController {
     const token = request.get("Authorization") as string;
     const ruc = request.get("ruc") as string;
 
-    const data = request.body as T_DataSynchronize;
+    const data = request.body as T_DataSynchronizeRange;
 
     // [message] esto podria venir dinamicamente de un formulario
     //   {
@@ -47,6 +50,11 @@ class SunatController {
     //     "perPage": 100
     // }
 
+    //  [message] Consideremos un nuevo formato de ingreso de data
+    // {
+    //   start:"2024-06",
+    //   end:"2024-06",
+    // }
     const result = await this.sunatService.synchronizeDataWithDatabase(
       data,
       ruc,

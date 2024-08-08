@@ -35,7 +35,10 @@ import SireService from "./sire.service";
 import SunatSecurityService from "./sunat-security.service";
 import { typeDocumentSunat } from "../models/constants/type_document.constant";
 import { I_Document_Item } from "../models/interfaces/document.interface";
-import { extractCompanyDetails } from "../../infrastructure/utils/sunat.util";
+import {
+  extractCompanyDetails,
+  getPeriodRange,
+} from "../../infrastructure/utils/sunat.util";
 import CreditNoteService from "./credit-note.service";
 import TicketService from "./ticket.service";
 const base_api_sunat = environments.BASE_API_SUNAT;
@@ -53,6 +56,11 @@ export type T_DataSynchronize = {
   period: string;
   page: number;
   perPage: number;
+};
+
+export type T_DataSynchronizeRange = {
+  start: string;
+  end: string;
 };
 
 let suppliers: Supplier[] = [];
@@ -187,58 +195,75 @@ class SunatService {
   //- Por aquí deberían pasar todas las credenciales, client_id, client_secret, username, password
 
   synchronizeDataWithDatabase = async (
-    data: T_DataSynchronize,
+    format: T_DataSynchronizeRange,
     rucFromHeader: string,
     tokenFromHeader: string
   ) => {
     try {
       // Validamos a la empresa y al usuario donde pertenece
 
-      const { payload } = await this.findDocuments(
-        data,
-        rucFromHeader,
-        tokenFromHeader
-      );
+      const range = getPeriodRange(format.start, format.end);
+      await Promise.all(
+        range.map(async (period) => {
+          const data = {
+            period,
+            page: 1,
+            perPage: 1000,
+          };
 
-      const exchange_range = await this.currencyRateDollar();
-      const { buying, selling } = exchange_range.payload;
+          const { payload } = await this.findDocuments(
+            data,
+            rucFromHeader,
+            tokenFromHeader
+          );
 
-      const comprobantes = payload.registros as I_Document_Item[];
+          const exchange_range = await this.currencyRateDollar();
+          const { buying, selling } = exchange_range.payload;
 
-      if (comprobantes) {
-        for (const item of comprobantes) {
-          const typeDocument = item.codTipoCDP;
+          const comprobantes = payload.registros as I_Document_Item[];
 
-          if (typeDocument === typeDocumentSunat.FACTURA.code) {
-            await this.synchronizeBill(
-              item,
-              rucFromHeader,
-              tokenFromHeader,
-              selling
-            );
-          } else if (typeDocument === typeDocumentSunat.BOLETA_DE_VENTA.code) {
-            await this.synchronizeTicket(
-              item,
-              rucFromHeader,
-              tokenFromHeader,
-              selling
-            );
-          } else if (typeDocument === typeDocumentSunat.NOTA_DE_CREDITO.code) {
-            await this.synchronizeCreditNote(
-              item,
-              rucFromHeader,
-              tokenFromHeader,
-              selling
-            );
-          } else if (typeDocument === typeDocumentSunat.NOTA_DE_DEBITO.code) {
-            await this.synchronizeDebitNote(
-              item,
-              rucFromHeader,
-              tokenFromHeader
-            );
+          if (comprobantes) {
+            for (const item of comprobantes) {
+              const typeDocument = item.codTipoCDP;
+
+              if (typeDocument === typeDocumentSunat.FACTURA.code) {
+                await this.synchronizeBill(
+                  item,
+                  rucFromHeader,
+                  tokenFromHeader,
+                  selling
+                );
+              } else if (
+                typeDocument === typeDocumentSunat.BOLETA_DE_VENTA.code
+              ) {
+                await this.synchronizeTicket(
+                  item,
+                  rucFromHeader,
+                  tokenFromHeader,
+                  selling
+                );
+              } else if (
+                typeDocument === typeDocumentSunat.NOTA_DE_CREDITO.code
+              ) {
+                await this.synchronizeCreditNote(
+                  item,
+                  rucFromHeader,
+                  tokenFromHeader,
+                  selling
+                );
+              } else if (
+                typeDocument === typeDocumentSunat.NOTA_DE_DEBITO.code
+              ) {
+                await this.synchronizeDebitNote(
+                  item,
+                  rucFromHeader,
+                  tokenFromHeader
+                );
+              }
+            }
           }
-        }
-      }
+        })
+      );
 
       return this.responseService.SuccessResponse(
         `Actualización realizada con éxito`
