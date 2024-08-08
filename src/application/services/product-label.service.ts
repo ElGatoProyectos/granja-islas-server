@@ -32,6 +32,23 @@ type T_FindDocumentsByLabel = {
   };
 };
 
+type T_FindByReport = {
+  params: {
+    filter: string | undefined;
+    year: number | undefined;
+    month: number | undefined;
+    supplier_group_id: string | undefined;
+  };
+  pagination: {
+    page: number;
+    limit: number;
+  };
+  headers: {
+    ruc: string;
+    token: string;
+  };
+};
+
 class ProductLabelService {
   private responseService: ResponseService;
   private infoService: InfoService;
@@ -159,7 +176,6 @@ class ProductLabelService {
           in: data.params.supplier_group_id.split(",").map(Number),
         };
       }
-      console.log(filtereds);
 
       const detailBills = await prisma.bill.findMany({ where: filtereds });
 
@@ -216,6 +232,122 @@ class ProductLabelService {
       );
     } catch (error) {
       console.log(error);
+      return this.responseService.InternalServerErrorException(
+        undefined,
+        error
+      );
+    }
+  };
+
+  findLabelsByReport = async (data: T_FindByReport) => {
+    try {
+      const skip = (data.pagination.page - 1) * data.pagination.limit;
+
+      const responseInfo = await this.infoService.getCompanyAndUser(
+        data.headers.token,
+        data.headers.ruc
+      );
+      if (responseInfo.error) return responseInfo;
+
+      const { user, company }: { user: User; company: Company } =
+        responseInfo.payload;
+
+      const detailLabels = await prisma.productLabel.findMany({
+        where: { company_id: company.id, status_deleted: false },
+      });
+
+      const detailProductLabels = await prisma.detailProductLabel.findMany({
+        where: {
+          Label: { company_id: company.id, status_deleted: false },
+        },
+        include: { Product: true, Label: true },
+      });
+
+      const products = await prisma.product.findMany({
+        where: { status_deleted: false },
+      });
+
+      const labeldsSet = new Set(
+        detailProductLabels.map((item) => item.product_label_id)
+      );
+
+      const labelIds = [...labeldsSet];
+
+      const response = await Promise.all(
+        labelIds.map(async (label_id) => {
+          // suponiendo que es todo facturas
+          //  de aqui sale el producto y el label
+          const detail = detailProductLabels.filter(
+            (i) => i.product_label_id === label_id
+          );
+          const billIds: any = detail.map((item) =>
+            item.Product ? item.Product.document_id : ""
+          );
+
+          const bills = await prisma.bill.findMany({
+            where: {
+              id: { in: billIds },
+            },
+            orderBy: { issue_date: "desc" }, // Ordenar por fecha de emisión
+            include: { Supplier: true },
+          });
+
+          if (bills.length === 0) {
+            return null;
+          }
+          // console.log("-----------------------------------------");
+          // console.log(detail);
+          // console.log(bills);
+          // console.log("-----------------------------------------");
+
+          // Datos para calcular
+          const lastBill = bills[0];
+          const lastPrice = lastBill.amount_base;
+          const currencyCode = lastBill.currency_code;
+
+          const prices = detail
+            .map((x, i) => {
+              return x.Product?.price;
+            })
+            .filter((price) => price !== undefined) as number[];
+
+          const averagePrice =
+            prices.length > 0
+              ? prices.reduce((acc, price) => acc + (price || 0), 0) /
+                prices.length
+              : 0;
+
+          const lowestPrice = prices.length > 0 ? Math.min(...prices) : 0;
+
+          const productIdMinPrice = detail.find(
+            (d) => d.Product?.price === lowestPrice
+          )?.Product?.supplier_id;
+
+          const supplier = bills.find(
+            (b) => b.supplier_id === productIdMinPrice
+          )?.Supplier;
+
+          console.log("El producto de menor precio es: ", productIdMinPrice);
+
+          const lastPurchaseDate = lastBill.issue_date;
+
+          return {
+            label: detail[0].Label?.title,
+            lastPurchaseDate,
+            currencyCode,
+            lastPrice,
+            averagePrice,
+            lowestPrice,
+            supplier,
+          };
+        })
+      );
+
+      return this.responseService.SuccessResponse(
+        "Lista de etiquetas",
+        response
+      );
+    } catch (error) {
       return this.responseService.InternalServerErrorException(
         undefined,
         error

@@ -87,6 +87,37 @@ class LabelController {
     const result = await this.labelService.findDocuments(format);
     response.status(result.statusCode).json(result);
   };
+
+  findLabelsByReport = async (request: Request, response: Response) => {
+    const ruc = request.get("ruc") as string;
+    const token = request.get("Authorization") as string;
+    const year = Number(request.query.year);
+    const month = Number(request.query.month);
+    const page = Number(request.query.page) || 1;
+    const limit = Number(request.query.limit) || 20;
+    const filter = request.query.filter as string;
+    const supplier_group_id = request.query.supplier_group_id as string;
+
+    const format = {
+      params: {
+        filter,
+        year,
+        month,
+        supplier_group_id,
+      },
+      pagination: {
+        page,
+        limit,
+      },
+      headers: {
+        ruc,
+        token,
+      },
+    };
+
+    const result = await this.labelService.findLabelsByReport(format);
+    response.status(result.statusCode).json(result);
+  };
 }
 
 export default LabelController;

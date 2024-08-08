@@ -45,6 +45,13 @@ class LabelRouter {
     );
 
     this.router.get(
+      `${this._prefix}/report`,
+      this.accessDataMiddleware.validateCredentials,
+      this.authMiddleware.authorizationAdmin,
+      this.labelController.findLabelsByReport
+    );
+
+    this.router.get(
       `${this._prefix}/:id`,
       this.accessDataMiddleware.validateCredentials,
       this.authMiddleware.authorizationUser,
